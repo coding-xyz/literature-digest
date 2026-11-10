@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>文献速递 · 汇总</title>
+<style>
+  :root {
+    --page: #fbfaf6;
+    --sheet: #ffffff;
+    --ink: #181818;
+    --muted: #303030;
+    --rule: #d9d5ca;
+    --blue: #1f4fd1;
+    --blue-bg: #e9efff;
+    --orange: #c2410c;
+    --orange-bg: #fff0e6;
+    --green: #087a5b;
+    --green-bg: #e3f6ee;
+    --purple: #6d45c7;
+    --purple-bg: #f0eaff;
+    --red: #c62828;
+    --red-bg: #fdeaea;
+    --sans: "Noto Sans SC", "Source Han Sans SC", "Segoe UI", "Microsoft YaHei", sans-serif;
+    --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", Georgia, serif;
+    --mono: "Cascadia Code", "Consolas", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .bar {
+    height: 58px; display: flex; align-items: center; gap: 16px;
+    padding: 0 18px; background: var(--sheet); border-bottom: 1px solid var(--rule);
+    position: relative; z-index: 30;
+  }
+  .brand { display: flex; align-items: baseline; gap: 9px; white-space: nowrap; }
+  .brand strong { font-family: var(--serif); font-size: 22px; letter-spacing: -.02em; }
+  .brand span { color: var(--muted); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+  .selected { flex: 1; min-width: 0; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .selected b { color: var(--ink); font-weight: 650; }
+  .bar-actions { display: flex; align-items: center; gap: 10px; }
+  .open-link { font-size: 12px; color: var(--blue); white-space: nowrap; }
+  .cal-button {
+    border: 1px solid var(--rule); background: #fff; border-radius: 5px;
+    padding: 6px 10px; font-size: 13px; font-weight: 650; color: var(--ink);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .cal-button:hover { border-color: var(--blue); color: var(--blue); }
+  .cal-button .caret { color: var(--blue); font-size: 11px; }
+
+  .popover {
+    position: absolute; right: 18px; top: 52px; width: 322px;
+    background: #fff; border: 1px solid var(--rule); border-radius: 8px;
+    box-shadow: 0 24px 70px -30px rgba(23, 33, 30, .55); z-index: 40;
+    overflow: hidden;
+  }
+  .popover[hidden] { display: none; }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 11px; border-bottom: 1px solid var(--rule); }
+  .cal-month { font-family: var(--serif); font-size: 16px; font-weight: 650; }
+  .cal-nav { display: flex; gap: 5px; }
+  .cal-nav button { width: 28px; height: 28px; border: 1px solid var(--rule); background: #fff; border-radius: 4px; color: var(--blue); font-size: 14px; }
+  .cal-nav button:hover { background: var(--blue-bg); }
+  .mode { display: flex; gap: 4px; padding: 7px 10px; border-bottom: 1px solid var(--rule); }
+  .mode button { flex: 1; border: 1px solid var(--rule); background: #fff; border-radius: 4px; padding: 4px 6px; font-size: 12px; color: var(--muted); }
+  .mode button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .cal-body { padding: 8px 10px 10px; }
+  .weekdays, .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .weekdays span { text-align: center; color: var(--muted); font-size: 10px; padding: 3px 0; }
+  .day {
+    border: 1px solid transparent; background: transparent; border-radius: 4px;
+    min-height: 34px; text-align: center; color: var(--muted); font-size: 12px;
+    position: relative; padding: 3px 0;
+  }
+  .day:hover { background: var(--blue-bg); color: var(--blue); }
+  .day.other { opacity: .35; }
+  .day.has { color: var(--ink); font-weight: 700; background: #fef4e8; }
+  .day.has::after { content: ""; position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; background: var(--orange); transform: translateX(-50%); }
+  .day.selected { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
+  .day.today { box-shadow: inset 0 0 0 1px var(--rule); }
+  .weeks { display: flex; flex-direction: column; gap: 5px; }
+  .week-row {
+    display: grid; grid-template-columns: 48px 1fr auto; gap: 8px; align-items: center;
+    border: 1px solid var(--rule); background: #fff; border-radius: 5px; padding: 7px 8px;
+    text-align: left; font-size: 12px;
+  }
+  .week-row:hover { border-color: var(--blue); background: var(--blue-bg); }
+  .week-row[aria-pressed="true"] { border-color: var(--blue); background: var(--blue-bg); }
+  .week-no { font-family: var(--mono); font-size: 11px; color: var(--blue); }
+  .week-range { color: var(--ink); }
+  .week-count { color: var(--muted); font-size: 11px; white-space: nowrap; }
+  .empty-cal { color: var(--muted); font-size: 12px; padding: 12px 4px; text-align: center; }
+  .hint { padding: 8px 10px 10px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 10.5px; }
+
+  .stage { height: calc(100vh - 58px); background: #fff; }
+  iframe.report { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+  .week-board { height: 100%; overflow: auto; padding: 24px 28px 40px; background: var(--page); }
+  .week-board[hidden] { display: none; }
+  .week-kicker { color: var(--orange); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+  .week-title { margin: 5px 0 3px; font-family: var(--serif); font-size: clamp(26px, 4vw, 38px); font-weight: 650; letter-spacing: -.02em; }
+  .week-sub { margin: 0 0 18px; color: var(--muted); font-size: 13px; }
+  .week-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin-bottom: 22px; }
+  .week-day { border: 1px solid var(--rule); border-radius: 6px; background: #fff; min-height: 106px; padding: 8px; text-align: left; }
+  .week-day:hover { border-color: var(--blue); }
+  .week-day .dow { color: var(--muted); font-size: 10px; }
+  .week-day .num { display: block; margin-top: 2px; font-family: var(--serif); font-size: 22px; line-height: 1.1; }
+  .week-day .n { display: block; margin-top: 9px; color: var(--orange); font-size: 10.5px; }
+  .week-day.empty { background: transparent; border-style: dashed; color: var(--muted); }
+  .week-day.has-report { background: #fffaf2; }
+  .week-list { display: grid; gap: 8px; max-width: 920px; }
+  .week-report { display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid var(--rule); background: #fff; border-radius: 6px; padding: 11px 13px; }
+  .week-report .r-date { font-family: var(--mono); font-size: 12px; color: var(--blue); }
+  .week-report .r-title { font-size: 13px; color: var(--ink); margin-top: 2px; }
+  .week-report .r-meta { color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .week-report button { border: 1px solid var(--blue); background: var(--blue); color: #fff; border-radius: 4px; padding: 4px 10px; font-size: 12px; white-space: nowrap; }
+  .week-empty { border: 1px dashed var(--rule); border-radius: 6px; padding: 26px; color: var(--muted); background: #fff; }
+  @media (max-width: 760px) {
+    .bar { gap: 8px; padding: 0 10px; }
+    .brand strong { font-size: 19px; }
+    .brand span, .selected { display: none; }
+    .bar-actions { margin-left: auto; }
+    .popover { right: 8px; width: min(322px, calc(100vw - 16px)); }
+    .week-board { padding: 16px 12px 30px; }
+    .week-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .week-report { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="brand"><strong>文献速递</strong><span>汇总</span></div>
+  <div class="selected" id="selectedLabel">加载中…</div>
+  <div class="bar-actions">
+    <a class="open-link" id="openLink" href="#" target="_blank" rel="noopener">在新标签打开</a>
+    <button class="cal-button" id="calButton" type="button" aria-expanded="false">选择日期 <span class="caret">▾</span></button>
+  </div>
+  <div class="popover" id="popover" hidden>
+    <div class="cal-head">
+      <div class="cal-month" id="calMonth">—</div>
+      <div class="cal-nav">
+        <button type="button" id="prevMonth" aria-label="上个月">‹</button>
+        <button type="button" id="nextMonth" aria-label="下个月">›</button>
+      </div>
+    </div>
+    <div class="mode" role="group" aria-label="日历模式">
+      <button type="button" data-mode="day" aria-pressed="true">日</button>
+      <button type="button" data-mode="week" aria-pressed="false">周</button>
+    </div>
+    <div class="cal-body" id="calBody"></div>
+    <div class="hint" id="calHint">橙色点表示有报告；点击日期切换报告。</div>
+  </div>
+</header>
+
+<main class="stage">
+  <iframe class="report" id="reportFrame" title="每日文献报告"></iframe>
+  <section class="week-board" id="weekBoard" hidden></section>
+</main>
+
+<script id="reports-data" type="application/json">{"generated_at":"2026-11-10T16:58:53+08:00","reports":[{"date":"2026-11-10","file":"reports/2026-11-10.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-09","file":"reports/2026-11-09.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":5,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"}]}</script>
+<script>
+(function () {
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("reports-data").textContent);
+  const REPORTS = Array.isArray(DATA.reports) ? DATA.reports : [];
+  const byDate = new Map(REPORTS.map(r => [r.date, r]));
+  const state = { mode: "day", selectedDate: "", selectedWeek: "", month: new Date() };
+  const $ = (s) => document.querySelector(s);
+  const pad = (n) => String(n).padStart(2, "0");
+  const fmtDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const isoWeek = (d) => {
+    const x = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const day = x.getUTCDay() || 7;
+    x.setUTCDate(x.getUTCDate() + 4 - day);
+    const y0 = new Date(Date.UTC(x.getUTCFullYear(), 0, 1));
+    const week = Math.ceil((((x - y0) / 86400000) + 1) / 7);
+    return { year: x.getUTCFullYear(), week };
+  };
+  function weekKey(d) { const w = isoWeek(d); return `${w.year}-W${pad(w.week)}`; }
+  function weekStart(d) { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const day = x.getDay() || 7; x.setDate(x.getDate() - day + 1); return x; }
+  function weekEnd(d) { const x = weekStart(d); x.setDate(x.getDate() + 6); return x; }
+  function weekStartFromKey(key) {
+    const [y, w] = key.split("-W").map(Number);
+    const jan4 = new Date(y, 0, 4);
+    const s = weekStart(jan4);
+    s.setDate(s.getDate() + (w - 1) * 7);
+    return s;
+  }
+  const fmtRange = (a, b) => `${a.getFullYear()}-${pad(a.getMonth() + 1)}-${pad(a.getDate())} — ${b.getFullYear()}-${pad(b.getMonth() + 1)}-${pad(b.getDate())}`;
+  const esc = (v) => String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  const sorted = REPORTS.slice().sort((a, b) => b.date.localeCompare(a.date));
+  const latest = sorted[0];
+  if (latest) {
+    const d = new Date(latest.date + "T12:00:00");
+    state.selectedDate = latest.date;
+    state.selectedWeek = weekKey(d);
+    state.month = new Date(d.getFullYear(), d.getMonth(), 1);
+  } else {
+    const now = new Date();
+    state.month = new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+
+  function reportsInWeek(key) { return REPORTS.filter(r => weekKey(new Date(r.date + "T12:00:00")) === key); }
+  function setMode(mode) {
+    state.mode = mode;
+    document.querySelectorAll(".mode button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    $("#calHint").textContent = mode === "day" ? "橙色点表示有报告；点击日期切换报告。" : "按 ISO 周查看；点击某周展示该周报告。";
+    if (mode === "week") renderWeekBoard(); else showDay(state.selectedDate);
+    renderCalendar();
+  }
+  function showDay(date) {
+    if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      const d = new Date(date + "T12:00:00");
+      state.selectedDate = date;
+      state.selectedWeek = weekKey(d);
+    }
+    const report = byDate.get(date);
+    $("#weekBoard").hidden = true;
+    $("#reportFrame").hidden = false;
+    if (report) {
+      $("#reportFrame").src = report.file;
+      $("#selectedLabel").innerHTML = `<b>${esc(date)}</b> · ${esc(report.title || "文献速递")}${report.count ? ` · ${report.count} 篇` : ""}`;
+      $("#openLink").href = report.file;
+      $("#openLink").style.display = "";
+    } else {
+      $("#reportFrame").src = "about:blank";
+      $("#selectedLabel").innerHTML = `<b>${esc(date)}</b> · 这一天还没有报告`;
+      $("#openLink").style.display = "none";
+    }
+    $("#calButton").textContent = date + " ▾";
+  }
+  function showWeek(key) {
+    state.selectedWeek = key;
+    $("#reportFrame").hidden = true;
+    $("#weekBoard").hidden = false;
+    $("#openLink").style.display = "none";
+    $("#selectedLabel").innerHTML = `<b>${esc(key)}</b> · 周视图`;
+    $("#calButton").textContent = key + " ▾";
+    renderWeekBoard();
+  }
+  function openReport(date) {
+    state.selectedDate = date;
+    state.mode = "day";
+    document.querySelectorAll(".mode button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === "day")));
+    showDay(date);
+    $("#popover").hidden = true;
+    $("#calButton").setAttribute("aria-expanded", "false");
+  }
+  function renderWeekBoard() {
+    const key = state.selectedWeek;
+    const list = reportsInWeek(key).sort((a, b) => a.date.localeCompare(b.date));
+    const start = weekStartFromKey(key), end = weekEnd(start);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start); d.setDate(start.getDate() + i);
+      const ds = fmtDate(d);
+      const r = byDate.get(ds);
+      days.push(`<button class="week-day ${r ? "has-report" : "empty"}" ${r ? `data-date="${ds}"` : "disabled"}><span class="dow">${["一","二","三","四","五","六","日"][i]}</span><span class="num">${d.getDate()}</span><span class="n">${r ? "有报告" : "—"}</span></button>`);
+    }
+    const cards = list.length ? list.map(r => `<div class="week-report"><div><div class="r-date">${esc(r.date)}</div><div class="r-title">${esc(r.title || "文献速递")}</div><div class="r-meta">${r.count ? `${r.count} 篇` : ""}${r.mustRead ? ` · 必读 ${r.mustRead}` : ""}</div></div><button type="button" data-open="${esc(r.date)}">打开报告</button></div>`).join("") : `<div class="week-empty">这一周还没有报告。</div>`;
+    $("#weekBoard").innerHTML = `<div class="week-kicker">Week view</div><h1 class="week-title">${esc(key)}</h1><p class="week-sub">${fmtRange(start, end)} · ${list.length} 份日报</p><div class="week-grid">${days.join("")}</div><div class="week-list">${cards}</div>`;
+    $("#weekBoard").querySelectorAll("[data-date]").forEach(b => b.addEventListener("click", () => openReport(b.dataset.date)));
+    $("#weekBoard").querySelectorAll("[data-open]").forEach(b => b.addEventListener("click", () => openReport(b.dataset.open)));
+  }
+  function renderCalendar() {
+    const y = state.month.getFullYear(), m = state.month.getMonth();
+    $("#calMonth").textContent = `${y} 年 ${m + 1} 月`;
+    if (state.mode === "week") { renderWeekList(y, m); return; }
+    const first = new Date(y, m, 1);
+    const start = weekStart(first);
+    const cells = [];
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(start); d.setDate(start.getDate() + i);
+      const ds = fmtDate(d);
+      const inMonth = d.getMonth() === m;
+      const has = byDate.has(ds);
+      const cls = ["day", inMonth ? "" : "other", has ? "has" : "", ds === state.selectedDate ? "selected" : "", ds === fmtDate(new Date()) ? "today" : ""].filter(Boolean).join(" ");
+      cells.push(`<button class="${cls}" type="button" data-date="${ds}">${d.getDate()}</button>`);
+    }
+    $("#calBody").innerHTML = `<div class="weekdays">${["一","二","三","四","五","六","日"].map(d => `<span>${d}</span>`).join("")}</div><div class="days">${cells.join("")}</div>`;
+    $("#calBody").querySelectorAll("[data-date]").forEach(b => b.addEventListener("click", () => openReport(b.dataset.date)));
+  }
+  function renderWeekList(y, m) {
+    const first = new Date(y, m, 1), last = new Date(y, m + 1, 0);
+    const seen = new Set(); const rows = [];
+    for (let d = new Date(first); d <= last; d.setDate(d.getDate() + 1)) {
+      const key = weekKey(d);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const n = reportsInWeek(key).length;
+      const ws = weekStart(d), we = weekEnd(d);
+      rows.push(`<button class="week-row" type="button" data-week="${key}" aria-pressed="${state.selectedWeek === key}"><span class="week-no">${key.split("-W")[1]}</span><span class="week-range">${fmtRange(ws, we)}</span><span class="week-count">${n} 份</span></button>`);
+    }
+    $("#calBody").innerHTML = `<div class="weeks">${rows.join("")}</div>`;
+    $("#calBody").querySelectorAll("[data-week]").forEach(b => b.addEventListener("click", () => {
+      state.selectedWeek = b.dataset.week;
+      state.mode = "week";
+      document.querySelectorAll(".mode button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.mode === "week")));
+      showWeek(b.dataset.week);
+      $("#popover").hidden = true;
+      $("#calButton").setAttribute("aria-expanded", "false");
+    }));
+  }
+
+  $("#calButton").addEventListener("click", () => {
+    const open = $("#popover").hidden;
+    $("#popover").hidden = !open;
+    $("#calButton").setAttribute("aria-expanded", String(open));
+  });
+  $("#prevMonth").addEventListener("click", () => { state.month = new Date(state.month.getFullYear(), state.month.getMonth() - 1, 1); renderCalendar(); });
+  $("#nextMonth").addEventListener("click", () => { state.month = new Date(state.month.getFullYear(), state.month.getMonth() + 1, 1); renderCalendar(); });
+  document.querySelectorAll(".mode button").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#popover") && !e.target.closest("#calButton")) {
+      $("#popover").hidden = true;
+      $("#calButton").setAttribute("aria-expanded", "false");
+    }
+  });
+
+  if (latest) {
+    showDay(state.selectedDate);
+  } else {
+    $("#selectedLabel").textContent = "reports 目录里还没有日报";
+    $("#reportFrame").src = "about:blank";
+  }
+  renderCalendar();
+})();
+</script>
+</body>
+</html>

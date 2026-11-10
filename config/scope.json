@@ -1,0 +1,148 @@
+{
+  "schema_version": 2,
+  "topic": {
+    "name": "容错量子计算与超导量子模拟",
+    "name_en": "Fault-Tolerant Quantum Computing & Superconducting Simulation",
+    "description": "C1 容错量子计算设计；C2 超导量子计算机模拟仿真（芯片/电路量子化、测控/动力学、纠错线路大规模仿真）。",
+    "include_keywords": [
+      "quantum error correction",
+      "fault-tolerant",
+      "fault tolerant",
+      "surface code",
+      "qLDPC",
+      "quantum LDPC",
+      "logical qubit",
+      "magic state",
+      "lattice surgery",
+      "transpilation",
+      "compilation",
+      "decoder",
+      "decoding",
+      "syndrome",
+      "noise characterization",
+      "crosstalk",
+      "leakage",
+      "tomography",
+      "superconducting",
+      "transmon",
+      "fluxonium",
+      "tunable coupler",
+      "circuit quantization",
+      "circuit QED",
+      "normal mode",
+      "capacitance matrix",
+      "master equation",
+      "lindblad",
+      "magnus",
+      "1/f noise",
+      "control pulse",
+      "pauli propagation",
+      "pauli frame",
+      "pauli truncation",
+      "stabilizer simulation",
+      "circuit-level noise",
+      "detector error model",
+      "large-scale simulation"
+    ],
+    "exclude_keywords": [
+      "retraction",
+      "erratum",
+      "correction",
+      "comment on",
+      "reply to",
+      "book review",
+      "jobs",
+      "meeting",
+      "workshop"
+    ]
+  },
+  "time": {
+    "timezone": "Asia/Shanghai",
+    "lookback_days": 7,
+    "report_time": "09:30",
+    "refresh_time": "18:00"
+  },
+  "sources": {
+    "arxiv": {
+      "enabled": true,
+      "label": "arXiv",
+      "categories": [
+        "quant-ph",
+        "cs.ET"
+      ],
+      "max_results": 900,
+      "page_size": 200
+    },
+    "eprint": {
+      "enabled": true,
+      "label": "Cryptology ePrint Archive",
+      "feed": "https://eprint.iacr.org/rss/rss.xml",
+      "detail_base": "https://eprint.iacr.org"
+    },
+    "nature": {
+      "enabled": true,
+      "label": "Nature 系列",
+      "feeds": {
+        "Nature": "https://www.nature.com/nature.rss",
+        "Nature Physics": "https://www.nature.com/nphys.rss",
+        "Nature Communications": "https://www.nature.com/ncomms.rss",
+        "npj Quantum Information": "https://www.nature.com/npjqi.rss",
+        "Communications Physics": "https://www.nature.com/commsphys.rss",
+        "Nature Electronics": "https://www.nature.com/natelectron.rss",
+        "Nature Materials": "https://www.nature.com/nmat.rss",
+        "Nature Nanotechnology": "https://www.nature.com/nnano.rss"
+      },
+      "research_doi_prefixes": [
+        "10.1038/s415",
+        "10.1038/s414",
+        "10.1038/s419"
+      ]
+    },
+    "pr": {
+      "enabled": true,
+      "label": "Physical Review 系列",
+      "journals": {
+        "PRX Quantum": "2691-3399",
+        "Physical Review X": "2160-3308",
+        "Physical Review Research": "2643-1564",
+        "Physical Review Letters": "0031-9007",
+        "Physical Review A": "2469-9926",
+        "Physical Review Applied": "2331-7019",
+        "Reviews of Modern Physics": "0034-6861"
+      },
+      "rows_per_journal": 100
+    },
+    "quantum": {
+      "enabled": true,
+      "label": "Quantum",
+      "feed": "https://quantum-journal.org/feed/"
+    },
+    "extra_journals": {
+      "scienceadv": {
+        "enabled": true,
+        "label": "Science Advances",
+        "issn": "2375-2548"
+      },
+      "scipost": {
+        "enabled": true,
+        "label": "SciPost Physics",
+        "issn": "2542-4653"
+      },
+      "avs": {
+        "enabled": true,
+        "label": "AVS Quantum Science",
+        "issn": "2639-0213"
+      },
+      "qst": {
+        "enabled": true,
+        "label": "Quantum Science and Technology",
+        "issn": "2058-9565"
+      }
+    }
+  },
+  "selection": {
+    "daily_primary_limit": 12,
+    "watchlist_limit": 0,
+    "max_per_source": 6
+  }
+}

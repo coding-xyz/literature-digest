@@ -1,0 +1,23 @@
+# Build-time data: downloaded PDFs, raw API snapshots, candidates, reviews, state.
+# The published site only needs index.html + reports/ + assets/ + SCOPE.md.
+data/
+
+# Local QA / browser artifacts
+**/edge-profile*/
+**/rendered-dom*.html
+**/template.js
+**/main.js
+**/index.js
+
+# Python / OS
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# Secrets
+.env
+.env.*
