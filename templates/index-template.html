@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>文献速递 · 汇总</title>
 <style>
   :root {
@@ -80,8 +83,8 @@
   .day.other { opacity: .35; }
   .day.has { color: var(--ink); font-weight: 700; background: #fef4e8; }
   .day.has::after { content: ""; position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; background: var(--orange); transform: translateX(-50%); }
-  .day.selected { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
-  .day.today.selected { color: var(--red); }
+  .day.is-selected { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
+  .day.today.is-selected { color: var(--red); }
   .day.today { color: var(--red); font-weight: 700; }
   .weeks { display: flex; flex-direction: column; gap: 5px; }
   .week-row {
@@ -299,7 +302,7 @@
       const ds = fmtDate(d);
       const inMonth = d.getMonth() === m;
       const has = byDate.has(ds);
-      const cls = ["day", inMonth ? "" : "other", has ? "has" : "", ds === state.selectedDate ? "selected" : "", ds === fmtDate(new Date()) ? "today" : ""].filter(Boolean).join(" ");
+      const cls = ["day", inMonth ? "" : "other", has ? "has" : "", ds === state.selectedDate ? "is-selected" : "", ds === fmtDate(new Date()) ? "today" : ""].filter(Boolean).join(" ");
       cells.push(`<button class="${cls}" type="button" data-date="${ds}">${d.getDate()}</button>`);
     }
     $("#calBody").innerHTML = `<div class="weekdays">${["一","二","三","四","五","六","日"].map(d => `<span>${d}</span>`).join("")}</div><div class="days">${cells.join("")}</div>`;
