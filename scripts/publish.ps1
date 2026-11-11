@@ -38,11 +38,14 @@ try {
 
     $Token = $env:GH_TOKEN
     if ([string]::IsNullOrWhiteSpace($Token)) { $Token = $env:GITHUB_TOKEN }
+    # A scheduled DSH process may have been started before the user env var was set.
+    if ([string]::IsNullOrWhiteSpace($Token)) { $Token = [Environment]::GetEnvironmentVariable('GH_TOKEN', 'User') }
+    if ([string]::IsNullOrWhiteSpace($Token)) { $Token = [Environment]::GetEnvironmentVariable('GITHUB_TOKEN', 'User') }
 
     if (-not [string]::IsNullOrWhiteSpace($Token)) {
         $pair = "x-access-token:$Token"
         $b64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($pair))
-        git -c "http.extraHeader=AUTHORIZATION: basic $b64" push $Remote $Branch
+        git -c http.sslBackend=openssl -c "http.extraHeader=AUTHORIZATION: basic $b64" push $Remote $Branch
     } else {
         # Uses Git Credential Manager / existing HTTPS credentials.
         git push $Remote $Branch
