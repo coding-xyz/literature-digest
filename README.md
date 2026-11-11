@@ -10,7 +10,8 @@
 |---|---|
 | [`SCOPE.md`](SCOPE.md) | 两个核心方向、关键词、边界/排除、检索网址 |
 | [`templates/report-template.html`](templates/report-template.html) | 文章列表模板，含演示数据与 MathJax |
-| [`index.html`](index.html) | 汇总页：右上角日历、日/周切换、嵌入每日报告 |\n| [`reports/2026-11-09.html`](reports/2026-11-09.html) | 本次 13 篇的完整报告 |
+| [`index.html`](index.html) | 汇总页：右上角日历、日/周切换、嵌入每日报告 |
+| [`reports/2026-11-09.html`](reports/2026-11-09.html) | 2026-11-09 报告 |
 | `data/2026-11-09/report.json` | 人工提炼后的报告数据（仅本地，不同步 GitHub） |
 | `data/2026-11-09/reviews/` | 13 份全文 AI 审稿 JSON（仅本地） |
 | `data/2026-11-09/pdfs/` | 13 篇全文 PDF 与抽取文本（仅本地） |
@@ -126,12 +127,28 @@ https://<你的用户名>.github.io/<仓库名>/
 
 ```powershell
 python scripts\build_report.py --date 2026-11-11
-git add reports\2026-11-11.html index.html
-git commit -m "add 2026-11-11 report"
-git push
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\publish.ps1 -Date 2026-11-11
 ```
 
-只提交生成后的 `reports/*.html` 和根目录 `index.html`。`data/` 留在本地，不进入 GitHub。
+`publish.ps1` 只提交 `index.html` 和 `reports/`，不提交 `data/`，然后 `git push origin main`。Pages 的 Actions workflow 会自动重新部署。
+
+### 自动 push 的凭据
+
+当前 DSH 沙箱里的 Git 凭据可能不可用，建议给用户环境设置一个 **fine-grained PAT**（只勾选该仓库的 **Contents: Read and write**）：
+
+```powershell
+[Environment]::SetEnvironmentVariable("GH_TOKEN", "github_pat_xxx", "User")
+```
+
+设置后重启 DSH / 终端，让定时任务继承 `GH_TOKEN`。`publish.ps1` 会用这个 token 通过 HTTPS 推送，不把 token 写进仓库。没有 token 时会回退到 Git Credential Manager；若失败，任务会明确报错而不是假装成功。
+
+一键执行固定部分：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_pipeline.ps1 -Date 2026-11-11 -SkipCollect -Publish
+```
+
+`-SkipCollect` 用在 AI 已经写完 `report.json` / `reviews/` 之后；`-Publish` 会调用 `publish.ps1`。只提交生成后的网页，不进入 GitHub。
 
 ### 注意
 

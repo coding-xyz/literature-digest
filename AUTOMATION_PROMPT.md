@@ -56,6 +56,9 @@
    python scripts\merge_reviews.py --date DATE
    python scripts\build_report.py --date DATE
    build_report.py 会完成字段校验、来源统计、HTML 生成，并自动调用 build_index.py 重建根目录 index.html。
+   然后发布到 GitHub Pages：
+   powershell -NoProfile -ExecutionPolicy Bypass -File scripts\publish.ps1 -Date DATE
+   publish.ps1 只提交 index.html 和 reports/，不会提交 data/。
    不要手改 reports\DATE.html 或 index.html；版式只能来自 templates 下的模板。
 9. 用 Python 做最小校验（不要用浏览器）：
    - reports\DATE.html 与根目录 index.html 都存在；
@@ -66,8 +69,8 @@
    如失败，修数据后重跑 build_report.py，不要发布旧版。
 
 【任务完成条件】
-必须成功执行 build_report.py，并生成 reports\DATE.html 与 index.html，才算完成。
-没有执行 build_report.py、或它失败时，不得回复“已完成”。
+必须成功执行 build_report.py，生成 reports\DATE.html 与 index.html，并成功执行 publish.ps1 完成 git push，才算完成。
+没有执行 build_report.py、build_report.py 失败、或 publish.ps1 推送失败时，不得回复“已完成”。
 10. 最终回复：
    - 报告路径；
    - 收录篇数、必读数、来源数、抓取/初筛/收录统计；

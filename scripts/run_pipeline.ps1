@@ -1,5 +1,7 @@
 param(
-    [string]$Date = (Get-Date -Format "yyyy-MM-dd")
+    [string]$Date = (Get-Date -Format "yyyy-MM-dd"),
+    [switch]$SkipCollect,
+    [switch]$Publish
 )
 
 $ErrorActionPreference = "Stop"
@@ -16,9 +18,13 @@ if (Test-Path -LiteralPath $WorkspacePython) {
 
 Push-Location $Root
 try {
-    Write-Host "[1/3] collect $Date"
-    & $Python "scripts\collect.py" --date $Date
-    if ($LASTEXITCODE -ne 0) { throw "collect.py failed" }
+    if (-not $SkipCollect) {
+        Write-Host "[1/4] collect $Date"
+        & $Python "scripts\collect.py" --date $Date
+        if ($LASTEXITCODE -ne 0) { throw "collect.py failed" }
+    } else {
+        Write-Host "[1/4] skip collect (using existing data\$Date)"
+    }
 
     $Report = Join-Path $Root "data\$Date\report.json"
     $Reviews = Join-Path $Root "data\$Date\reviews"
@@ -29,13 +35,21 @@ try {
         throw "AI reviews are not ready: $Reviews is missing"
     }
 
-    Write-Host "[2/3] merge reviews"
+    Write-Host "[2/4] merge reviews"
     & $Python "scripts\merge_reviews.py" --date $Date
     if ($LASTEXITCODE -ne 0) { throw "merge_reviews.py failed" }
 
-    Write-Host "[3/3] build report"
+    Write-Host "[3/4] build report"
     & $Python "scripts\build_report.py" --date $Date
     if ($LASTEXITCODE -ne 0) { throw "build_report.py failed" }
+
+    if ($Publish) {
+        Write-Host "[4/4] publish to GitHub"
+        & (Join-Path $PSScriptRoot "publish.ps1") -Date $Date
+        if ($LASTEXITCODE -ne 0) { throw "publish.ps1 failed" }
+    } else {
+        Write-Host "[4/4] publish skipped (use -Publish to push)"
+    }
 
     Write-Host "Done: reports\$Date.html"
 } finally {
