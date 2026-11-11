@@ -41,7 +41,7 @@
     position: relative; z-index: 30;
   }
   .brand { display: flex; align-items: baseline; gap: 9px; white-space: nowrap; }
-  .brand strong { font-family: var(--serif); font-size: 23px; letter-spacing: .09em; font-weight: 700; }
+  .brand strong { font-family: var(--serif); font-size: 23px; letter-spacing: .12em; font-weight: 700; }
   .brand span { color: var(--muted); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
   .bar .selected { flex: 1; min-width: 0; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .bar .selected b { color: var(--ink); font-weight: 650; }
@@ -170,13 +170,17 @@
   <section class="week-board" id="weekBoard" hidden></section>
 </main>
 
-<script id="reports-data" type="application/json">{"generated_at":"2026-11-11T10:52:33+08:00","reports":[{"date":"2026-11-11","file":"reports/2026-11-11.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-10","file":"reports/2026-11-10.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-09","file":"reports/2026-11-09.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":5,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"}]}</script>
+<script id="reports-data" type="application/json">{"generated_at":"2026-11-11T11:01:40+08:00","reports":[{"date":"2026-11-11","file":"reports/2026-11-11.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-10","file":"reports/2026-11-10.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-09","file":"reports/2026-11-09.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":5,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"}]}</script>
 <script>
 (function () {
   "use strict";
   const DATA = JSON.parse(document.getElementById("reports-data").textContent);
   const REPORTS = Array.isArray(DATA.reports) ? DATA.reports : [];
   const byDate = new Map(REPORTS.map(r => [r.date, r]));
+  function fileWithVersion(file) {
+    const v = String(DATA.generated_at || "").replace(/\D/g, "").slice(0, 12);
+    return v ? file + "?v=" + v : file;
+  }
   const state = { mode: "day", selectedDate: "", selectedWeek: "", month: new Date() };
   const $ = (s) => document.querySelector(s);
   const pad = (n) => String(n).padStart(2, "0");
@@ -233,9 +237,9 @@
     $("#weekBoard").hidden = true;
     $("#reportFrame").hidden = false;
     if (report) {
-      $("#reportFrame").src = report.file;
+      $("#reportFrame").src = fileWithVersion(report.file);
       $("#selectedLabel").innerHTML = `<b>${esc(date)}</b> · ${esc(report.title || "文献速递")}${report.count ? ` · ${report.count} 篇` : ""}`;
-      $("#openLink").href = report.file;
+      $("#openLink").href = fileWithVersion(report.file);
       $("#openLink").style.display = "";
     } else {
       $("#reportFrame").src = "about:blank";

@@ -62,7 +62,7 @@
   .tool { border: 1px solid var(--rule); background: #fff; color: var(--blue); border-radius: 4px; padding: 5px 10px; font-size: 13px; }
   .tool:hover { border-color: var(--blue); background: var(--blue-bg); }
   .title-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 26px; margin-top: 13px; }
-  h1 { margin: 0; font-family: var(--serif); font-size: clamp(36px, 4.6vw, 44px); line-height: 1.12; font-weight: 700; letter-spacing: .06em; color: #111; }
+  h1 { margin: 0; font-family: var(--serif); font-size: clamp(36px, 4.6vw, 44px); line-height: 1.12; font-weight: 700; letter-spacing: .08em; color: #111; }
   .subtitle { margin: 8px 0 0; font-size: clamp(19px, 2.4vw, 23px); line-height: 1.45; color: var(--ink); font-weight: 650; }
   .subtitle::after { content: ""; display: block; width: 58px; height: 4px; margin-top: 11px; background: linear-gradient(90deg, var(--orange), var(--amber)); }
   .issue { text-align: right; flex: none; }
@@ -79,7 +79,7 @@
   .coverage .nums { color: var(--ink); font-weight: 500; }
   .coverage-body { max-height: 430px; overflow: auto; }
   .coverage-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .coverage-table th { text-align: left; padding: 6px 11px; background: #faf9f4; color: var(--label, #333); font-size: 11.5px; font-weight: 650; letter-spacing: .06em; border-bottom: 1px solid var(--rule); }
+  .coverage-table th { text-align: left; padding: 6px 11px; background: #faf9f4; color: var(--label, #333); font-size: 11.5px; font-weight: 650; letter-spacing: .08em; border-bottom: 1px solid var(--rule); }
   .coverage-table td { padding: 7px 11px; border-bottom: 1px solid #ece8de; color: var(--ink); }
   .coverage-table tr:last-child td { border-bottom: 0; }
   .coverage-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -144,7 +144,7 @@
   .review-body { padding: 8px 13px 12px; border-top: 1px solid #f0dfb4; }
   .review-block { padding: 9px 0; border-bottom: 1px solid #f0dfb4; }
   .review-block:last-of-type { border-bottom: 0; }
-  .review-block h3 { margin: 0 0 4px; color: #6b4300; font-size: 12.5px; letter-spacing: .06em; font-weight: 700; }
+  .review-block h3 { margin: 0 0 4px; color: #6b4300; font-size: 12.5px; letter-spacing: .08em; font-weight: 700; }
   .review-block ul { margin: 0; padding-left: 19px; }
   .review-block li { margin: 3px 0; color: var(--ink); font-size: 14px; line-height: 1.75; }
   .review-meta { margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
@@ -168,7 +168,7 @@
   .toc-no { font-family: var(--mono); font-size: 11px; color: var(--orange); }
 
   /* desktop: persistent left sidebar, starts open, can collapse */
-  @media (min-width: 900px) {
+  @media (min-width: 820px) {
     body { transition: padding-left .18s ease; }
     body.toc-open { padding-left: 264px; }
     .toc { left: 0; top: 0; bottom: 0; width: 264px; height: 100vh; overflow: auto; background: #fff; border-right: 1px solid var(--rule); padding: 18px 13px 24px; transition: width .18s ease, padding .18s ease; }
@@ -181,9 +181,10 @@
   }
 
   /* mobile: narrow vertical floating tab */
-  @media (max-width: 899.98px) {
-    .toc { left: 12px; top: auto; bottom: 14px; }
-    .toc-toggle { display: block; writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: .14em; line-height: 1; padding: 14px 7px; min-height: 96px; width: 34px; border-radius: 8px; box-shadow: 0 10px 30px -12px rgba(23,33,30,.5); }
+  @media (max-width: 819.98px) {
+    .toc { left: 0; top: auto; bottom: 18px; }
+    .toc-toggle { display: block; writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: .10em; line-height: 1; padding: 9px 6px; min-height: 64px; width: 30px; font-size: 12px; border-radius: 0 7px 7px 0; box-shadow: 0 8px 24px -12px rgba(23,33,30,.5); touch-action: none; }
+    .toc.right .toc-toggle { border-radius: 7px 0 0 7px; }
     .toc-panel { position: fixed; right: 10px; left: 10px; bottom: 58px; top: auto; width: auto; max-height: 58vh; overflow: auto; border: 1px solid var(--rule); border-radius: 7px; box-shadow: 0 24px 70px -30px rgba(23,33,30,.55); }
   }
   @media print { body.toc-open { padding-left: 0 !important; } .toc { display: none !important; } }
@@ -191,7 +192,7 @@
   /* key nums + footer */
 
   .keynums { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; margin-top: 12px; }
-  .keynums .label { color: var(--muted); font-size: 11.5px; letter-spacing: .06em; margin-right: 3px; }
+  .keynums .label { color: var(--muted); font-size: 11.5px; letter-spacing: .08em; margin-right: 3px; }
   .kn { display: inline-block; border: 1px solid var(--rule); border-radius: 3px; padding: 2px 7px; font-family: var(--mono); font-size: 12px; color: var(--ink); background: #fff; }
   .entry-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-top: 13px; }
   .entry-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-left: auto; }
@@ -688,13 +689,14 @@ window.MathJax = {
   function setTocPosition(left, top) {
     if (isDesktopToc()) return;
     const box = $("#toc");
-    const maxLeft = Math.max(8, window.innerWidth - box.offsetWidth - 8);
+    const maxLeft = Math.max(0, window.innerWidth - box.offsetWidth);
     const maxTop = Math.max(56, window.innerHeight - box.offsetHeight - 8);
-    const x = Math.max(8, Math.min(maxLeft, Math.round(left)));
+    const x = Math.max(0, Math.min(maxLeft, Math.round(left)));
     const y = Math.max(56, Math.min(maxTop, Math.round(top)));
     box.style.left = x + "px";
     box.style.top = y + "px";
     box.style.bottom = "auto";
+    box.classList.toggle("right", x > window.innerWidth / 2);
     return { left: x, top: y };
   }
   function saveTocPosition() {
@@ -708,8 +710,8 @@ window.MathJax = {
     const box = $("#toc");
     const r = box.getBoundingClientRect();
     const left = (r.left + r.width / 2 < window.innerWidth / 2)
-      ? 12
-      : Math.max(8, window.innerWidth - r.width - 12);
+      ? 0
+      : Math.max(0, window.innerWidth - r.width);
     const pos = setTocPosition(left, r.top);
     if (pos) { try { localStorage.setItem(TOC_POS_KEY, JSON.stringify(pos)); } catch (e) {} }
   }
