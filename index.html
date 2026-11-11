@@ -39,8 +39,8 @@
   .brand { display: flex; align-items: baseline; gap: 9px; white-space: nowrap; }
   .brand strong { font-family: var(--serif); font-size: 22px; letter-spacing: -.02em; }
   .brand span { color: var(--muted); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
-  .selected { flex: 1; min-width: 0; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .selected b { color: var(--ink); font-weight: 650; }
+  .bar .selected { flex: 1; min-width: 0; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar .selected b { color: var(--ink); font-weight: 650; }
   .bar-actions { display: flex; align-items: center; gap: 10px; }
   .open-link { font-size: 12px; color: var(--blue); white-space: nowrap; }
   .cal-button {
@@ -51,6 +51,8 @@
   .cal-button:hover { border-color: var(--blue); color: var(--blue); }
   .cal-button .caret { color: var(--blue); font-size: 11px; }
 
+  .cal-backdrop { position: fixed; inset: 58px 0 0 0; z-index: 25; background: transparent; }
+  .cal-backdrop[hidden] { display: none; }
   .popover {
     position: absolute; right: 18px; top: 52px; width: 322px;
     background: #fff; border: 1px solid var(--rule); border-radius: 8px;
@@ -124,7 +126,7 @@
   @media (max-width: 760px) {
     .bar { gap: 8px; padding: 0 10px; }
     .brand strong { font-size: 19px; }
-    .brand span, .selected { display: none; }
+    .brand span, .bar .selected { display: none; }
     .bar-actions { margin-left: auto; }
     .popover { right: 8px; width: min(322px, calc(100vw - 16px)); }
     .week-board { padding: 16px 12px 30px; }
@@ -157,13 +159,14 @@
     <div class="hint" id="calHint">橙色点表示有报告；点击日期切换报告。</div>
   </div>
 </header>
+<div class="cal-backdrop" id="calBackdrop" hidden></div>
 
 <main class="stage">
   <iframe class="report" id="reportFrame" title="每日文献报告"></iframe>
   <section class="week-board" id="weekBoard" hidden></section>
 </main>
 
-<script id="reports-data" type="application/json">{"generated_at":"2026-11-11T09:16:35+08:00","reports":[{"date":"2026-11-11","file":"reports/2026-11-11.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-10","file":"reports/2026-11-10.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-09","file":"reports/2026-11-09.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":5,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"}]}</script>
+<script id="reports-data" type="application/json">{"generated_at":"2026-11-11T09:23:25+08:00","reports":[{"date":"2026-11-11","file":"reports/2026-11-11.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-10","file":"reports/2026-11-10.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-09","file":"reports/2026-11-09.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":5,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"}]}</script>
 <script>
 (function () {
   "use strict";
@@ -246,6 +249,16 @@
     $("#calButton").textContent = key + " ▾";
     renderWeekBoard();
   }
+  function closeCalendar() {
+    $("#popover").hidden = true;
+    $("#calBackdrop").hidden = true;
+    $("#calButton").setAttribute("aria-expanded", "false");
+  }
+  function openCalendar() {
+    $("#popover").hidden = false;
+    $("#calBackdrop").hidden = false;
+    $("#calButton").setAttribute("aria-expanded", "true");
+  }
   function openReport(date) {
     state.selectedDate = date;
     const selected = new Date(date + "T12:00:00");
@@ -254,8 +267,7 @@
     document.querySelectorAll(".mode button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === "day")));
     showDay(date);
     renderCalendar();
-    $("#popover").hidden = true;
-    $("#calButton").setAttribute("aria-expanded", "false");
+    closeCalendar();
   }
   function renderWeekBoard() {
     const key = state.selectedWeek;
@@ -308,24 +320,19 @@
       state.mode = "week";
       document.querySelectorAll(".mode button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.mode === "week")));
       showWeek(b.dataset.week);
-      $("#popover").hidden = true;
-      $("#calButton").setAttribute("aria-expanded", "false");
+      closeCalendar();
     }));
   }
 
   $("#calButton").addEventListener("click", () => {
-    const open = $("#popover").hidden;
-    $("#popover").hidden = !open;
-    $("#calButton").setAttribute("aria-expanded", String(open));
+    if ($("#popover").hidden) openCalendar(); else closeCalendar();
   });
+  $("#calBackdrop").addEventListener("click", closeCalendar);
   $("#prevMonth").addEventListener("click", () => { state.month = new Date(state.month.getFullYear(), state.month.getMonth() - 1, 1); renderCalendar(); });
   $("#nextMonth").addEventListener("click", () => { state.month = new Date(state.month.getFullYear(), state.month.getMonth() + 1, 1); renderCalendar(); });
   document.querySelectorAll(".mode button").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
   document.addEventListener("click", (e) => {
-    if (!e.target.closest("#popover") && !e.target.closest("#calButton")) {
-      $("#popover").hidden = true;
-      $("#calButton").setAttribute("aria-expanded", "false");
-    }
+    if (!e.target.closest("#popover") && !e.target.closest("#calButton")) closeCalendar();
   });
 
   if (latest) {
