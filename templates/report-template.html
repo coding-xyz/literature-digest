@@ -148,10 +148,11 @@
 
 
   /* floating table of contents */
-  .toc { position: fixed; right: 18px; top: 76px; z-index: 60; font-family: var(--sans); }
-  .toc-toggle { border: 1px solid var(--blue); background: #fff; color: var(--blue); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 650; box-shadow: 0 8px 24px -12px rgba(23,33,30,.45); }
+  .toc { position: fixed; left: 18px; top: 76px; z-index: 60; font-family: var(--sans); touch-action: none; }
+  .toc-toggle { border: 1px solid var(--blue); background: #fff; color: var(--blue); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 650; box-shadow: 0 8px 24px -12px rgba(23,33,30,.45); cursor: grab; user-select: none; }
+  .toc-toggle:active { cursor: grabbing; }
   .toc-toggle:hover { background: var(--blue-bg); }
-  .toc-panel { position: absolute; right: 0; top: 44px; width: 310px; max-height: min(70vh, 620px); overflow: auto; background: #fff; border: 1px solid var(--rule); border-radius: 7px; box-shadow: 0 24px 70px -30px rgba(23,33,30,.55); }
+  .toc-panel { position: absolute; left: 0; top: 44px; width: 310px; max-height: min(70vh, 620px); overflow: auto; background: #fff; border: 1px solid var(--rule); border-radius: 7px; box-shadow: 0 24px 70px -30px rgba(23,33,30,.55); }
   .toc-panel[hidden] { display: none; }
   .toc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 11px; border-bottom: 1px solid var(--rule); color: var(--blue); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; position: sticky; top: 0; background: #fff; }
   .toc-close { border: 0; background: transparent; color: var(--muted); font-size: 18px; line-height: 1; padding: 0 2px; }
@@ -161,8 +162,9 @@
   .toc-list a { display: grid; grid-template-columns: 30px 1fr; gap: 8px; padding: 7px 3px; color: var(--ink); text-decoration: none; font-size: 12.5px; line-height: 1.45; }
   .toc-list a:hover { color: var(--blue); background: var(--blue-bg); }
   .toc-no { font-family: var(--mono); font-size: 11px; color: var(--orange); }
+  .toc.right .toc-panel { left: auto; right: 0; }
   @media (max-width: 760px) {
-    .toc { right: 12px; top: auto; bottom: 14px; }
+    .toc { left: 12px; top: auto; bottom: 14px; }
     .toc-toggle { padding: 8px 14px; box-shadow: 0 10px 30px -12px rgba(23,33,30,.5); }
     .toc-panel { position: fixed; right: 10px; left: 10px; bottom: 58px; top: auto; width: auto; max-height: 58vh; }
   }
@@ -531,7 +533,7 @@ window.MathJax = {
     const w = wf(a.id);
     const [ic, ib] = impColor(a.importance);
     const opts = Object.entries(STATUS_LABEL).map(([k, v]) => `<option value="${k}"${w.status === k ? " selected" : ""}>${v}</option>`).join("");
-    return `<article class="entry" data-id="${esc(a.id)}" style="--imp:${ic};--imp-bg:${ib}">
+    return `<article class="entry" id="p-${String(a.no).padStart(2, "0")}" data-id="${esc(a.id)}" style="--imp:${ic};--imp-bg:${ib}">
       <aside class="rail">
         <div class="no">${String(a.no).padStart(2, "0")}</div>
         <span class="imp-badge" title="${esc(a.importance_reason || "")}" aria-label="重要性 ${a.importance} / 5，${IMP_LABEL[a.importance]}"><span>${a.importance}</span><span class="den">/5</span></span>
@@ -659,7 +661,66 @@ window.MathJax = {
     if (e.target.matches && e.target.matches("details.abstract, details.review")) typesetMath();
   }, true);
 
+  const TOC_POS_KEY = "qc-toc-pos-v1";
+  let tocDrag = null;
+  let tocMoved = false;
+  let suppressTocClick = false;
+  function setTocPosition(left, top) {
+    const box = $("#toc");
+    const maxLeft = Math.max(8, window.innerWidth - box.offsetWidth - 8);
+    const maxTop = Math.max(56, window.innerHeight - box.offsetHeight - 8);
+    const x = Math.max(8, Math.min(maxLeft, Math.round(left)));
+    const y = Math.max(56, Math.min(maxTop, Math.round(top)));
+    box.style.left = x + "px";
+    box.style.top = y + "px";
+    box.style.bottom = "auto";
+    box.classList.toggle("right", x + box.offsetWidth / 2 > window.innerWidth / 2);
+    return { left: x, top: y };
+  }
+  function snapToc() {
+    const box = $("#toc");
+    const r = box.getBoundingClientRect();
+    const left = (r.left + r.width / 2 < window.innerWidth / 2)
+      ? 12
+      : Math.max(8, window.innerWidth - r.width - 12);
+    const pos = setTocPosition(left, r.top);
+    try { localStorage.setItem(TOC_POS_KEY, JSON.stringify(pos)); } catch (e) {}
+  }
+  (function restoreTocPosition() {
+    try {
+      const raw = localStorage.getItem(TOC_POS_KEY);
+      if (raw) {
+        const p = JSON.parse(raw);
+        if (typeof p.left === "number" && typeof p.top === "number") setTocPosition(p.left, p.top);
+      }
+    } catch (e) {}
+  })();
+  $("#tocToggle").addEventListener("pointerdown", (e) => {
+    const box = $("#toc");
+    const r = box.getBoundingClientRect();
+    tocDrag = { x: e.clientX, y: e.clientY, left: r.left, top: r.top };
+    tocMoved = false;
+    try { $("#tocToggle").setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+  });
+  $("#tocToggle").addEventListener("pointermove", (e) => {
+    if (!tocDrag) return;
+    const dx = e.clientX - tocDrag.x;
+    const dy = e.clientY - tocDrag.y;
+    if (Math.abs(dx) + Math.abs(dy) > 5) tocMoved = true;
+    setTocPosition(tocDrag.left + dx, tocDrag.top + dy);
+  });
+  $("#tocToggle").addEventListener("pointerup", () => {
+    if (!tocDrag) return;
+    if (tocMoved) {
+      suppressTocClick = true;
+      snapToc();
+      setTimeout(() => { suppressTocClick = false; }, 150);
+    }
+    tocDrag = null;
+  });
   $("#tocToggle").addEventListener("click", () => {
+    if (suppressTocClick) return;
     const open = $("#tocPanel").hidden;
     $("#tocPanel").hidden = !open;
     $("#tocToggle").setAttribute("aria-expanded", String(open));
@@ -670,6 +731,11 @@ window.MathJax = {
   });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !$("#tocPanel").hidden) closeTOC();
+  });
+  window.addEventListener("resize", () => {
+    const box = $("#toc");
+    const r = box.getBoundingClientRect();
+    setTocPosition(r.left, r.top);
   });
 
   renderTOC();

@@ -79,8 +79,8 @@
   .day.has { color: var(--ink); font-weight: 700; background: #fef4e8; }
   .day.has::after { content: ""; position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; background: var(--orange); transform: translateX(-50%); }
   .day.selected { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
-  .day.today.selected { box-shadow: inset 0 0 0 2px var(--orange); }
-  .day.today { box-shadow: inset 0 0 0 2px var(--orange); color: var(--orange); font-weight: 700; }
+  .day.today.selected { color: var(--red); }
+  .day.today { color: var(--red); font-weight: 700; }
   .weeks { display: flex; flex-direction: column; gap: 5px; }
   .week-row {
     display: grid; grid-template-columns: 48px 1fr auto; gap: 8px; align-items: center;
@@ -163,7 +163,7 @@
   <section class="week-board" id="weekBoard" hidden></section>
 </main>
 
-<script id="reports-data" type="application/json">{"generated_at":"2026-11-11T09:02:44+08:00","reports":[{"date":"2026-11-11","file":"reports/2026-11-11.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-10","file":"reports/2026-11-10.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-09","file":"reports/2026-11-09.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":5,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"}]}</script>
+<script id="reports-data" type="application/json">{"generated_at":"2026-11-11T09:14:55+08:00","reports":[{"date":"2026-11-11","file":"reports/2026-11-11.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-10","file":"reports/2026-11-10.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-09","file":"reports/2026-11-09.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":5,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"}]}</script>
 <script>
 (function () {
   "use strict";
@@ -220,6 +220,7 @@
       const d = new Date(date + "T12:00:00");
       state.selectedDate = date;
       state.selectedWeek = weekKey(d);
+      state.month = new Date(d.getFullYear(), d.getMonth(), 1);
     }
     const report = byDate.get(date);
     $("#weekBoard").hidden = true;
@@ -247,6 +248,8 @@
   }
   function openReport(date) {
     state.selectedDate = date;
+    const selected = new Date(date + "T12:00:00");
+    state.month = new Date(selected.getFullYear(), selected.getMonth(), 1);
     state.mode = "day";
     document.querySelectorAll(".mode button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === "day")));
     showDay(date);
