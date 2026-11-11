@@ -18,6 +18,9 @@
 2. 运行固定收集程序：
    python scripts\collect.py --date DATE
    这一步负责 arXiv、ePrint、PR 系列、Nature 系列、Quantum、Science Advances、SciPost Physics、AVS Quantum Science、QST 的检索、去重、raw 快照和 manifest。不要绕过它手工拼候选集。
+   然后生成当天动态预算：
+   python scripts\selection_budget.py --date DATE
+   读取 data\DATE\selection_budget.json 里的 target_articles / target_must_read；这是建议值，不是死配额。
 3. 读取：
    data\DATE\manifest.json
    data\DATE\candidates.json
@@ -38,7 +41,7 @@
    - topic 用受控关键词：编译与验证、解码器、大规模仿真、纠错码、芯片与耦合器、容错实验、测控与噪声、Pauli 传播、经典模拟、算法。不要用“边界”当关键词；算法/应用写“算法”。
    - 公式必须显式写在 summary/problem/method/result/contribution 里，用 \( ... \) 或 $$ ... $$；不要依赖自动识别，不要另设“关键公式”框。裸露的 ^、_、LaTeX 命令或 Unicode 上下标会被 build_report.py 直接拒绝。
    - 重要性 5=必读、4=高、3=中、2=参考；理由写具体，不写空话。
-   - 目标 10–13 篇，必读 4–6 篇，来源尽量覆盖多个期刊。
+   - 篇数与必读数由 data\\DATE\\selection_budget.json 动态给出；该值由历史必读文章主题与当天候选池质量计算，不要写死 10–13 / 4–6。来源尽量覆盖多个期刊。
 7. 对每篇写 AI 审稿，保存到 data\DATE\reviews\<article-id>.json（文件名用文章稳定 id 的 slug 即可，不要求 arXiv 前缀）：
    {
      "id": "...", "title": "...",

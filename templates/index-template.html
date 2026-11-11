@@ -71,15 +71,16 @@
   .weekdays span { text-align: center; color: var(--muted); font-size: 10px; padding: 3px 0; }
   .day {
     border: 1px solid transparent; background: transparent; border-radius: 4px;
-    min-height: 34px; text-align: center; color: var(--muted); font-size: 12px;
-    position: relative; padding: 3px 0;
+    min-height: 34px; min-width: 0; width: 100%; text-align: center; color: var(--muted); font-size: 12px;
+    line-height: 1.2; position: relative; padding: 3px 0;
   }
   .day:hover { background: var(--blue-bg); color: var(--blue); }
   .day.other { opacity: .35; }
   .day.has { color: var(--ink); font-weight: 700; background: #fef4e8; }
   .day.has::after { content: ""; position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; background: var(--orange); transform: translateX(-50%); }
   .day.selected { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
-  .day.today { box-shadow: inset 0 0 0 1px var(--rule); }
+  .day.today.selected { box-shadow: inset 0 0 0 2px var(--orange); }
+  .day.today { box-shadow: inset 0 0 0 2px var(--orange); color: var(--orange); font-weight: 700; }
   .weeks { display: flex; flex-direction: column; gap: 5px; }
   .week-row {
     display: grid; grid-template-columns: 48px 1fr auto; gap: 8px; align-items: center;
@@ -116,6 +117,10 @@
   .week-report .r-meta { color: var(--muted); font-size: 11px; margin-top: 2px; }
   .week-report button { border: 1px solid var(--blue); background: var(--blue); color: #fff; border-radius: 4px; padding: 4px 10px; font-size: 12px; white-space: nowrap; }
   .week-empty { border: 1px dashed var(--rule); border-radius: 6px; padding: 26px; color: var(--muted); background: #fff; }
+  @media (max-width: 420px) {
+    .days, .weekdays { gap: 2px; }
+    .day { min-height: 38px; font-size: 12.5px; }
+  }
   @media (max-width: 760px) {
     .bar { gap: 8px; padding: 0 10px; }
     .brand strong { font-size: 19px; }
@@ -247,6 +252,7 @@
     state.mode = "day";
     document.querySelectorAll(".mode button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === "day")));
     showDay(date);
+    renderCalendar();
     $("#popover").hidden = true;
     $("#calButton").setAttribute("aria-expanded", "false");
   }

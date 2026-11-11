@@ -146,6 +146,28 @@
   .review-meta { margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
   @media print { details.review { break-inside: avoid; } details.review[open] .review-body { display: block; } }
 
+
+  /* floating table of contents */
+  .toc { position: fixed; right: 18px; top: 76px; z-index: 60; font-family: var(--sans); }
+  .toc-toggle { border: 1px solid var(--blue); background: #fff; color: var(--blue); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 650; box-shadow: 0 8px 24px -12px rgba(23,33,30,.45); }
+  .toc-toggle:hover { background: var(--blue-bg); }
+  .toc-panel { position: absolute; right: 0; top: 44px; width: 310px; max-height: min(70vh, 620px); overflow: auto; background: #fff; border: 1px solid var(--rule); border-radius: 7px; box-shadow: 0 24px 70px -30px rgba(23,33,30,.55); }
+  .toc-panel[hidden] { display: none; }
+  .toc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 11px; border-bottom: 1px solid var(--rule); color: var(--blue); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; position: sticky; top: 0; background: #fff; }
+  .toc-close { border: 0; background: transparent; color: var(--muted); font-size: 18px; line-height: 1; padding: 0 2px; }
+  .toc-list { list-style: none; margin: 0; padding: 7px 9px 11px; counter-reset: toc; }
+  .toc-list li { counter-increment: toc; margin: 0; border-bottom: 1px solid #ece8de; }
+  .toc-list li:last-child { border-bottom: 0; }
+  .toc-list a { display: grid; grid-template-columns: 30px 1fr; gap: 8px; padding: 7px 3px; color: var(--ink); text-decoration: none; font-size: 12.5px; line-height: 1.45; }
+  .toc-list a:hover { color: var(--blue); background: var(--blue-bg); }
+  .toc-no { font-family: var(--mono); font-size: 11px; color: var(--orange); }
+  @media (max-width: 760px) {
+    .toc { right: 12px; top: auto; bottom: 14px; }
+    .toc-toggle { padding: 8px 14px; box-shadow: 0 10px 30px -12px rgba(23,33,30,.5); }
+    .toc-panel { position: fixed; right: 10px; left: 10px; bottom: 58px; top: auto; width: auto; max-height: 58vh; }
+  }
+  @media print { .toc { display: none !important; } }
+
   /* key nums + footer */
 
   .keynums { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; margin-top: 12px; }
@@ -249,6 +271,14 @@
     <span>生成于 <span id="generatedAt"></span> · <a id="scopeLink" href="../SCOPE.md" target="_blank" rel="noopener">检索范围</a> · <a href="#top">回到顶部 ↑</a></span>
   </div>
 </footer>
+
+<div class="toc" id="toc">
+  <button class="toc-toggle" id="tocToggle" type="button" aria-expanded="false" aria-controls="tocPanel">目录</button>
+  <nav class="toc-panel" id="tocPanel" hidden aria-label="文章目录">
+    <div class="toc-head"><span>文章目录</span><button class="toc-close" id="tocClose" type="button" aria-label="关闭目录">×</button></div>
+    <ol class="toc-list" id="tocList"></ol>
+  </nav>
+</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -544,6 +574,15 @@ window.MathJax = {
     </article>`;
   }
 
+  function renderTOC() {
+    const list = ARTICLES.slice().sort((a, b) => a.no - b.no);
+    $("#tocList").innerHTML = list.map(a => `<li><a href="#p-${String(a.no).padStart(2, "0")}" data-toc-link><span class="toc-no">${String(a.no).padStart(2, "0")}</span><span>${esc(a.title_zh || a.title)}</span></a></li>`).join("");
+  }
+  function closeTOC() {
+    $("#tocPanel").hidden = true;
+    $("#tocToggle").setAttribute("aria-expanded", "false");
+  }
+
   function typesetMath() {
     if (!window.MathJax || !MathJax.typesetPromise) return;
     const run = () => MathJax.typesetPromise([$("#entries")]).catch(err => console.warn("MathJax:", err));
@@ -620,6 +659,20 @@ window.MathJax = {
     if (e.target.matches && e.target.matches("details.abstract, details.review")) typesetMath();
   }, true);
 
+  $("#tocToggle").addEventListener("click", () => {
+    const open = $("#tocPanel").hidden;
+    $("#tocPanel").hidden = !open;
+    $("#tocToggle").setAttribute("aria-expanded", String(open));
+  });
+  $("#tocClose").addEventListener("click", closeTOC);
+  $("#tocPanel").addEventListener("click", (e) => {
+    if (e.target.closest("[data-toc-link]")) closeTOC();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !$("#tocPanel").hidden) closeTOC();
+  });
+
+  renderTOC();
   render();
 })();
 </script>

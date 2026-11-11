@@ -1,5 +1,112 @@
 # 检索范围
 
+> **机器可读配置**：修改下面 JSON 块后，运行 `python scripts\collect.py` 会自动同步到 `config/scope.json`；prose 只作说明。网站、分类、关键词、期刊列表都以这个块为准。
+
+<!-- SCOPE_CONFIG
+{
+  "arxiv_categories": [
+    "quant-ph",
+    "cs.ET"
+  ],
+  "include_keywords": [
+    "quantum error correction",
+    "fault-tolerant",
+    "fault tolerant",
+    "surface code",
+    "qLDPC",
+    "quantum LDPC",
+    "logical qubit",
+    "magic state",
+    "lattice surgery",
+    "transpilation",
+    "compilation",
+    "decoder",
+    "decoding",
+    "syndrome",
+    "noise characterization",
+    "crosstalk",
+    "leakage",
+    "tomography",
+    "superconducting",
+    "transmon",
+    "fluxonium",
+    "tunable coupler",
+    "circuit quantization",
+    "circuit QED",
+    "normal mode",
+    "capacitance matrix",
+    "master equation",
+    "lindblad",
+    "magnus",
+    "1/f noise",
+    "control pulse",
+    "pauli propagation",
+    "pauli frame",
+    "pauli truncation",
+    "stabilizer simulation",
+    "circuit-level noise",
+    "detector error model",
+    "large-scale simulation"
+  ],
+  "exclude_keywords": [
+    "retraction",
+    "erratum",
+    "correction",
+    "comment on",
+    "reply to",
+    "book review",
+    "jobs",
+    "meeting",
+    "workshop"
+  ],
+  "nature_feeds": {
+    "Nature": "https://www.nature.com/nature.rss",
+    "Nature Physics": "https://www.nature.com/nphys.rss",
+    "Nature Communications": "https://www.nature.com/ncomms.rss",
+    "npj Quantum Information": "https://www.nature.com/npjqi.rss",
+    "Communications Physics": "https://www.nature.com/commsphys.rss",
+    "Nature Electronics": "https://www.nature.com/natelectron.rss",
+    "Nature Materials": "https://www.nature.com/nmat.rss",
+    "Nature Nanotechnology": "https://www.nature.com/nnano.rss"
+  },
+  "pr_journals": {
+    "PRX Quantum": "2691-3399",
+    "Physical Review X": "2160-3308",
+    "Physical Review Research": "2643-1564",
+    "Physical Review Letters": "0031-9007",
+    "Physical Review A": "2469-9926",
+    "Physical Review Applied": "2331-7019",
+    "Reviews of Modern Physics": "0034-6861"
+  },
+  "extra_journals": {
+    "scienceadv": {
+      "enabled": true,
+      "label": "Science Advances",
+      "issn": "2375-2548"
+    },
+    "scipost": {
+      "enabled": true,
+      "label": "SciPost Physics",
+      "issn": "2542-4653"
+    },
+    "avs": {
+      "enabled": true,
+      "label": "AVS Quantum Science",
+      "issn": "2639-0213"
+    },
+    "qst": {
+      "enabled": true,
+      "label": "Quantum Science and Technology",
+      "issn": "2058-9565"
+    }
+  },
+  "quantum_feed": "https://quantum-journal.org/feed/",
+  "eprint_feed": "https://eprint.iacr.org/rss/rss.xml",
+  "eprint_enabled": true,
+  "lookback_days": 7
+}
+-->
+
 ## 容错量子计算设计
 
 ### 码与界
@@ -115,42 +222,4 @@
 
 ---
 
-## 组合检索式
-
-```text
-码与解码：
-("quantum error correction" OR "surface code" OR qLDPC OR "quantum Tanner code")
-AND
-("code design" OR decoder OR "single-shot" OR threshold OR "BP+OSD" OR "belief propagation")
-
-容错资源与编译：
-("fault-tolerant" OR "magic state" OR "lattice surgery")
-AND
-("compilation" OR transpilation OR routing OR distillation OR cultivation OR overhead)
-
-噪声与证明：
-("biased noise" OR erasure OR leakage OR "correlated noise" OR "circuit-level noise")
-AND
-(threshold OR "single-shot" OR "fault tolerance" OR decoder)
-
-芯片 / 电路量子化：
-("superconducting qubit" OR transmon OR fluxonium OR "circuit QED")
-AND
-("circuit quantization" OR "normal mode" OR "capacitance matrix"
- OR "electromagnetic simulation" OR "tensor network" OR DMRG)
-
-测控 / 开放系统：
-("superconducting qubit" OR transmon OR "tunable coupler")
-AND
-(control OR calibration OR readout OR crosstalk OR "master equation"
- OR Lindblad OR "input-output" OR "measurement backaction")
-
-纠错线路大规模仿真：
-("quantum error correction" OR "surface code" OR qLDPC OR "logical qubit")
-AND
-("Pauli propagation" OR "Pauli frame" OR "Pauli truncation"
- OR "stabilizer simulation" OR "circuit-level simulation"
- OR "detector error model" OR "decoder simulation")
-```
-
-> 抓取按 7 天滚动窗口，每天 09:30 / 18:00 各一次；当日没有新批次时明确标“无当日更新”，保留最近批次。这里的网址用于人工复核，自动抓取入口优先用 arXiv API、Crossref 和 RSS。
+> 抓取按 7 天滚动窗口；当日没有新批次时明确标“无当日更新”，保留最近批次。自动抓取入口优先使用 arXiv API、Crossref 和 RSS。
