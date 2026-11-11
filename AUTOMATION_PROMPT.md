@@ -36,7 +36,7 @@
    - 参考上一期 data\2026-11-09\report.json 的字段与格式。
    - 每篇必须有：id, no, topics, source, venue, published, title, title_zh, authors, abstract, importance(1-5), importance_reason, summary, problem, method, result, contribution, limitation, key_numbers, url, pdf_url/doi(可空), review。
    - topic 用受控关键词：编译与验证、解码器、大规模仿真、纠错码、芯片与耦合器、容错实验、测控与噪声、Pauli 传播、经典模拟、算法。不要用“边界”当关键词；算法/应用写“算法”。
-   - 公式直接写在 summary/problem/method/result/contribution 里，用 \( ... \) 或 $$ ... $$，不要另设“关键公式”框。
+   - 公式必须显式写在 summary/problem/method/result/contribution 里，用 \( ... \) 或 $$ ... $$；不要依赖自动识别，不要另设“关键公式”框。裸露的 ^、_、LaTeX 命令或 Unicode 上下标会被 build_report.py 直接拒绝。
    - 重要性 5=必读、4=高、3=中、2=参考；理由写具体，不写空话。
    - 目标 10–13 篇，必读 4–6 篇，来源尽量覆盖多个期刊。
 7. 对每篇写 AI 审稿，保存到 data\DATE\reviews\<article-id>.json（文件名用文章稳定 id 的 slug 即可，不要求 arXiv 前缀）：
@@ -57,6 +57,7 @@
    python scripts\build_report.py --date DATE
    build_report.py 会完成字段校验、来源统计、HTML 生成，并自动调用 build_index.py 重建根目录 index.html。
    然后发布到 GitHub Pages：
+   先确认 $env:GH_TOKEN 或 $env:GITHUB_TOKEN 存在；没有就停止并提示用户设置，不要假装完成。
    powershell -NoProfile -ExecutionPolicy Bypass -File scripts\publish.ps1 -Date DATE
    publish.ps1 只提交 index.html 和 reports/，不会提交 data/。
    不要手改 reports\DATE.html 或 index.html；版式只能来自 templates 下的模板。
