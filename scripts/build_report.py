@@ -236,6 +236,11 @@ def main() -> int:
     candidates = json.loads(candidates_path.read_text(encoding="utf-8"))
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     config = json.loads((ROOT / "config" / "scope.json").read_text(encoding="utf-8"))
+    try:
+        from sync_scope import apply_scope
+        config = apply_scope(config)
+    except Exception as exc:
+        fail(f"could not apply SCOPE.md config: {exc}")
     journals, totals = compute_coverage(config, candidates, data["articles"], manifest)
     data["meta"]["journals"] = journals
     data["meta"]["coverage_totals"] = totals

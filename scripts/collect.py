@@ -90,7 +90,16 @@ def date_key(value: dt.datetime | dt.date | None) -> str:
 
 def load_config() -> dict:
     with CONFIG_PATH.open("r", encoding="utf-8") as fh:
-        return json.load(fh)
+        config = json.load(fh)
+    # SCOPE.md is the editable source of truth; apply its block and persist it
+    # so downstream report/coverage code sees the same configuration.
+    try:
+        from sync_scope import apply_scope
+        config = apply_scope(config)
+        CONFIG_PATH.write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
+    except Exception as exc:
+        raise RuntimeError(f"could not apply SCOPE.md config: {exc}") from exc
+    return config
 
 
 def http_get(url: str, retries: int = 2) -> bytes:
