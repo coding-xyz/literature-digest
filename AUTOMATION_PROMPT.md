@@ -36,7 +36,7 @@
    - 非 arXiv 论文用 DOI / 出版社页面 / accepted manuscript / 作者版获取全文，不得因为不是 arXiv 就排除；确实拿不到全文时，只写摘要级内容，并在 review.basis 明确说明。
    - 阅读时至少看：摘要、引言、方法/定理、主要结果图表、结论、limitations；理论文要看定理假设，实验文要看误差预算和统计量。
 6. 写 data\DATE\report.json：
-   - 参考上一期 data\2026-11-09\report.json 的字段与格式。
+   - 参考 data 下最近一份 report.json 的字段与格式。
    - 每篇必须有：id, no, topics, source, venue, published, title, title_zh, authors, abstract, importance(1-5), importance_reason, summary, problem, method, result, contribution, limitation, key_numbers, url, pdf_url/doi(可空), review。
    - topic 用受控关键词：编译与验证、解码器、大规模仿真、纠错码、芯片与耦合器、容错实验、测控与噪声、Pauli 传播、经典模拟、算法。不要用“边界”当关键词；算法/应用写“算法”。
    - 公式必须显式写在 summary/problem/method/result/contribution 里，用 \( ... \) 或 $$ ... $$；不要依赖自动识别，不要另设“关键公式”框。裸露的 ^、_、LaTeX 命令或 Unicode 上下标会被 build_report.py 直接拒绝。
