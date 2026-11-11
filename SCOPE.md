@@ -199,9 +199,9 @@
 | 期刊 | 直接网址 | 更新入口 |
 |---|---|---|
 | Quantum | https://quantum-journal.org/ | https://quantum-journal.org/feed/ |
-| PRX Quantum | https://journals.aps.org/prxquantum/ | https://api.crossref.org/journals/2691-3399/works?filter=from-pub-date:2026-11-01&rows=50&sort=published&order=desc |
-| PRX | https://journals.aps.org/prx/ | https://api.crossref.org/journals/2160-3308/works?filter=from-pub-date:2026-11-01&rows=50&sort=published&order=desc |
-| Physical Review Research | https://journals.aps.org/prresearch/ | https://api.crossref.org/journals/2643-1564/works?filter=from-pub-date:2026-11-01&rows=50&sort=published&order=desc |
+| PRX Quantum | https://journals.aps.org/prxquantum/ | https://api.crossref.org/journals/2691-3399/works?rows=50&sort=published&order=desc |
+| PRX | https://journals.aps.org/prx/ | https://api.crossref.org/journals/2160-3308/works?rows=50&sort=published&order=desc |
+| Physical Review Research | https://journals.aps.org/prresearch/ | https://api.crossref.org/journals/2643-1564/works?rows=50&sort=published&order=desc |
 | npj Quantum Information | https://www.nature.com/npjqi/ | https://www.nature.com/npjqi.rss |
 | Nature Communications | https://www.nature.com/ncomms/ | https://www.nature.com/ncomms.rss |
 | Science Advances | https://www.science.org/journal/sciadv | https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=sciadv |
