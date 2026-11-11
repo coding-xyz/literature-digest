@@ -3,10 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>文献速递 · 汇总</title>
+<title>文献速递</title>
 <style>
   :root {
     --page: #fbfaf6;
@@ -40,7 +41,7 @@
     position: relative; z-index: 30;
   }
   .brand { display: flex; align-items: baseline; gap: 9px; white-space: nowrap; }
-  .brand strong { font-family: var(--serif); font-size: 22px; letter-spacing: -.02em; }
+  .brand strong { font-family: var(--serif); font-size: 23px; letter-spacing: .09em; font-weight: 700; }
   .brand span { color: var(--muted); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
   .bar .selected { flex: 1; min-width: 0; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .bar .selected b { color: var(--ink); font-weight: 650; }
@@ -140,7 +141,7 @@
 </head>
 <body>
 <header class="bar">
-  <div class="brand"><strong>文献速递</strong><span>汇总</span></div>
+  <div class="brand"><strong>文献速递</strong></div>
   <div class="selected" id="selectedLabel">加载中…</div>
   <div class="bar-actions">
     <a class="open-link" id="openLink" href="#" target="_blank" rel="noopener">在新标签打开</a>
@@ -169,7 +170,7 @@
   <section class="week-board" id="weekBoard" hidden></section>
 </main>
 
-<script id="reports-data" type="application/json">{"generated_at":"2026-11-11T10:34:37+08:00","reports":[{"date":"2026-11-11","file":"reports/2026-11-11.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-10","file":"reports/2026-11-10.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-09","file":"reports/2026-11-09.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":5,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"}]}</script>
+<script id="reports-data" type="application/json">{"generated_at":"2026-11-11T10:52:33+08:00","reports":[{"date":"2026-11-11","file":"reports/2026-11-11.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-10","file":"reports/2026-11-10.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":4,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"},{"date":"2026-11-09","file":"reports/2026-11-09.html","title":"容错量子计算与超导量子计算机仿真","count":13,"mustRead":5,"week":"2026-W46","weekStart":"2026-11-09","weekEnd":"2026-11-15"}]}</script>
 <script>
 (function () {
   "use strict";
@@ -218,7 +219,7 @@
     state.mode = mode;
     document.querySelectorAll(".mode button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
     $("#calHint").textContent = mode === "day" ? "橙色点表示有报告；点击日期切换报告。" : "按 ISO 周查看；点击某周展示该周报告。";
-    if (mode === "week") renderWeekBoard(); else showDay(state.selectedDate);
+    if (mode === "week") showWeek(state.selectedWeek); else showDay(state.selectedDate);
     renderCalendar();
   }
   function showDay(date) {
