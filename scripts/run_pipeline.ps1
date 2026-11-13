@@ -19,14 +19,18 @@ if (Test-Path -LiteralPath $WorkspacePython) {
 Push-Location $Root
 try {
     if (-not $SkipCollect) {
-        Write-Host "[1/5] collect $Date"
+        Write-Host "[1/6] collect $Date"
         & $Python "scripts\collect.py" --date $Date
         if ($LASTEXITCODE -ne 0) { throw "collect.py failed" }
     } else {
-        Write-Host "[1/5] skip collect (using existing data\$Date)"
+        Write-Host "[1/6] skip collect (using existing data\$Date)"
     }
 
-    Write-Host "[2/5] dynamic selection budget"
+    Write-Host "[2/6] assemble per-article JSON (if present)"
+    & $Python "scripts\assemble_report.py" --date $Date
+    if ($LASTEXITCODE -ne 0) { throw "assemble_report.py failed" }
+
+    Write-Host "[3/6] dynamic selection budget"
     & $Python "scripts\selection_budget.py" --date $Date
     if ($LASTEXITCODE -ne 0) { throw "selection_budget.py failed" }
 
@@ -39,20 +43,20 @@ try {
         throw "AI reviews are not ready: $Reviews is missing"
     }
 
-    Write-Host "[3/5] merge reviews"
+    Write-Host "[4/6] merge reviews"
     & $Python "scripts\merge_reviews.py" --date $Date
     if ($LASTEXITCODE -ne 0) { throw "merge_reviews.py failed" }
 
-    Write-Host "[4/5] build report"
+    Write-Host "[5/6] build report"
     & $Python "scripts\build_report.py" --date $Date
     if ($LASTEXITCODE -ne 0) { throw "build_report.py failed" }
 
     if ($Publish) {
-        Write-Host "[5/5] publish to GitHub"
+        Write-Host "[6/6] publish to GitHub"
         & (Join-Path $PSScriptRoot "publish.ps1") -Date $Date
         if ($LASTEXITCODE -ne 0) { throw "publish.ps1 failed" }
     } else {
-        Write-Host "[5/5] publish skipped (use -Publish to push)"
+        Write-Host "[6/6] publish skipped (use -Publish to push)"
     }
 
     Write-Host "Done: reports\$Date.html"

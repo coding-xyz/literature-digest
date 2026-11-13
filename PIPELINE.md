@@ -8,6 +8,7 @@
 |---|---|---|
 | 检索与收集 | `scripts/collect.py` | `raw/*.json`、`candidates.json`、`manifest.json` |
 | 动态篇数预算 | `scripts/selection_budget.py` | `selection_budget.json` |
+| 组装报告 JSON | `scripts/assemble_report.py` | 从 `meta.json` + `articles/*.json` 生成 `report.json` |
 | 阅读、筛选、提炼 | AI | `data/<date>/report.json` |
 | 全文审稿 | AI | `data/<date>/reviews/<article-id>.json` |
 | 合并审稿 | `scripts/merge_reviews.py` | 更新 `report.json` 的 `review` 字段 |
@@ -44,7 +45,8 @@ python scripts\collect.py --date $date
 # 2. 动态篇数建议
 python scripts\selection_budget.py --date $date
 
-# 3. AI：读 candidates / 下载全文 / 写 report.json 和 reviews/*.json
+# 3. AI：读 candidates / 下载全文 / 写 meta.json、articles/*.json、reviews/*.json
+python scripts\assemble_report.py --date $date
 
 # 4. 合并 + 校验 + 生成
 python scripts\merge_reviews.py --date $date
@@ -117,3 +119,4 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_pipeline.ps1 -Da
 - 全文无法获取：`review` 写清只读到摘要，或停止收录；不能编造。
 - 报告生成失败：不发布旧版 HTML。
 - push 失败：任务失败；检查 `GH_TOKEN`、远程分支和冲突。
+- 写入中断：脚本使用临时文件 + `os.replace`，不会用半截 JSON/HTML 覆盖旧文件；`assemble_report.py` 还会检查文章编号连续。

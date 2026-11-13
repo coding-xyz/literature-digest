@@ -20,6 +20,7 @@
 | [`config/scope.json`](config/scope.json) | 由 `SCOPE_CONFIG` 同步出的运行配置 |
 | [`scripts/collect.py`](scripts/collect.py) | 检索、收集、去重、来源统计 |
 | [`scripts/selection_budget.py`](scripts/selection_budget.py) | 根据历史必读文章与当天候选池计算动态篇数预算 |
+| [`scripts/assemble_report.py`](scripts/assemble_report.py) | 从每篇小 JSON 组装 report.json |
 | [`scripts/merge_reviews.py`](scripts/merge_reviews.py) | 合并 AI 审稿 |
 | [`scripts/build_report.py`](scripts/build_report.py) | 校验并生成报告与汇总页 |
 | [`scripts/publish.ps1`](scripts/publish.ps1) | 只提交 `index.html` 与 `reports/` 并 push |
@@ -49,7 +50,9 @@ collect.py
   ↓
 selection_budget.py（动态篇数建议）
   ↓
-AI 阅读全文 / 写 report.json / reviews/*.json
+AI 阅读全文 / 写 meta.json + articles/*.json + reviews/*.json
+  ↓
+assemble_report.py（拼成 report.json）
   ↓
 merge_reviews.py
   ↓
@@ -80,6 +83,16 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_pipeline.ps1 -Da
 
 修改该块后，运行 `collect.py` 会自动同步到 `config/scope.json` 并生效。  
 `SCOPE.md` 的 prose 是说明；代码以 `SCOPE_CONFIG` 为准。
+
+## 长 JSON 写入保护
+
+不要一次写超长的 `report.json`。AI 按篇写 `data/<date>/articles/01.json`、`02.json`……，再运行：
+
+```powershell
+python scripts\assemble_report.py --date <date>
+```
+
+所有生成脚本使用临时文件 + `os.replace` 原子写入，进程中断不会留下半截 HTML/JSON。
 
 ## 动态篇数
 
