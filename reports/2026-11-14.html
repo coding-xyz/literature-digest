@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon-light.svg?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
+<link rel="apple-touch-icon" href="../assets/favicon-180.png">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="report-date" content="2026-11-14">
+<title>文献速递 · 容错量子计算与超导量子计算机仿真</title>
+<style>
+  :root {
+    --page: #fbfaf6;
+    --sheet: #ffffff;
+    --ink: #181818;
+    --muted: #303030;
+    --faint: #3f3f3f;
+    --rule: #d9d5ca;
+    --rule-strong: #b5b0a4;
+    --blue: #1f4fd1;
+    --blue-bg: #e9efff;
+    --orange: #c2410c;
+    --orange-bg: #fff0e6;
+    --green: #087a5b;
+    --green-bg: #e3f6ee;
+    --purple: #6d45c7;
+    --purple-bg: #f0eaff;
+    --amber: #8a5200;
+    --amber-bg: #fff3d6;
+    --pink: #b3266e;
+    --pink-bg: #fde8f2;
+    --teal: #0e7490;
+    --teal-bg: #e2f5f8;
+    --red: #c62828;
+    --red-bg: #fdeaea;
+    --sans: "Noto Sans SC", "Source Han Sans SC", "Segoe UI", "Microsoft YaHei", sans-serif;
+    --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", Georgia, serif;
+    --mono: "Cascadia Code", "Consolas", monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font-family: var(--sans); font-size: 16px; line-height: 1.8;
+    font-weight: 400; -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  ::selection { background: #d9e4ff; }
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+  .wrap { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+
+  /* header */
+  .masthead { background: var(--sheet); border-bottom: 1px solid var(--rule); }
+  .masthead .wrap { padding: 18px 0 20px; }
+  .topline { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .topline .date { font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: .01em; }
+  .tools { display: flex; gap: 8px; }
+  .tool { border: 1px solid var(--rule); background: #fff; color: var(--blue); border-radius: 4px; padding: 5px 10px; font-size: 13px; }
+  .tool:hover { border-color: var(--blue); background: var(--blue-bg); }
+  .title-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 26px; margin-top: 13px; }
+  h1 { margin: 0; font-family: var(--serif); font-size: clamp(36px, 4.6vw, 44px); line-height: 1.12; font-weight: 700; letter-spacing: .08em; color: #111; }
+  .subtitle { margin: 8px 0 0; font-size: clamp(19px, 2.4vw, 23px); line-height: 1.45; color: var(--ink); font-weight: 650; }
+  .subtitle::after { content: ""; display: block; width: 58px; height: 4px; margin-top: 11px; background: linear-gradient(90deg, var(--orange), var(--amber)); }
+  .issue { text-align: right; flex: none; }
+  .issue-date { font-family: var(--mono); font-size: 14px; color: var(--ink); }
+  .issue-counts { margin-top: 4px; font-size: 13px; color: var(--muted); }
+  .issue-counts b { color: var(--red); font-weight: 700; }
+
+  /* source coverage */
+  .coverage { margin-top: 18px; border: 1px solid var(--rule); border-radius: 5px; overflow: hidden; }
+  .coverage > summary { cursor: pointer; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; padding: 8px 11px; background: var(--blue-bg); color: var(--blue); font-size: 13px; font-weight: 700; list-style: none; }
+  .coverage > summary::-webkit-details-marker { display: none; }
+  .coverage > summary:hover { background: #dfe8ff; }
+  .coverage[open] > summary { border-bottom: 1px solid #cfd9f7; }
+  .coverage .nums { color: var(--ink); font-weight: 500; }
+  .coverage-body { max-height: 430px; overflow: auto; }
+  .coverage-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .coverage-table th { text-align: left; padding: 6px 11px; background: #faf9f4; color: var(--label, #333); font-size: 11.5px; font-weight: 650; letter-spacing: .08em; border-bottom: 1px solid var(--rule); }
+  .coverage-table td { padding: 7px 11px; border-bottom: 1px solid #ece8de; color: var(--ink); }
+  .coverage-table tr:last-child td { border-bottom: 0; }
+  .coverage-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .coverage-table .total td { background: #faf9f4; font-weight: 650; border-top: 1px solid var(--rule); }
+  .st { display: inline-block; border-radius: 3px; padding: 1px 6px; font-size: 11px; font-weight: 650; white-space: nowrap; }
+  .st-ok { background: #e3f6ee; color: #087a5b; }
+  .st-partial { background: #fff3d6; color: #8a5200; }
+  .st-error { background: #fdeaea; color: #b3261e; }
+  .coverage-source { display: inline-flex; align-items: center; gap: 7px; }
+  .coverage-table .group td { background: #eef2ff; color: #1f3d8f; font-weight: 700; border-top: 1px solid #d7e0ff; }
+  .coverage-table .sub td:first-child { padding-left: 26px; }
+  .coverage-table .single td:first-child { padding-left: 11px; }
+  .source-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sc, var(--blue)); flex: none; }
+
+  /* keyword bar */
+  .keywordbar { position: sticky; top: 0; z-index: 20; background: rgba(251,250,246,.98); border-bottom: 1px solid var(--rule); backdrop-filter: blur(10px); }
+  .keywordbar .wrap { display: flex; align-items: center; gap: 7px; overflow-x: auto; padding: 10px 0; }
+  .kbtn { flex: none; border: 1px solid var(--tc, var(--rule)); background: var(--tbg, #fff); color: var(--tc, var(--muted)); border-radius: 999px; padding: 4px 11px; font-size: 13px; white-space: nowrap; transition: .14s ease; }
+  .kbtn:hover { filter: brightness(.96); }
+  .kbtn[aria-pressed="true"] { background: var(--tc, var(--ink)); color: #fff; border-color: var(--tc, var(--ink)); }
+  .kbtn .c { opacity: .7; margin-left: 4px; font-variant-numeric: tabular-nums; font-size: 12px; }
+  .kbtn-all { --tc: #252525; --tbg: #fff; }
+
+  /* entries */
+  .workspace { padding: 18px 0 40px; }
+  .list-head { display: flex; justify-content: space-between; gap: 18px; padding: 2px 0 12px; color: var(--muted); font-size: 12.5px; }
+  .list-head b { color: var(--ink); }
+  .entries { border-top: 2px solid var(--ink); }
+  .entry { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 22px; padding: 28px 0 26px; border-bottom: 1px solid var(--rule); scroll-margin-top: 72px; }
+  .rail { text-align: left; }
+  .no { font-family: var(--serif); font-size: 27px; line-height: 1; color: var(--imp, var(--blue)); font-weight: 700; letter-spacing: -.03em; }
+  .imp-badge { display: inline-flex; align-items: baseline; gap: 2px; margin-top: 9px; padding: 2px 7px; border-radius: 3px; background: var(--imp-bg, var(--blue-bg)); color: var(--imp, var(--blue)); font-family: var(--mono); font-size: 12px; font-weight: 700; }
+  .imp-badge .den { opacity: .7; font-weight: 500; }
+  .imp-label { display: block; margin-top: 5px; color: var(--imp, var(--muted)); font-size: 11.5px; font-weight: 650; letter-spacing: .05em; }
+  .entry-body { min-width: 0; }
+  .entry-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 9px; color: var(--muted); font-size: 12.5px; }
+  .source-pill { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 3px; background: var(--sbg, var(--blue-bg)); color: var(--sc, var(--blue)); font-weight: 650; font-size: 11.5px; }
+  .entry-meta .sep { color: var(--rule-strong); }
+  .entry-meta time { font-family: var(--mono); font-size: 12.5px; }
+  .entry h2 { margin: 8px 0 0; font-family: var(--sans); font-size: clamp(23px, 2.5vw, 26px); line-height: 1.35; font-weight: 700; letter-spacing: -.015em; }
+  .entry h2 a { color: var(--ink); text-decoration: none; }
+  .entry h2 a:hover { color: var(--blue); text-decoration: underline; text-decoration-color: var(--blue); }
+  .title-zh { margin: 6px 0 0; color: var(--muted); font-size: 16px; line-height: 1.65; }
+  .authors { margin: 8px 0 0; color: var(--muted); font-size: 13.5px; line-height: 1.65; }
+  .topics { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+  .imp-reason { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.65; }
+  .imp-reason b { color: var(--imp, var(--blue)); font-weight: 650; }
+  .topic { display: inline-block; padding: 2px 7px; border-radius: 999px; background: var(--tbg); color: var(--tc); font-size: 11.5px; line-height: 1.55; }
+  .summary { margin: 14px 0 0; padding: 11px 13px; background: var(--imp-bg, var(--blue-bg)); border-left: 4px solid var(--imp, var(--blue)); font-size: 15px; line-height: 1.75; color: var(--ink); }
+  .summary b { color: var(--imp, var(--blue)); font-size: 11.5px; letter-spacing: .08em; margin-right: 7px; }
+  .analysis { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; margin-top: 14px; border-top: 1px solid var(--rule); }
+  .analysis > div { padding: 11px 0 10px; border-bottom: 1px solid var(--rule); }
+  .analysis > div.wide { grid-column: 1 / -1; background: var(--purple-bg); margin-top: 8px; padding: 9px 11px; border-left: 3px solid var(--purple); border-bottom: 0; }
+  .analysis h3 { margin: 0 0 4px; color: var(--muted); font-size: 11.5px; letter-spacing: .1em; font-weight: 700; text-transform: uppercase; }
+  .analysis > div.wide h3 { color: var(--purple); }
+  .analysis p { margin: 0; color: var(--ink); font-size: 14.5px; line-height: 1.75; }
+
+  /* AI review */
+  details.review { margin-top: 10px; border: 1px solid #e4c26d; border-radius: 5px; background: #fffaf0; overflow: hidden; }
+  details.review summary { cursor: pointer; padding: 8px 11px; color: #6b4300; font-size: 13.5px; font-weight: 700; list-style: none; background: #fff4d8; }
+  details.review summary::-webkit-details-marker { display: none; }
+  .review-body { padding: 8px 13px 12px; border-top: 1px solid #f0dfb4; }
+  .review-block { padding: 9px 0; border-bottom: 1px solid #f0dfb4; }
+  .review-block:last-of-type { border-bottom: 0; }
+  .review-block h3 { margin: 0 0 4px; color: #6b4300; font-size: 12.5px; letter-spacing: .08em; font-weight: 700; }
+  .review-block ul { margin: 0; padding-left: 19px; }
+  .review-block li { margin: 3px 0; color: var(--ink); font-size: 14px; line-height: 1.75; }
+  .review-meta { margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+  @media print { details.review { break-inside: avoid; } details.review[open] .review-body { display: block; } }
+
+
+  /* floating table of contents */
+  .toc { position: fixed; z-index: 60; font-family: var(--sans); }
+  .toc-toggle { display: none; border: 1px solid var(--blue); background: #fff; color: var(--blue); padding: 7px 13px; font-size: 13px; font-weight: 650; box-shadow: 0 8px 24px -12px rgba(23,33,30,.45); cursor: grab; user-select: none; }
+  .toc-toggle:active { cursor: grabbing; }
+  .toc-toggle:hover { background: var(--blue-bg); }
+  .toc-panel { background: #fff; }
+  .toc-panel[hidden] { display: none; }
+  .toc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 11px; border-bottom: 1px solid var(--rule); color: var(--blue); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; position: sticky; top: 0; background: #fff; z-index: 1; }
+  .toc-close { border: 0; background: transparent; color: var(--muted); font-size: 15px; line-height: 1; padding: 2px 3px; }
+  .toc-list { list-style: none; margin: 0; padding: 7px 9px 11px; counter-reset: toc; }
+  .toc-list li { counter-increment: toc; margin: 0; border-bottom: 1px solid #ece8de; }
+  .toc-list li:last-child { border-bottom: 0; }
+  .toc-list a { display: grid; grid-template-columns: 30px 1fr; gap: 8px; padding: 7px 3px; color: var(--ink); text-decoration: none; font-size: 12.5px; line-height: 1.45; }
+  .toc-list a:hover { color: var(--blue); background: var(--blue-bg); }
+  .toc-no { font-family: var(--mono); font-size: 11px; color: var(--orange); }
+
+  /* desktop: persistent left sidebar, starts open, can collapse */
+  @media (hover: hover) and (pointer: fine) {
+    body { transition: padding-left .18s ease; }
+    body.toc-open { padding-left: 264px; }
+    .toc { left: 0; top: 0; bottom: 0; width: 264px; height: 100vh; overflow: auto; background: #fff; border-right: 1px solid var(--rule); padding: 18px 13px 24px; transition: width .18s ease, padding .18s ease; }
+    .toc.collapsed { width: 0; padding: 0; border-right: 0; overflow: visible; }
+    .toc-panel { position: static; width: auto; max-height: none; border: 0; box-shadow: none; }
+    .toc.collapsed .toc-panel { display: none; }
+    .toc-head { padding: 0 2px 12px; position: static; border-bottom: 1px solid var(--rule); margin-bottom: 2px; }
+    .toc-close { font-size: 12px; border: 1px solid var(--rule); border-radius: 4px; padding: 3px 8px; }
+    .toc.collapsed .toc-toggle { display: block; position: fixed; left: 0; top: 78px; border-radius: 0 8px 8px 0; border-left: 0; padding: 8px 9px; }
+  }
+
+  /* mobile: narrow vertical floating tab */
+  @media (hover: none), (pointer: coarse) {
+    .toc { left: 0; top: auto; bottom: 18px; }
+    .toc-toggle { display: block; writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: .10em; line-height: 1; padding: 9px 6px; min-height: 64px; width: 30px; font-size: 12px; border-radius: 0 7px 7px 0; box-shadow: 0 8px 24px -12px rgba(23,33,30,.5); touch-action: none; }
+    .toc.right .toc-toggle { border-radius: 7px 0 0 7px; }
+    .toc-panel { position: fixed; right: 10px; left: 10px; bottom: 58px; top: auto; width: auto; max-height: 58vh; overflow: auto; border: 1px solid var(--rule); border-radius: 7px; box-shadow: 0 24px 70px -30px rgba(23,33,30,.55); }
+  }
+  @media print { body.toc-open { padding-left: 0 !important; } .toc { display: none !important; } }
+
+  /* key nums + footer */
+
+  .keynums { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; margin-top: 12px; }
+  .keynums .label { color: var(--muted); font-size: 11.5px; letter-spacing: .08em; margin-right: 3px; }
+  .kn { display: inline-block; border: 1px solid var(--rule); border-radius: 3px; padding: 2px 7px; font-family: var(--mono); font-size: 12px; color: var(--ink); background: #fff; }
+  .entry-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-top: 13px; }
+  .entry-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-left: auto; }
+  .status-select { border: 1px solid var(--rule); background: #fff; color: var(--muted); padding: 3px 6px; font-size: 12px; border-radius: 3px; }
+  .textbtn { border: 0; background: transparent; color: var(--blue); font-size: 12.5px; padding: 2px 0; }
+  .textbtn:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .link { color: var(--blue); font-size: 12.5px; text-decoration: none; }
+  .link:hover { text-decoration: underline; text-underline-offset: 3px; }
+  details.abstract { margin-top: 11px; }
+  details.abstract summary { cursor: pointer; color: var(--muted); font-size: 12.5px; list-style: none; }
+  details.abstract summary::-webkit-details-marker { display: none; }
+  details.abstract summary::before { content: "＋ "; color: var(--blue); }
+  details.abstract[open] summary::before { content: "－ "; }
+  .abstract p { margin: 8px 0 0; padding: 10px 11px; border: 1px solid var(--rule); border-radius: 3px; background: #fff; color: var(--muted); font-size: 13.5px; line-height: 1.75; }
+  .note-wrap { margin-top: 10px; padding: 10px; border: 1px solid var(--rule); border-radius: 3px; background: #fff; }
+  .note-wrap[hidden] { display: none; }
+  .note-area { width: 100%; min-height: 64px; resize: vertical; border: 1px solid var(--rule); border-radius: 3px; padding: 8px; font-size: 13.5px; line-height: 1.7; }
+  .note-meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; color: var(--muted); font-size: 11.5px; }
+  .empty { display: none; padding: 50px 10px; text-align: center; color: var(--muted); border-bottom: 1px solid var(--rule); }
+  .empty.show { display: block; }
+  .empty b { display: block; font-family: var(--serif); font-size: 20px; color: var(--ink); margin-bottom: 4px; }
+  .footer { padding: 22px 0 38px; color: var(--muted); font-size: 12.5px; }
+  .footer .row { display: flex; justify-content: space-between; gap: 10px 24px; flex-wrap: wrap; }
+  .footer a { color: var(--blue); }
+  .toast { position: fixed; left: 50%; bottom: 18px; transform: translate(-50%, 12px); background: var(--ink); color: #fff; padding: 7px 13px; border-radius: 3px; font-size: 12.5px; opacity: 0; pointer-events: none; transition: .18s ease; z-index: 50; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+
+  @media (max-width: 760px) {
+    .wrap { width: min(100% - 24px, 1120px); }
+    .title-row { display: block; }
+    .issue { text-align: left; margin-top: 14px; }
+    .entry { grid-template-columns: 46px minmax(0, 1fr); gap: 11px; padding: 22px 0; }
+    .no { font-size: 23px; }
+    .analysis { grid-template-columns: 1fr; }
+    .analysis > div.wide { grid-column: auto; }
+    .entry h2 { font-size: 21px; }
+    .entry-actions { margin-left: 0; }
+    .coverage-table th, .coverage-table td { padding: 6px 8px; font-size: 12px; }
+  }
+  @media print {
+    :root { --page: #fff; --sheet: #fff; --ink: #000; --muted: #222; --faint: #333; --rule: #bbb; }
+    body { font-size: 10.5pt; background: #fff; }
+    .keywordbar, .toolbar, .tools, .entry-actions, .note-wrap, .toast, .list-head { display: none !important; }
+    .masthead .wrap { padding: 0 0 12px; }
+    .workspace { padding-top: 8px; }
+    .entry { break-inside: avoid; page-break-inside: avoid; padding: 14px 0; grid-template-columns: 42px 1fr; gap: 10px; }
+    .summary
+    details.abstract { display: none; }
+    .footer { padding-top: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body id="top">
+<header class="masthead">
+  <div class="wrap">
+    <div class="topline">
+      <div class="date" id="asOf">—</div>
+      <div class="tools">
+        <button class="tool" id="exportBtn" type="button">导出笔记</button>
+        <button class="tool" id="printBtn" type="button">打印</button>
+      </div>
+    </div>
+    <div class="title-row">
+      <div>
+        <h1 id="pageTitle">文献速递</h1>
+        <p class="subtitle" id="pageSubtitle">容错量子计算与超导量子计算机仿真</p>
+      </div>
+      <div class="issue">
+        <div class="issue-date" id="issueDate">2026-11-09</div>
+        <div class="issue-counts" id="issueCounts">—</div>
+      </div>
+    </div>
+    <div id="coverage"></div>
+  </div>
+</header>
+
+<nav class="keywordbar" aria-label="按关键词筛选">
+  <div class="wrap" id="keywordBar"></div>
+</nav>
+
+<main class="workspace">
+  <div class="wrap">
+    <div class="list-head">
+      <span id="listSummary">—</span>
+      <span>重要性为阅读优先级，不是论文质量评级</span>
+    </div>
+    <div class="entries" id="entries"></div>
+    <div class="empty" id="emptyState"><b>这个关键词下暂无条目</b>点“全部”回到完整列表。</div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap row">
+    <span>公式直接写在“结论 / 问题 / 方法 / 结果 / 主要贡献”等字段里，用 LaTeX 书写，由 MathJax 渲染。</span>
+    <span>生成于 <span id="generatedAt"></span> · <a id="scopeLink" href="../SCOPE.md" target="_blank" rel="noopener">检索范围</a> · <a href="#top">回到顶部 ↑</a></span>
+  </div>
+</footer>
+
+<div class="toc" id="toc">
+  <button class="toc-toggle" id="tocToggle" type="button" aria-expanded="false" aria-controls="tocPanel">目录</button>
+  <nav class="toc-panel" id="tocPanel" hidden aria-label="文章目录">
+    <div class="toc-head"><span>文章目录</span><button class="toc-close" id="tocClose" type="button" aria-label="关闭目录">×</button></div>
+    <ol class="toc-list" id="tocList"></ol>
+  </nav>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+    processEscapes: true
+  },
+  svg: { fontCache: "global", scale: 0.98 },
+  options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] }
+};
+</script>
+<script src="../assets/mathjax/tex-svg.js"></script>
+<script id="report-data" type="application/json">{"meta":{"title":"文献速递","subtitle":"容错量子计算与超导量子计算机仿真","issue_date":"2026-11-14","as_of":"2026-11-14 07:30","window":"2026-11-08 ~ 2026-11-14（各源实际最新：Science Advances 11-13、Nature 11-13、PR 11-13、QST 11-13、AVS 11-12、arXiv 11-12、ePrint 11-11、Quantum 11-10、SciPost 11-10；本轮所有源均无 11-14 当日记录）","note":"本轮 9 个源全部返回正常，抓取 800 篇候选，去重后 799 篇，其中命中主题关键词 120 篇（信号池 138 篇、与主题重心重叠 89 篇），最终收录 14 篇（必读 4 篇）并全部完成全文阅读。各源最新批次止于 11-10 ~ 11-13，11-14 当日无新记录，因此本期为各源截至上述日期的最新一批；收录文章的出版日期分布在 11-09 ~ 11-13。","scope_href":"../SCOPE.md","generated_at":"2026-11-14 07:30 +08:00","journals":[{"group":"预印本","label":"预印本","kind":"group","raw":369,"screened":85,"included":9,"status":"ok"},{"group":"预印本","label":"arXiv","kind":"journal","raw":320,"screened":74,"included":9,"status":"ok"},{"group":"预印本","label":"Cryptology ePrint Archive","kind":"journal","raw":49,"screened":11,"included":0,"status":"ok"},{"group":"PR 系列","label":"PR 系列","kind":"group","raw":277,"screened":23,"included":3,"status":"ok"},{"group":"PR 系列","label":"PRX Quantum","kind":"journal","raw":9,"screened":2,"included":0,"status":"ok"},{"group":"PR 系列","label":"Physical Review X","kind":"journal","raw":12,"screened":2,"included":1,"status":"ok"},{"group":"PR 系列","label":"Physical Review Research","kind":"journal","raw":31,"screened":2,"included":0,"status":"ok"},{"group":"PR 系列","label":"Physical Review Letters","kind":"journal","raw":88,"screened":4,"included":1,"status":"ok"},{"group":"PR 系列","label":"Physical Review A","kind":"journal","raw":95,"screened":4,"included":0,"status":"ok"},{"group":"PR 系列","label":"Physical Review Applied","kind":"journal","raw":40,"screened":9,"included":1,"status":"ok"},{"group":"PR 系列","label":"Reviews of Modern Physics","kind":"journal","raw":2,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature 系列","kind":"group","raw":53,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature","kind":"journal","raw":24,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature Physics","kind":"journal","raw":8,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature Communications","kind":"journal","raw":7,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"npj Quantum Information","kind":"journal","raw":4,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Communications Physics","kind":"journal","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature Electronics","kind":"journal","raw":4,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature Materials","kind":"journal","raw":4,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature Nanotechnology","kind":"journal","raw":2,"screened":0,"included":0,"status":"ok"},{"group":"Quantum","label":"Quantum","kind":"single","raw":9,"screened":3,"included":1,"status":"ok"},{"group":"Science Advances","label":"Science Advances","kind":"single","raw":79,"screened":6,"included":1,"status":"ok"},{"group":"SciPost Physics","label":"SciPost Physics","kind":"single","raw":1,"screened":0,"included":0,"status":"ok"},{"group":"AVS Quantum Science","label":"AVS Quantum Science","kind":"single","raw":1,"screened":0,"included":0,"status":"ok"},{"group":"Quantum Science and Technology","label":"Quantum Science and Technology","kind":"single","raw":10,"screened":3,"included":0,"status":"ok"}],"coverage_totals":{"raw":800,"deduped":799,"screened":120,"included":14,"errors":[]}},"articles":[{"id":"scienceadv-10.1126/sciadv.aec4142","no":1,"topics":["纠错码"],"source":"Science Advances","venue":"Science Advances","published":"2026-11-13","title":"Fault-tolerant quantum computing with high-rate symplectic double code","title_zh":"用高码率辛双重码实现容错量子计算","authors":["Naoyuki Kanomata","Hayato Goto"],"abstract":"High-rate codes are attractive for fault-tolerant quantum computing, but most of them lack efficient fault-tolerant encoders. The authors construct fault-tolerant encoders for two symplectic double codes, [[30,6,5]] and [[36,12,5]], that detect the crucial errors during encoding with as few auxiliary qubits as possible. Circuit-level simulations show logical-CNOT error rates scaling as the third power of the physical error rate, together with arbitrary-state encoders that allow magic-state injection and thus universal computation.","importance":5,"importance_reason":"把 Goto 的最小开销校验思想推到两个高码率辛双重码上，给出可直接执行的容错编码电路（含任意态编码器与魔术态注入），是“高码率码能否近期上机”的关键一环；码块小、码率高、距离 5，对超导平台的近期实验规划参考价值很高。","summary":"为 [[30,6,5]]（码率 20%）与 [[36,12,5]]（码率 33%）两个辛双重码设计容错编码器：以尽量少的辅助比特在编码过程中探测关键错误，给出零态/加态编码器与任意态编码器；电路级噪声下逻辑 CNOT 错误率随物理错误率三次方下降（d=5 时 a≈3），资源开销低于朴素的多副本校验方案。","problem":"高码率、大距离的量子码大多缺少高效的容错编码方法：直接把逻辑态制备成编码态会在编码过程中引入不可纠正的错误，而朴素做法（多副本制备加横向校验、重复码校验）辅助比特与门数开销过大。因此需要一套在编码过程中就能探测关键错误、且辅助比特数尽量少的编码电路，否则高码率码的“紧凑”优势在实验上会被制备开销吃掉。","method":"针对 [[30,6,5]] 与 [[36,12,5]] 两个辛双重码（可由 6 个或 12 个逻辑量子比特共享一个紧凑码块），把编码分解为若干容错步骤，每一步用少量辅助比特做校验以探测编码过程中出现的关键错误（weight-2/3 错误），从而避免错误传播到最终编码态。零态与加态编码器分别处理 X/Z 基制备；任意态编码器通过量子傅里叶/受控操作把任意单量子比特态注入编码空间，用于魔术态注入。噪声模型为电路级：每个 CNOT 以 p_circ/15 的概率附加 15 个非平凡 Pauli 之一，制备与测量各有 p_circ 的比特翻转，不含存储与单比特门错误。逻辑 CNOT 由 10 个横向逻辑 CNOT 与 ECT（error-corrected teleportation）组合而成，其错误率由 p_CNOT = 1-(1-p1)^{1/6}、p1 = 1-(1-p10)^{1/10} 从单次横向 CNOT 的错误率换算得到。","result":"数值模拟显示 p_CNOT 随 p_circ 呈幂律下降，两个码在 d=5 时指数 a≈3，说明编码器保住了距离 5 的三阶抑制。在 p_circ=10^-4 处，所提编码器的逻辑 CNOT 错误率低于对比的朴素方案（9 副本、6 副本、4 副本校验），同时所用物理量子比特数最少；由于码块本身紧凑（30 与 36 个数据比特承载 6 与 12 个逻辑比特），单位逻辑比特的物理开销显著低于同距离的表面码方案。","contribution":"首次为高码率辛双重码给出完整的容错态制备方案：编码过程中的关键错误可探测、辅助比特开销接近最小、且附带任意态编码器以支持魔术态注入，从而把“高码率码”从码表推进到可执行的容错计算流程，为近期实验验证高码率码提供了具体电路。","limitation":"噪声模型只含 CNOT 与制备/测量错误，未包含存储退相干、单比特门错误与串扰，因此报告的逻辑错误率偏乐观；模拟仅在 d=5 一个距离上给出幂律指数，缺少 d=7 等更大距离以确认渐近抑制；辅助比特数依赖图形化电路（论文图中给出），正文未逐门列全，复现需要补充材料。","key_numbers":["[[30,6,5]] 码率 20%（6/30）","[[36,12,5]] 码率 33.3%（12/36）","d=5 时 p_CNOT ∝ p_circ^a，a≈3","逻辑 CNOT = 10 个横向逻辑 CNOT + ECT","p_circ=10^-4 处物理比特数最少、逻辑错误率最低"],"url":"https://doi.org/10.1126/sciadv.aec4142","review":{"verdict":"小修","confidence":"中","correctness":"编码器构造与“编码过程中探测关键错误”的逻辑自洽，p_CNOT 由 p1、p10 经 1-(1-p)^(1/k) 换算的定义清楚；d=5 下 a≈3 的三阶抑制与距离 5 的预期一致，因此编码器未破坏距离这一核心结论可信。","weaknesses":"· 噪声模型只有 CNOT 与制备/测量错误，缺少存储退相干、单比特门与串扰，逻辑错误率必然偏乐观；\n· 只在 d=5 给出幂律指数，没有 d=7 验证“指数随距离增长”；\n· 辅助比特数与时序细节主要落在图中，正文不足以独立复现编码电路；\n· 与实际超导平台的连通性、测量次数、实时解码需求未讨论；\n· 与表面码/其他高码率码的对比只在 p_circ=1e-4 单点给出。","overclaim":"标题中的 fault-tolerant quantum computing 指的是“码 + 容错制备”闭环，而非完整通用容错计算；摘要没有夸大，但读者易把二维最近邻硬件可行性与逻辑计算全套能力混为一谈。","citations":"Goto 的辛双重码与最小开销校验、高码率码表、魔术态注入文献引用到位；对近期“高码率码实验化”工作的引用可以更集中一些。","questions":"① 加入存储与单比特门噪声后 a≈3 是否仍成立？② d=7 的编码器辅助比特开销按什么比例增长？③ 在有限连通性芯片上，10 个横向 CNOT 需要的路由开销是多少？","basis":"基于 arXiv:2509.15457v1 预印本全文（pdftotext 抽取）阅读；该预印本只覆盖 [[30,6,5]]，正式版新增的 [[36,12,5]] 内容未在预印本中逐项核对。"}},{"id":"arxiv-2611.15952","no":2,"topics":["纠错码","解码器"],"source":"arXiv","venue":"arXiv:2611.15952 [quant-ph]","published":"2026-11-11","title":"Quasi-Cyclic Qudit Lifted Product Codes with Almost Linear Minimum Distance","title_zh":"具有近线性最小距离的准循环量子比特提升乘积码","authors":["Shantom K. Borah","Abhinav Vaishya","V. Lalitha","Asit Kumar Pradhan","Bane Vasic","Narayanan Rengaswamy"],"abstract":"Lifted-product codes over cyclic group algebras are generalized from bits to qudits. For every stacking order the construction yields quasi-cyclic qudit CSS codes, and fully stacked lifted Tanner codes give asymptotically good families with Θ(log N) logical qudits and Θ(N/log N) distance. A distance bound for general lifted-product factors and an additive decoder with merged syndromes are derived, and field-size dependence is benchmarked for codes up to [[1054,140,20]].","importance":5,"importance_reason":"把提升乘积码从二元推广到 q 元（GF(2^m)），同时给出近线性距离的渐近好码族与可实现的合并综合征解码器，并用 [[900,36,10]]、[[1054,140,20]] 这样的具体码做了误帧率对比；对“高码率 + 大距离 + 实用解码”这条主线是可直接落地的进展。","summary":"在循环群代数上把提升乘积（LP）码推广到量子比特（GF(2^m)）：任意堆叠阶数都给出准循环 q 元 CSS 码，完全堆叠的提升 Tanner 码达到 Θ(log N) 逻辑比特与 Θ(N/log N) 距离；给出一般 LP 因子的距离上界、加性解码器与合并综合征线性解码器；FER 从 GF(2) 到 GF(64) 改善 1–2 个数量级。","problem":"二元提升乘积码已能给出不错的参数，但量子比特（q 元）版本缺少系统构造：循环群代数上的 LP 在 q>2 时如何保持 CSS 结构、堆叠阶数如何影响最小距离、以及 q 元下解码复杂度是否会失控，都没有答案；而 q 元码本来被期待用更少物理比特换更高码率，若不解决这些问题就无法与二元码公平比较。","method":"以循环群代数 F_q[C_ℓ] 上的矩阵为“提升”因子，构造准循环 q 元 CSS 码，并分析不同堆叠（stacking）阶数下的 Tanner 图结构：完全堆叠时把多个 LP 块沿校验方向叠起来，使 Tanner 图接近随机正则图，从而用扩展图论证给出最小距离下界。距离上界由一般 LP 因子的秩/围长分析得到。解码上采用 q 元置信传播（最多 50 次迭代）配合加性（additive）解码器，并提出合并综合征解码器：先把 q 元综合征映射到二元子域上合并，再用线性解码器求解，从而绕开 q 元 BP 的高复杂度。","result":"构造出的具体码包括码 A（320 个变量节点、128 个校验节点）、码 B [[900,36,10]] 与码 C [[1054,140,20]]（提升/循环尺寸 ℓ=31）。误帧率随场规模增大而改善：从 GF(2) 到 GF(64) 提升 1–2 个数量级，但在高场端因堆叠引入的 4-环而饱和；合并解码器相对二元综合征解码器最多约一个数量级的增益，并定义增益 FER_binary/FER_merged 随场规模增长。渐近上，完全堆叠的提升 Tanner 码给出 Θ(log N) 个逻辑量子比特与 Θ(N/log N) 的最小距离，即“近线性距离”的好码族。","contribution":"给出 q 元 LP 码的一套完整构造—距离—解码链条：准循环结构保证编码与综合征提取的硬件友好性，近线性距离的渐近族说明 q 元 LP 可以同时要码率与距离，合并综合征解码器则把 q 元解码的复杂度压回可接受范围，为 q 元码的实际评估提供了基线。","limitation":"高场端的 FER 饱和说明堆叠结构带来的 4-环限制了 BP 性能，需要用更精细的调度或后处理才能继续吃场规模的红利；距离上界对一般 LP 因子较松，渐近好码族的常数未优化；解码器实现与量子比特硬件（如 qudit 超导/离子）的综合征提取电路未讨论，实际门数开销不明。","key_numbers":["码 B [[900,36,10]]","码 C [[1054,140,20]]，ℓ=31","FER 从 GF(2) 到 GF(64) 改善 1–2 个数量级","BP 迭代上限 50","渐近 Θ(log N) 逻辑量子比特、Θ(N/log N) 距离"],"url":"https://arxiv.org/abs/2611.15952","review":{"verdict":"小修","confidence":"中","correctness":"q 元 CSS 结构与堆叠分析一致，合并综合征解码器把 q 元综合征映到二元子域再线性求解的思路可行；但 Θ(N/log N) 距离的常数与适用条件依赖扩展图论证，正文只给出渐近陈述，未给出可验证的常数；FER 饱和归因于 4-环是合理推断而非直接测量。","weaknesses":"· 距离上界对一般 LP 因子偏松，渐近族的常数与有限尺寸表现没有对齐；\n· 高场端 FER 饱和明显，堆叠引入的 4-环限制了收益，缺少消除 4-环的构造或调度；\n· 解码对比只在少数码与场规模上给出，未与 q 元 LDPC 的最新解码器横向比较；\n· 量子比特硬件（qudit 综合征提取）的门数与保真度开销完全未讨论；\n· 码 A 的参数描述不够完整，难以独立重建。","overclaim":"almost linear minimum distance 是渐近意义下的表述，摘要未声明有限尺寸已达到近线性；但 [[1054,140,20]] 这类实例容易被读成“已实现近线性”，实际 d/N≈0.019。","citations":"提升乘积码、量子 Tanner 码、q 元 LDPC 与置信传播的引用完整；对 qudit 硬件实现的引用较少。","questions":"① 合并解码器的复杂度随场规模如何增长，是否仍为线性时间？② 消除 4-环后 FER 能否继续随场规模改善？③ 渐近族的距离常数与 [[1054,140,20]] 的差距有多大？","basis":"基于 arXiv:2611.15952v1 全文抽取文本阅读，核对了码参数、解码流程与 FER 曲线描述。"}},{"id":"arxiv-2611.15080","no":3,"topics":["Pauli 传播","编译与验证"],"source":"arXiv","venue":"arXiv:2611.15080 [quant-ph]","published":"2026-11-11","title":"Structure-Aware Quantum Circuit Equivalence Checking via Sparse Pauli Propagation","title_zh":"基于稀疏 Pauli 传播的结构感知量子线路等价性检查","authors":["Shangzhou Xia","Junjie Luo","Qichen Wang","Yasunari Suzuki","Jianjun Zhao"],"abstract":"Verifying that two quantum circuits implement the same unitary is central to compilation flows, yet decision-diagram and model-counting checkers scale poorly. The authors combine sparse Pauli propagation, which compares the conjugation of 2n generators, with a Cut-Miter scheme that cancels common subcircuits at cut points, and account explicitly for numerical and approximation error. On 434 benchmark pairs up to 512 qubits the checker reaches 96.3% reference-consistent verdicts with no incorrect equivalence claim.","importance":5,"importance_reason":"编译验证是容错编译流程里最容易被忽略、却直接决定“优化后的线路还能不能信”的一环；这篇把稀疏 Pauli 传播与 Cut-Miter 结合到实用检查器里，在 434 对最多 512 比特的基准上做到零错误判定、且运行时间比 MQT QCEC 等基线低一半以上，属于能立刻用于编译流水线的工具型工作。","summary":"提出结构感知的线路等价性检查：用稀疏 Pauli 传播比较 2n 个生成元的共轭（每个只保留有限个 Pauli 项），再用 Cut-Miter 在切割点做公共子线路的乘积消去；显式处理数值误差与近似截断误差。434 对基准（最多 512 比特）上 96.3% 判定与参考一致、零错误判定，运行时间比基线低 48.5%–76.0%。","problem":"等价性检查要在指数大的酉群上判定两个线路是否相同：决策图（MQT QCEC 的 DD/ZX 后端）会随纠缠增长而爆炸，加权模型计数（Quokka#）在门数多时组合数激增，而直接逐门传播 Pauli 串的代价随非 Clifford 门数指数增长。实际编译流程里的线路对往往“大部分相同、只有局部被重写”，已有工具没有利用这种结构，导致要么慢、要么只能给出保守的“未知”。","method":"两条线索合并。其一是稀疏 Pauli 传播：把线路作用在 2n 个 Pauli 生成元上，只保留权重/系数超过阈值的项，把“两线路是否在所有生成元上共轭相同”化为逐项比较，复杂度随被截断的非 Clifford 门数而非总门数增长。其二是 Cut-Miter：沿线路寻找切割点，把两个线路写成公共前缀与后缀的乘积，在切割点上消去相同因子，从而把大 Miter 拆成若干小实例。两者结合时显式跟踪浮点误差与截断引入的近似误差，给出“等价/不等价/不确定”的三值判定，避免把近似误差误判为不等价。实现基于 Python + Qiskit 2.5.1。","result":"在 434 对基准（两个测试套件，含由 Qiskit optimization_level=2 生成的编译前后线路对，规模最大 512 比特）上，检查器给出 96.3% 与参考一致的判定，且没有任何一次把不等价判成等价（零错误判定）；相比之下基线最好只有 68.7%。聚合运行时间最低，相对各基线降低 48.5%–76.0%。消融实验显示 Cut-Miter、Pauli 项剪枝与有界传播次数三者都贡献了精度或速度。","contribution":"把“稀疏 Pauli 传播”从模拟工具变成验证原语，并给出一套可处理实际编译输出的结构感知检查器：在大规模线路对上同时取得高判定率、零错误判定与最低运行时间，为容错编译流程中的“优化后等价性”提供可插拔的验证环节。","limitation":"判定率不是 100%：剩余约 3.7% 的线路对落在“不确定”，需要回退到更昂贵的精确方法；基准以 Qiskit 生成的局部重写为主，对跨编译器（如 tket、Qiskit 混合）或含大量非 Clifford 门的线路，传播截断会更频繁地触发不确定；论文未给出最坏情况的复杂度上界，只给了经验运行时间。","key_numbers":["434 对基准线路","最大 512 比特","96.3% 判定与参考一致（基线 ≤68.7%）","零错误等价判定","运行时间降低 48.5%–76.0%"],"url":"https://arxiv.org/abs/2611.15080","review":{"verdict":"小修","confidence":"高","correctness":"把等价性判定化为 2n 个生成元共轭的比较是标准且正确的做法，Cut-Miter 的公共子线路消去在乘积结构下有效；三值判定（等价/不等价/不确定）避免了近似误差导致的错误不等价结论，96.3% 一致率与零错误判定在 434 对基准上自洽。","weaknesses":"· 仍留下约 3.7% 的“不确定”，没有给出这些实例的分布特征（门类型、非 Clifford 比例）；\n· 基准主要是 Qiskit 生成的局部重写对，对跨编译器与高层综合后的线路泛化性未验证；\n· 只有经验运行时间，缺少最坏情况复杂度分析与参数（阈值、切割点选择）敏感性研究；\n· 与形式化方法（ZX/DD）在“不确定”实例上的互补性未讨论；\n· 工具可用性与实现细节（如何自动选切割点）描述偏少。","overclaim":"摘要给出 96.3% 与零错误判定，措辞克制；但标题的 structure-aware 容易被理解为对任意结构都有效，实际收益依赖“两线路大部分相同”的前提。","citations":"MQT QCEC、Quokka#、QuPRS 等基线引用完整，Pauli 传播与稳定子形式化的背景引用也到位。","questions":"① 3.7% 不确定实例集中在哪类门或哪种优化上？② 把阈值调低能否把不确定压到 1% 以内，代价多大？③ 与 ZX-calculus 检查器串联能否覆盖剩余实例？","basis":"基于 arXiv:2611.15080v1 全文抽取文本阅读，核对了方法、基准规模与消融结果。"}},{"id":"arxiv-2611.16691","no":4,"topics":["纠错码","容错实验"],"source":"arXiv","venue":"arXiv:2611.16691 [quant-ph]","published":"2026-11-12","title":"Persistent-mediator architecture for universal fault-tolerant quantum computation with color codes","title_zh":"色码通用容错量子计算的持久中介架构","authors":["Zhi-Cheng He","Jingbo Wang","Dong E. Liu"],"abstract":"Two-dimensional color codes provide transversal Clifford gates while three-dimensional color codes provide a transversal T gate, but cross-dimensional schemes usually consume the 3D resource. The authors keep a 2D triangular color-code register and a 3D tetrahedral mediator as distinct encoded modules, coupling them only through a transient protected subsystem via a membrane-like joint logical measurement, a matched cross-dimensional CZ, string surgery and feed-forward. The mediator returns to its initial logical state, allowing deterministic repeated T gates.","importance":5,"importance_reason":"把“3D 中介块用完就废”改成“可反复使用的编码模块”，是跨维非 Clifford 方案能否摊销资源的关键问题；这篇给出了完整的闭合 T 门周期（含膜状联合逻辑测量、跨维 CZ、弦手术与前馈），并用 Stim 做了 d=3,5,7 的电路级模拟，对超导色码路线是直接的架构级参考。","summary":"提出跨维“持久中介”架构：2D 三角色码数据寄存器与 3D 四面体色码中介块在每个周期边界都保持为独立编码模块，仅通过瞬态受保护子系统耦合。用膜状联合逻辑测量、匹配的跨维 CZ、互补的弦状手术与前馈组成确定性逻辑 T 门周期，无需后选择与破坏性读出，中介块回到初始逻辑态。","problem":"2D 色码有横向 Clifford 但缺横向 T；3D 色码有横向 T，却通常以“消耗一个 3D 编码态”的方式使用——每次非 Clifford 门都要重新制备、最后还要破坏性读出，资源开销随 T 门数线性增长。要复用同一 3D 块，就必须在 merge–split 过程中同时保住联合逻辑宇称、剩余逻辑自由度及其空间距离、以及跨边界的综合征历史一致性。","method":"构造膜状（membrane-like）联合逻辑测量：在 2D 与 3D 块的界面上引入瞬态受保护子系统，测量跨维联合逻辑算符；配合匹配的跨维 CZ 门把 3D 的横向 T 作用“搬运”到 2D 寄存器，再用互补的弦状手术（string-like surgery）恢复边界、以前馈完成确定性修正，使 3D 块回到初始逻辑态。稳定子分析给出逻辑作用与保持的空间距离；用 Stim + Sinter 对 Clifford 替代（T→S、T†→S†）在 d=3,5,7 上做唯象与电路级模拟，解码用超图 union-find，标志（flag）记录全部保留。","result":"唯象去极化噪声下 d=3,5,7 出现距离相关的错误抑制，交叉区在 p≃0.7%；电路级单参数噪声模型下交叉区约 2×10^-4（与匹配的 3D 存储基准接近）。顺序测试在 p=0.002/0.004/0.006 下连续执行 N=1,5,10,20 个替代周期，低错误率区间内逻辑错误近似线性累积，说明中介块可反复使用而不快速退化。","contribution":"把跨维非 Clifford 从“一次性消耗 3D 资源”推进到“保留编码与保护的持久中介”，并给出可模拟、可判定的完整周期构造与稳定子层面的正确性论证；对色码架构而言，这提供了摊销 3D 制备与读出开销的一条具体路径。","limitation":"模拟的是 Clifford 替代而非真正的 T 层，非 Clifford 层的错误传播未被精确建模，因此交叉区只能称“有限距离交叉证据”，不是物理 T 器件的渐近阈值；只做到 d=7，未做更高距离；膜状测量与前馈在实际超导硬件上的实现（跨维耦合、实时解码延迟）未讨论。","key_numbers":["d=3,5,7","唯象交叉区 p≃0.7%","电路级交叉区约 2×10^-4","顺序测试 N=1,5,10,20 个周期","p=0.002/0.004/0.006 三档噪声"],"url":"https://arxiv.org/abs/2611.16691","review":{"verdict":"大修","confidence":"中","correctness":"稳定子分析给出的逻辑作用与距离保持论证在构造层面成立，膜状联合测量 + 跨维 CZ + 弦手术 + 前馈的组合确实构成闭合周期；但“中介块回到初始逻辑态”依赖前馈的确定性成功，模拟中用 Clifford 替代 T，真正的非 Clifford 错误传播未被验证。","weaknesses":"· 用 S/S† 替代 T/T† 只能检验 Clifford 部分的错误传播，非 Clifford 层（魔术态、T 门注入）的错误机制缺失；\n· 电路级交叉区约 2×10^-4 是有限距离的“交叉证据”，作者也承认非渐近，却仍以 threshold 语境呈现；\n· 只到 d=7，未验证 d 增大时交叉区是否稳定；\n· 跨维耦合（2D 与 3D 块之间的物理连接）与实时前馈延迟在超导硬件上的可行性未讨论；\n· N=1..20 的线性累积只覆盖低错误率区间，高错误率下的饱和行为未给出。","overclaim":"universal fault-tolerant quantum computation 是架构级主张，实际验证只覆盖替代后的 Clifford 动力学；摘要未声称已演示 T 门，但标题的 universal 容易让人高估验证范围。","citations":"2D/3D 色码、跨维手术、膜与弦算符、union-find 解码的引用充分；对已有“3D 块复用”方案的对比可以更明确。","questions":"① 加入真实 T 门与魔术态注入后交叉区会下降多少？② 前馈失败率对周期保真度的影响如何随 d 变化？③ d=9 时交叉区是否仍约 2×10^-4？","basis":"基于 arXiv:2611.16691v1 全文抽取文本阅读，核对了稳定子分析、Stim/Sinter 模拟设置与交叉区数值。"}},{"id":"arxiv-2611.15000","no":5,"topics":["大规模仿真","经典模拟"],"source":"arXiv","venue":"arXiv:2611.15000 [quant-ph]","published":"2026-11-11","title":"QSim-Arena: an evolving developer for quantum simulation advantage","title_zh":"QSim-Arena：持续演化的量子模拟优势评估框架","authors":["Jue Xu","Yue Wang","Qi Zhao"],"abstract":"Claims of quantum advantage in dynamics simulation are moving targets on both sides. The authors present QSim-Arena, a framework in which AI agents run a closed loop of verification and benchmarking alongside open exploration: they turn published techniques into executable components, reproduce reported numbers, cross-check competing classical methods, and co-design fault-tolerant circuits. Applied to a fault-tolerant crossover study and four Hamiltonian families, the arena lowered certified quantum runtimes by factors of 21 to 185 within a week.","importance":4,"importance_reason":"它把“量子优势”从论文里的静态声明变成可持续维护、可复核的对照实验台：同一套误差界与经典基线同时约束量子与经典两侧，并强制把被推翻的结论公开撤回。对做资源估计与容错线路协同设计的人来说，这是方法论层面的基础设施，而且给出了 21–185 倍的实测改进幅度。","summary":"提出由 AI 智能体驱动的量子模拟优势评估框架：探索侧自由组合文献技术，验证侧强制复现已发表数字、跨通道交叉检验、公开撤回错误。用于 Sun 等人的容错交叉点框架与四类哈密顿量，一周内把认证量子运行时间下调 21–185 倍，把基线 Trotter 步的 T 门数最多降到 1/4。","problem":"量子优势的判定是“两个移动靶”的比较：实验侧不断刷新规模，经典侧不断用更好的张量网络/蒙特卡洛方法把优势窗口收窄，而期刊发表周期远慢于两侧进展，导致许多“优势声明”在发表时已经过期或被推翻。缺少一个同时约束两侧、可复现、且能记录失败与撤回的评估流程，资源估计就容易建立在过时或不可复现的数字上。","method":"把评估拆成两条标准不同的回路。探索回路开放：智能体读文献、抽取技术、把方法实现为可执行组件，可自由组合。验证回路封闭：任何提案先过“先前技术/前提条件/总代价”筛，随后实现、与已发表数字对比、由非原作者通道复核、上榜并被攻击，失败者必须公开撤回并写入记录。文献中的经典方法作为参赛者进入排行榜，硬件实验则作为经典侧的靶标；小系统结果支持预先登记的尺寸外推，假设与不确定度一并记录。框架同时做容错线路的协同设计（基于严格误差界与经验标定）。","result":"以 Sun 等人的容错交叉点框架为起点并扩展到四类哈密顿量族，一周内认证量子运行时间下降 21–185 倍；把基线研究自身四阶 Trotter 步的 T 门数（原式 60(15n-5)）最多降到 1/4；Hamming-weight phasing 与 Pauli 串表示等既有技术被整合后，使该框架自身四类模型的 T 门数最多再降 2.4 倍，按“Toffoli 门数 × 逻辑比特数”计成本最多降 1.59 倍。过程中还发现并公开修正了自己先前版本的 shot count 错误。","contribution":"给出一个可运行、可审计的“优势评估”范式：把经典基线、量子资源估计、误差界与文献复现放进同一闭环，并用公开排行榜与撤回机制维持可信度；对容错模拟的资源估计而言，它示范了如何用既有技术的组合在短期内取得数量级改进。","limitation":"核心结论依赖智能体对文献技术的抽取与实现质量，缺少对“抽取错误”的系统性度量；认证运行时间的下降主要来自已知技术的组合与更紧的误差界，并不构成新的算法复杂度结果；排行榜与预注册外推仍是人为设定的规则，跨团队复现时规则差异会直接影响可比性。","key_numbers":["认证量子运行时间下降 21–185 倍（一周内）","基线 Trotter 步 T 门数最多降至 1/4","60(15n-5) 为原四阶 Trotter 步 T 门数","框架自身四类模型 T 门数再降 2.4 倍","Toffoli×逻辑比特成本降 1.59 倍"],"url":"https://arxiv.org/abs/2611.15000","review":{"verdict":"大修","confidence":"中","correctness":"框架描述（开放探索 + 封闭验证、独立通道复核、失败撤回、预先登记的尺寸外推）内部一致，21–185 倍的运行时间下降与 4 倍 T 门下降在文中给出可追溯的来源；但核心数字依赖智能体对文献技术的抽取与实现，论文未给出抽取正确率的量化，因此“改进来源”与“抽取质量”无法分离。","weaknesses":"· 认证运行时间的下降主要来自既有技术的组合与更紧的误差界，不构成新的算法复杂度结果，标题的 advantage 易被误读为量子优势的证明；\n· 智能体抽取文献技术的正确率没有系统评估，错误被发现的案例（shot count）只作为轶事呈现；\n· 排行榜规则与外推假设由作者设定，跨团队复现时规则差异会直接影响可比性；\n· 经典基线由同一批智能体实现，存在“对手偏弱”的风险，缺少第三方实现的对照；\n· 21–185 倍是相对作者自身起点，与文献中最好的手工资源估计相比增益未知。","overclaim":"摘要称 lowered certified quantum runtimes by factors of 21 to 185，这是相对框架自身起点，而非相对领域最佳；正文虽有限定，但标题与摘要的措辞足以让读者以为量子优势窗口被显著扩大，实际是评估流程让估计更紧。","citations":"容错资源估计（T 计数、Trotter 误差界）、张量网络与蒙特卡洛经典基线、GBS/玻色采样优势讨论的引用较全；对智能体做科研的既有工作引用偏少。","questions":"① 若经典基线由独立团队实现，21–185 倍还剩多少？② 智能体抽取错误率如何度量，错误率多高时框架结论会反转？③ 排行榜规则变化对排名的影响有多大？","basis":"基于 arXiv:2611.15000v1 全文抽取文本阅读，核对了框架描述、基准来源与报告的数字。"}},{"id":"quantum-10.22331/q-2026-11-10-2268","no":6,"topics":["经典模拟"],"source":"Quantum","venue":"Quantum","published":"2026-11-10","title":"Simulating Gaussian boson sampling on graphs in polynomial time","title_zh":"图上的高斯玻色采样可在多项式时间内经典模拟","authors":["Konrad Anand","Zongchen Chen","Mary Cryan","Graham Freifeld","Leslie Ann Goldberg","Heng Guo","Xinyuan Zhang"],"abstract":"Graphical applications of Gaussian boson sampling sample from a distribution determined by the graph's perfect matchings, and it was conjectured that this distribution is hard. The authors give a classical algorithm that samples from it up to small total variation distance in time polynomial in the graph size, by reduction to the Jerrum-Sinclair matching chain, and extend the result to a boson-sampling variant with non-negative weights. Quantum algorithms therefore give no exponential speedup for these graph applications.","importance":4,"importance_reason":"直接否掉了 GBS 最主要的“应用叙事”：图上的 GBS 采样分布可以用多项式时间经典采样，而且算法简单（归约到匹配链），这意味着基于 GBS 的图问题加速主张需要重新界定。对评估光量子优势边界的人来说是必须知道的负面结果。","summary":"证明图上的高斯玻色采样（GBS）分布可在多项式时间内经典采样：把 GBS 的输出分布归约到图的完美匹配大小分布，用 Jerrum–Sinclair 匹配马尔可夫链在 O(c·m·n^4·log^2(nc/ε)) 时间内采样到总变差距离 ε 内；并推广到非负权重的玻色采样变体。因此 GBS 的图应用不提供指数加速。","problem":"GBS 的主要应用都落在图问题上（完美匹配计数、最密子图、图同构、植入二分团、图着色），此前的共识是这些分布难以经典采样，甚至有工作给出 n^{O(ξ)} 之类的次指数上界但未排除多项式算法。若这些分布其实多项式可采，那么“GBS 在这些应用上有量子优势”的整个论证链条就断了，而此前没有定论。","method":"关键观察是：图上 GBS 的输出分布只依赖图的完美匹配数（匹配多项式系数），与具体的光学网络参数无关。于是把采样问题归约为从“匹配大小分布”µ_matching 采样——这是一个经典的组合分布，Jerrum 与 Sinclair 已证明其 Glauber动力学链在多项式时间内收敛。作者进一步证明该链对任意图都满足“多项式时间生成完美匹配”的性质，从而给出显式复杂度 O(c·m·n^4·log^2(nc/ε))（m=|E|、n=|V|、c 由匹配数比给出）。对非负权重的玻色采样变体做类似归约。","result":"定理 1.1 给出对所有图成立的多项式时间近似采样算法（总变差距离 ε）；定理 1.3 把结论推广到非负权重的玻色采样分布。与 Zhang 等人先前的 n^{O(ξ)} 上界相比，新算法更简单、更快，且不需要图参数 ξ 的限制。由于这些分布正是图应用实际采样的对象，结论是量子算法在这些图上不给出指数加速。","contribution":"给出 GBS 图应用的强负面结果，并把“匹配分布可高效采样”这一经典结论与 GBS 的输出分布精确对接，从而把光量子优势的讨论从“能否采样”收缩到“哪些非图结构分布才可能难”；同时给出更简单更快的显式算法与复杂度。","limitation":"结论针对的是图上 GBS 所对应的特定分布（匹配大小分布），并不否定一般 GBS 或 BS 的采样复杂度；算法复杂度含匹配数比 c 因子，对极端图（匹配数分布极不均匀）仍需具体核算；论文是理论结果，未做数值实现与常数因子评估。","key_numbers":["O(c·m·n^4·log^2(nc/ε)) 时间采样","总变差距离 ε","m=|E|、n=|V|","覆盖所有图（含非负权重 BS 变体）","对比先前 n^{O(ξ)} 上界"],"url":"https://quantum-journal.org/papers/q-2026-11-10-2268/","review":{"verdict":"接受","confidence":"高","correctness":"归约链条清晰：图上 GBS 分布只依赖匹配数分布 → Jerrum–Sinclair 链可在多项式时间近似采样 → 得到 O(c·m·n^4·log^2(nc/ε)) 的算法；定理 1.1 与 1.3 的陈述与证明结构相符，与先前 n^{O(ξ)} 上界的比较也一致。","weaknesses":"· 结论只针对图上 GBS 对应的匹配大小分布，不否定一般 GBS/BS 的采样复杂度，标题的 on graphs 必须被严格理解；\n· 复杂度中 c 由匹配数比给出，对匹配数分布极不均匀的图需要具体核算，未给出最坏情形；\n· 纯理论结果，没有数值实现或常数因子评估，实际可用性未知；\n· 对“何时 GBS 分布不再是匹配分布”的边界条件只做了简要讨论。","overclaim":"摘要与正文都明确限定在图应用并据此否定指数加速，措辞准确；唯一的风险是标题省略了 distribution determined by perfect matchings 这一前提。","citations":"Jerrum–Sinclair 匹配链、完美匹配计数、GBS 复杂度与图应用（最密子图、图同构等）的引用完整且切题。","questions":"① 匹配数比 c 在最坏图上能有多大，是否破坏多项式性？② 非图结构（如含负权重或相位）的 BS 变体是否有类似归约？③ 实际实现能否在中等规模图上跑赢直接采样？","basis":"基于 Quantum 正式版（2026-11-10）全文与 arXiv:2511.16558v3 抽取文本的对照阅读，核对了归约、复杂度表达式与两个定理的表述。"}},{"id":"arxiv-2611.13079","no":7,"topics":["算法","大规模仿真"],"source":"arXiv","venue":"arXiv:2611.13079 [quant-ph]","published":"2026-11-09","title":"Quantum simulation of real-time bosonic dynamics with binary and unary position encodings on superconducting and trapped-ion processors","title_zh":"超导与离子阱处理器上二进/一进制位置编码的玻色实时动力学量子模拟","authors":["Masanori Hanada","Jiwoo Seo","Seok-Kyun Son","Junggi Yoon"],"abstract":"Discretizing a bosonic position space on qubits leaves the choice of encoding, which fixes the achievable circuits. The authors compare binary encodings, where the kinetic term goes through a quantum Fourier transform, with unary encodings, where one qubit per site and excitation-conserving exchange gates give a free-fermion problem whose product formula compresses exactly into a fixed-size nearest-neighbour circuit. On IBM and IonQ processors about two hundred two-qubit gates resolve double-well tunnelling, while binary circuits with several thousand two-qubit gates do not.","importance":4,"importance_reason":"少见的“同一物理问题、两种编码、两台真实硬件”的对照实验：明确指出差距来自编译而非仅仅是编码，并把无噪声模拟作为判据。对做玻色/场论模拟与硬件选型的人，这提供了可复用的基准（双势阱隧穿）和清晰的结论：固定尺寸的 unary 压缩是关键。","summary":"在 IBM 超导与 IonQ 离子阱上比较位置格点的二进制与一进制编码：二进制经量子傅里叶变换实现动能项，一进制用单比特旋转加交换门，且其乘积公式可精确压缩为固定规模最近邻线路。约两百个两比特门下 unary 在双势阱中重现隧穿（IBM 右阱概率 0.97→0.06，IonQ 0.96→0.12），而数千门的 binary 线路不能。","problem":"在量子比特上模拟连续玻色自由度必须先离散化位置空间，而编码方式决定了线路结构：二进制编码比特少但动能项需要量子傅里叶变换（深线路、全连接），一进制编码比特多但门是局域的。此前缺少在同一物理问题上、同一噪声水平下的受控对比，因此“该选哪种编码”主要靠估计而非实测。","method":"对单个自由度，一进制编码下的动力学是自由费米子问题（单激发在格点上跃迁），其乘积公式可精确改写为固定规模的最近邻交换门线路，规模与 Trotter 步数无关。二进制编码则用 QFT 对角化动能项、用受控相位实现势能。实验在 IBM 超导（ibm_phoenix 等）与 IonQ 上执行双势阱隧穿与耦合振子基准；对单激发子空间做后选择以去除泄漏，并用“对称格点上每个本征态在两阱等权布居”这一性质，把测得的布居反转作为能量本征态间相干性的下界。","result":"约 200 个两比特门的 unary 线路在两台处理器上都重现了隧穿：右阱概率从 0.97 降到 0.06（IBM）、从 0.96 降到 0.12（IonQ）；而需要数千个两比特门的 binary 乘积公式线路未能重现转移。无噪声模拟表明这一反差同时来自编译与编码：若不做固定规模的精确压缩，能捕捉隧穿的 unary 乘积公式同样需要数千个两比特门。耦合振子基准中寄存器间相互作用破坏了精确压缩，此时最优编码取决于格点大小与演化时间。","contribution":"给出编码—编译—硬件三者的受控对照，并证明“把自由费米子结构编译进固定规模线路”比选择编码本身更决定成败；双势阱隧穿基准与后选择/相干性下界的分析方法可直接复用于其他玻色模拟实验。","limitation":"仅处理单个玻色自由度与少数格点，耦合振子情形下结论变为“依赖参数”，没有给出统一的编码选择准则；后选择会牺牲采样率，且单激发子空间外的泄漏虽被去除但仍反映硬件误差；binary 线路的失败部分来自当前硬件的连通性与门保真度，不能直接推断二进制编码在大规模容错硬件上同样劣势。","key_numbers":["约 200 个两比特门（unary）","IBM 右阱概率 0.97→0.06","IonQ 右阱概率 0.96→0.12","binary 线路需数千个两比特门仍失败","双势阱与耦合振子两类基准"],"url":"https://arxiv.org/abs/2611.13079","review":{"verdict":"小修","confidence":"高","correctness":"一进制下单自由度的自由费米子结构成立，乘积公式可精确压缩为固定规模最近邻线路是关键且正确的观察；双势阱隧穿在两台硬件上的布居转移（0.97→0.06、0.96→0.12）与无噪声模拟的对照支持“编译而非仅编码决定成败”的结论。","weaknesses":"· 只处理单自由度与少数格点，耦合振子情形下结论退化为“依赖格点大小与演化时间”，没有给出统一判据；\n· 后选择单激发子空间会牺牲采样率，泄漏虽被去除但仍反映硬件误差，未量化其影响；\n· binary 线路的失败部分源于当前硬件的连通性与门保真度，不能推出二进制编码在容错硬件上同样劣势；\n· 布居反转只给相干性下界，未直接测量能量本征态间的相干；\n· 两台处理器的量子比特数、门保真度差异未做归一化比较。","overclaim":"摘要限定在双势阱与约两百个两比特门的范围内，措辞克制；但标题把 binary 与 unary 并列为编码选择，实际结论更偏向“编译压缩”而非编码优劣。","citations":"玻色/场论量子模拟、量子傅里叶变换、自由费米子与 Trotter 误差的引用到位；对离子阱与超导硬件基准的引用较新。","questions":"① 耦合振子下是否存在参数区域使 unary 仍可精确压缩？② 不做后选择时泄漏对布居转移的影响有多大？③ 在容错硬件上 binary 编码是否会因 QFT 深度优势而反超？","basis":"基于 arXiv:2611.13079v1 全文抽取文本阅读，核对了编码、压缩构造与两台硬件的观测数值。"}},{"id":"arxiv-2611.14583","no":8,"topics":["解码器","测控与噪声"],"source":"arXiv","venue":"arXiv:2611.14583 [quant-ph]","published":"2026-11-10","title":"Circuit-aware protection against burst errors in lattice surgery","title_zh":"格点手术中针对爆发错误的线路感知防护","authors":["Jaebum Kim"],"abstract":"High-energy impacts relax many superconducting qubits at once, and gap engineering must be placed somewhere. Because lattice surgery changes which ancillas are exposed as patches merge and split, the author compares three static protection layouts for a simulated distance-9 CNOT with matched protected-ancilla counts and X:Z splits. Protecting the check type measured during each merge reduces burst-induced excess risk by about 38% relative to a deep geometric band, and reaches the same risk with roughly 49 fewer protected ancillas.","importance":4,"importance_reason":"宇宙线/高能事件造成的关联爆发错误是超导容错实验的现实威胁，而“把防护放在哪里”此前多按几何直觉。这篇用量化模拟说明：按线路中实际测量的校验类型放置防护，比按几何深带放置更划算（同风险下少约 49 个受保护辅助比特），对格点手术实验的版图设计有直接指导意义。","summary":"比较格点手术 CNOT 的三种静态防护布局（受保护辅助比特数与 X:Z 校验拆分匹配）：d=9 时，保护“每次 merge 中所测量的校验类型”相对深几何带把爆发错误引起的额外风险降低约 38%（95% bootstrap 区间），并在少约 49 个受保护辅助比特的情况下达到浅带参考风险。d=13 时优势在 oracle 解码下不成立。","problem":"高能粒子击中超导芯片会在多个量子比特上同时造成弛豫与电荷错误，gap engineering 能抑制这类弛豫，但只能在部分量子比特上实施；格点手术中 patch 的 merge/split 会周期性改变哪些辅助比特被暴露、哪些时间边界被触及，因此固定几何布局未必对应真正的风险热点。此前缺少在匹配条件下对“按几何放置”与“按线路放置”的定量比较。","method":"用模拟的 d=9（及 d=13）格点手术 CNOT，在相关背景（correlated background）下注入爆发错误，比较三种静态防护布局：浅几何带、深几何带、以及按线路感知的“类型化”布局（保护每次 merge 期间所测量校验类型对应的辅助比特）。三种布局受保护辅助比特数与 X:Z 校验拆分数量匹配，解码器不知道爆发事件的参数；用 excess risk（相对无爆发基线的额外逻辑失败率）作为指标，并用 bootstrap 给出置信区间。d=13 另做 oracle 解码与“五轮爆发上限”的敏感性测试。","result":"d=9 时类型化布局把爆发引起的额外风险相对深几何带降低 38%（+6/-? 的 95% bootstrap 区间），且达到浅带参考风险时估计少用约 49 个受保护辅助比特；机制归因于时间边界处的报告错误与辅助比特故障传播到数据比特的耦合，浅带布局对这种组合更脆弱。d=13 时在 oracle 解码下优势消失，且当爆发被限制在五轮以内时，浅带与类型化的排序发生反转。","contribution":"把“防护放哪里”从几何直觉变成可由线路结构导出的设计规则，并给出匹配条件下的定量收益与失效边界（距离、解码器信息、爆发持续时间），为超导格点手术芯片的 gap engineering 版图提供了可操作的判据。","limitation":"单作者、单一模拟器与特定噪声模型，爆发错误的注入模型（持续时间、空间关联）对结论影响很大；d=13 优势不成立、五轮爆发上限下排序反转，说明结论依赖参数区间；未考虑动态/可重构防护或与实时解码的联合优化，也没有硬件验证。","key_numbers":["d=9 时额外风险降低约 38%（95% bootstrap）","同风险下少约 49 个受保护辅助比特","d=13 在 oracle 解码下优势不成立","五轮爆发上限使排序反转","三种静态布局、匹配辅助比特数"],"url":"https://arxiv.org/abs/2611.14583","review":{"verdict":"小修","confidence":"中","correctness":"三种布局在受保护辅助比特数与 X:Z 拆分上匹配，比较条件公平；38% 的额外风险下降与 bootstrap 区间、以及 d=13 在 oracle 解码下优势消失的对照，说明作者对结论边界有自觉。机制归因（时间边界报告错误 + 辅助比特故障传播）与模拟设计一致，但属推断。","weaknesses":"· 单一模拟器与特定爆发注入模型，持续时间与空间关联的选择会显著影响结论；\n· d=13 优势不成立、五轮爆发上限下排序反转，说明结论只在特定参数区间有效，缺少系统的参数扫描；\n· 单作者、无硬件验证，gap engineering 的工艺代价与可实施性未评估；\n· 解码器被设定为不知道爆发参数，与真实系统（可能带先验）不完全一致；\n· excess risk 的定义与基线选取对绝对数值影响较大。","overclaim":"摘要给出约 38% 与约 49 个辅助比特的具体收益并注明 95% bootstrap，措辞准确；但标题的 protection 容易让人以为已解决爆发错误问题，实际是特定布局在 d=9、特定爆发模型下的改进。","citations":"宇宙线/高能事件导致的关联错误、gap engineering、格点手术与解码的引用切题；对动态防护方案（可重构保护）的引用偏少。","questions":"① 爆发持续时间从五轮放宽到十轮时排序如何变化？② d=13 若解码器获得爆发先验，类型化布局能否恢复优势？③ 在真实芯片上实施类型化布局需要多少额外布线代价？","basis":"基于 arXiv:2611.14583v1 全文抽取文本阅读，核对了布局定义、匹配条件、38%/49 的数值与 d=13 的对照实验。"}},{"id":"pr-10.1103/dmnb-x3km","no":9,"topics":["芯片与耦合器","测控与噪声"],"source":"PRApplied","venue":"Physical Review Applied","published":"2026-11-09","title":"Junction-intrinsic dissipation in hybrid superconductor-semiconductor gatemon qubits","title_zh":"超导-半导体混合 gatemon 量子比特中结内禀耗散","authors":["Zhenhai Sun","David Feldstein-Bofill","Ksenia Shagalov","Amalie T. J. Paulsen","Casper Wied","Shikhar Singh","Brian D. Isakov","Jacob Hastrup","Christopher W. Warren","Svend Krøjer","Anders Kringhøj","András Gyenis","Morten Kjaergaard"],"abstract":"Gatemons offer gate tunability but relax far faster than state-of-the-art transmons, and the origin of the gap is unclear. The authors co-fabricate gatemons and SIS-junction transmons with nominally identical layouts, gate dielectrics and control lines, so the Josephson element is the only intentional difference. Transmons reach tens of microseconds while gatemons saturate at a few microseconds, and a loss budget of Purcell decay, control-line emission and dielectric loss exceeds every measured gatemon T1 by more than an order of magnitude.","importance":4,"importance_reason":"用同一芯片上的 SIS 透明子做参照，把 gatemon 的弛豫差距隔离到“结本身”，并排除了 Purcell、控制线辐射与介质损耗这三条常见解释，是门可调超导比特路线上少见的定量损耗归因；对可调耦合器与 gatemon 型量子比特的材料/界面工程有直接指导意义。","summary":"在同一芯片上共同制备 gatemon 与 SIS 结透明子，版图、栅介质与控制线完全一致，使约瑟夫森元件成为唯一差异。透明子 T1 达数十微秒而 gatemon 饱和在数微秒；用透明子作片上参照构建损耗预算（Purcell、控制线自发辐射、内介质损耗），三者给出的 T1 上限都高出 gatemon 实测一个数量级以上。变温 T1 拟合共同的准粒子激活模型，S-Sm-S 与 SIS 结的超导能隙相近。","problem":"基于超导-半导体混合结的 gatemon 具有栅可调性，但弛豫时间长期低于最好的透明子一到两个数量级，原因不明：可能是栅介质损耗、控制线辐射、Purcell 效应，也可能是半导体结内部的准粒子或界面态。没有把器件差异压到最小的对照实验，就无法判断该往材料、版图还是电磁设计上投入。","method":"共同制备（co-fabricate）gatemon 与 SIS 结透明子：版图、栅介质、控制线与读取谐振腔尽量相同，唯一刻意差别是约瑟夫森结（S-Sm-S 对 SIS）。以同片透明子作为片上参照，逐项建立损耗预算：Purcell 衰减由谐振腔与比特耦合强度估计，控制线自发辐射由线路阻抗与耦合电容估计，内介质损耗由栅介质损耗角正切估计。再做变温 T1 测量，用准粒子激活模型拟合能隙，比较两类结的能隙与残余（温度无关）损耗。","result":"多块芯片上透明子 T1 达数十微秒，gatemon 的 T1 饱和在数微秒量级；损耗预算中每一项对应的 T1 上限都比实测 gatemon 值高一个数量级以上，说明常规通道不足以解释。变温 T1 服从共同的准粒子激活模型，S-Sm-S 与 SIS 结拟合出相近的超导能隙，因此温度相关的准粒子项无法解释差距，剩下的必须是温度无关的结内禀耗散。","contribution":"把 gatemon 的退相干差距定量归因到结内禀、温度无关的耗散通道，并给出可复用的“同片参照 + 损耗预算”方法；这为混合结的界面工程（隧穿势垒、半导体表面处理）而非电磁设计或介质选择指明了改进方向。","limitation":"损耗预算是逐项上限的叠加，并未直接测出结内禀耗散的微观机制（界面态、准粒子中毒或结区两能级系统）；样品数量与芯片批次的统计有限，未给出跨批次的分布；温度无关项的提取依赖准粒子模型的外推，模型选择会影响结论。","key_numbers":["透明子 T1 数十微秒、gatemon 数微秒","损耗预算上限高出实测一个数量级以上","S-Sm-S 与 SIS 结超导能隙相近","多块芯片、13 位作者的合作测量","变温 T1 服从准粒子激活模型"],"url":"https://doi.org/10.1103/dmnb-x3km","review":{"verdict":"小修","confidence":"高","correctness":"同片共制备的对照设计把变量压到约瑟夫森结本身，损耗预算逐项给出高于实测一个数量级的上限，逻辑成立；变温 T1 服从共同准粒子激活模型且两类结能隙相近，排除温度相关项，因此“温度无关的结内禀耗散”是合理结论，尽管微观机制仍未知。","weaknesses":"· 损耗预算是逐项上限的叠加，未直接测出结内禀耗散的微观来源（界面态、两能级系统或准粒子中毒）；\n· 样品与芯片批次数量有限，未给出跨批次的 T1 分布；\n· 温度无关项的提取依赖准粒子模型外推，模型选择影响结论强度；\n· 只比较 S-Sm-S 与 SIS 两类结，未做界面处理或势垒厚度的对照实验；\n· 栅压调谐范围与 T1 的关系未系统给出。","overclaim":"摘要“exceeds every measured gatemon T1 by more than an order of magnitude”是准确的；但把差距归为 junction-intrinsic 仍属排除法结论，标题的 dissipation in qubits 可能被读成已定位机制。","citations":"gatemon、SIS 透明子、Purcell 衰减、控制线辐射与介质损耗的引用完整，准粒子弛豫模型的引用也到位；对半导体结界面态研究的引用可再多一些。","questions":"① 改变隧穿势垒厚度或半导体表面处理能否提高 gatemon T1？② 温度无关损耗是否随栅压变化？③ 跨芯片批次的 T1 离散度有多大？","basis":"基于 Physical Review Applied 正式版全文与 arXiv:2603.29498v1 抽取文本的对照阅读；正式版与预印本的数值一致。"}},{"id":"pr-10.1103/5m7t-q2f6","no":10,"topics":["经典模拟","算法"],"source":"PRL","venue":"Physical Review Letters","published":"2026-11-13","title":"Local Characterization of Global Tensor Network Eigenstates","title_zh":"全局张量网络本征态的局域刻画","authors":["José Garre Rubio","András Molnár","Norbert Schuch","Frank Verstraete"],"abstract":"Which global states can be exact eigenstates of an extensive local operator? The authors show that a single local, fixed-size equation, describing how one term of the operator acts on a block of tensors, is necessary and sufficient. The condition covers Hamiltonian eigenstates, scar states, MPS trajectories of driven systems, steady states of local Lindbladians and generalized symmetries, and yields the full space of MPS solutions, recovering the quantum group symmetry of the XXZ model.","importance":3,"importance_reason":"把“MPS 何时是某个局域算符的精确本征态”从一个需逐例验证的猜测，变成一条局域、固定尺寸、充要的方程，从而能一次性求出全部解。对用 MPS/PEPS 做多体精确解与算法设计的读者，这是一个结构性的判据工具（并且能自动恢复 XXZ 的量子群对称性）。","summary":"证明局域固定尺寸方程——算符单个作用项如何作用在一小块张量上——是 MPS/MPO 成为扩展局域算符精确本征态的充要条件。该判据统一覆盖哈密顿量本征态（含 scar 态）、驱动系统的精确 MPS 轨迹、局域 Lindblad 的稳态与广义对称性，可给出 MPS 解的全空间，并恢复 XXZ 模型的量子群对称性。","problem":"已知许多精确可解态具有 MPS 形式（AKLT、scar 态、量子群对称态），但“给定局域算符，其精确 MPS 本征态有哪些”缺乏系统性判定：逐个模型验证需要猜测并解全局方程，无法保证解空间完整，也难以迁移到驱动系统或 Lindblad 稳态等非哈密顿量场景。","method":"把算符写成局域项之和，考察单个局域项作用在 MPS 张量块上的结果，得到一个只涉及固定数量张量与固定物理维度的局域方程。证明该方程对“MPS 是算符本征态”既必要又充分，从而把全局条件降为局域条件；再用同一框架把算符换成驱动演化算符、Lindblad 生成元或对称性算符，得到相应问题的解空间。最后以 XXZ 模型为例验证可由该方程系统导出量子群对称性，并讨论向 2D（PEPS）与数值算法的推广。","result":"给出 MPS 精确解空间的完整刻画：所有满足局域方程的 MPS 都是解，且所有解都满足它。作为应用，系统恢复 XXZ 模型的量子群（U_q(sl2)）对称性而不需事先假设；并把结论组织成可用于数值算法的形式（以局域方程作为约束求解/筛选候选张量），同时给出 PEPS 的推广形式。","contribution":"提供一个统一的、可计算的判据，把“寻找精确张量网络本征态”变成解局域代数方程，从而统一处理哈密顿量本征态、scar、驱动轨迹、Lindblad 稳态与广义对称性，并把已知模型结果纳入同一语汇。","limitation":"结论主要针对一维 MPS/MPO，2D（PEPS）只给出推广方向，缺乏同等的充要性证明与可计算流程；局域方程的解空间可能很大，如何系统地枚举并分类（而非逐例求解）未完全解决；对近似本征态（有限键维）没有给出误差控制。","key_numbers":["局域固定尺寸方程即充要条件","覆盖 scar 态、驱动 MPS 轨迹、Lindblad 稳态","恢复 XXZ 的量子群对称性","推广到 PEPS（2D）","PRL 2026-11-13"],"url":"https://doi.org/10.1103/5m7t-q2f6","review":{"verdict":"接受","confidence":"中","correctness":"局域方程作为充要条件的论证结构完整：必要性来自逐项作用，充分性由局域条件的拼接给出；用它恢复 XXZ 的量子群对称性是对结论的有力检验。PEPS 推广只是方向性陈述，未声称同等严格。","weaknesses":"· 充要性主要在一维 MPS/MPO 上成立，2D（PEPS）只给出推广方向，缺乏可计算流程与证明；\n· 局域方程的解空间可能很大，如何系统枚举并分类（而非逐例求解）未完全解决；\n· 对近似本征态（有限键维截断）没有误差控制，实际数值算法中的可用性待验证；\n· 与已有的“MPS 精确本征态”构造（如矩阵乘积算符代数方法）的关系未系统比较；\n· 例子集中在少数可积模型，非可积情形的解是否存在与如何找到未讨论。","overclaim":"标题 local characterization of global eigenstates 与正文范围相符，摘要列举的应用都有对应论证，没有过度延伸；唯一需要注意的是全局一词指算符的扩展性而非任意全局态。","citations":"MPS/PEPS、scar 态、量子群对称性、Lindblad 稳态与广义对称性的引用充分，是该领域的标准文献集合。","questions":"① 局域方程在 2D 是否存在可判定的有限版本？② 有限键维近似下如何量化“近似本征”的误差？③ 能否用该方程系统分类给定算符的全部 MPS 本征态？","basis":"基于 Physical Review Letters 正式版全文与 arXiv:2603.28349v2 抽取文本的对照阅读，核对了局域方程的陈述与 XXZ 的应用。"}},{"id":"pr-10.1103/3v7h-7dx9","no":11,"topics":["经典模拟","算法"],"source":"PRX","venue":"Physical Review X","published":"2026-11-13","title":"Temporal Complexity Hierarchies in Solvable Quantum Many-Body Dynamics","title_zh":"可解量子多体动力学中的时间复杂度的层级","authors":["He-Ran Wang","Ilya Vilkoviskiy","Dmitry A. Abanin"],"abstract":"The influence matrix encodes multitime correlations as a tensor network, but how its cost depends on the dynamics is largely unexplored. Using geometric group theory on brickwork circuits ranging from integrable to chaotic, the authors identify three qualitatively distinct scalings of temporal entanglement entropy and hence of the tensor-network resources needed for the influence matrix. They separate classical from quantum temporal correlations and give an operational measure of quantum memory with an experimental protocol.","importance":3,"importance_reason":"影响矩阵是计算多时间关联的核心对象，其时间纠缠的增长规律此前只有零散案例。这篇用几何群论在可解砖墙线路上给出三种定性不同的时间纠缠标度，把“经典 vs 量子时间关联”区分开，并给出可操作的量子记忆度量与实验方案，对多时间关联的经典模拟复杂度评估有框架性价值。","summary":"研究砖墙量子线路（从可积到混沌）影响矩阵的复杂度：借助几何群论识别出时间纠缠熵的三种定性不同标度，从而给出张量网络表示影响矩阵所需资源的层级；进一步区分经典与量子的时间关联，指出某些模型的影响矩阵实际上是经典的、可用高效蒙特卡洛计算，并为一般情形引入量子记忆的可操作度量与实验方案。","problem":"影响矩阵把多时间关联编码为张量网络（时间方向上的一维网络），是研究非平衡动力学的有力工具，但其计算代价与底层动力学之间的关系几乎没有系统结论：时间纠缠会不会随时间线性增长、可积与混沌是否本质不同、哪些情形下的“量子”时间关联其实可由经典随机过程复现，都不清楚，导致无法预估模拟成本。","method":"考虑一类可映射到几何群论对象的砖墙线路，使时间方向上的纠缠结构可由群论的（自由群、双曲性等）不变量刻画；据此计算时间纠缠熵的标度。再把影响矩阵分解为经典部分与量子部分：若影响矩阵具有经典描述，则多时间关联可用蒙特卡洛高效采样；对没有经典描述的情形，用“需要多少量子资源才能复现该影响矩阵”定义量子记忆的operational 度量，并设计相应的实验协议（通过多时间关联的测量来估计该度量）。","result":"识别出时间纠缠熵的三种定性不同标度，对应张量网络表示影响矩阵所需资源的三个层级，并覆盖从可积到混沌的区间；对特定例子证明影响矩阵实质上是经典的，从而多时间关联存在高效蒙特卡洛算法；对一般情形给出量子记忆度量与实验方案，并讨论存在长时间真正量子关联的例子。","contribution":"首次把影响矩阵的计算复杂度与动力学类别（可积/混沌、经典/量子）建立系统性对应，给出可判定的层级结构；经典影响矩阵的高效蒙特卡洛算法与量子记忆的实验协议使这一分类不只是理论标签，而能指导实际的多时间关联模拟与实验判别。","limitation":"结论建立在可解砖墙线路这一类可映射到群论的模型上，向一般非可积模型（尤其含无序或长程相互作用）的推广未给出；三种标度之间的边界条件与临界行为未细究；“经典影响矩阵”的判据在实际数值中如何高效检验仍待发展。","key_numbers":["时间纠缠熵的三种不同标度","覆盖可积到混沌的砖墙线路","经典影响矩阵存在高效蒙特卡洛算法","量子记忆的可操作度量与实验协议","PRX 2026-11-13"],"url":"https://doi.org/10.1103/3v7h-7dx9","review":{"verdict":"小修","confidence":"中","correctness":"用几何群论刻画可解砖墙线路的时间纠缠结构，进而得到三种标度，这一思路在给定模型类内自洽；把影响矩阵分为经典与量子两部分并给出蒙特卡洛可采样的条件，论证可跟进。但“三种标度穷尽所有情形”与边界的普适性尚未证明。","weaknesses":"· 结论依赖可映射到群论的可解砖墙线路，向一般非可积、含无序或长程相互作用的推广未给出；\n· 三种标度之间的边界条件与临界行为未细究，层级是否完备缺少论证；\n· “经典影响矩阵”的判据在实际数值中如何高效检验仍待发展；\n· 量子记忆度量的实验协议只给出方案，未做数值可行性或噪声分析；\n· 与已有影响矩阵数值工作（如时间纠缠增长的实例研究）的定量对照不足。","overclaim":"摘要的 hierarchies 与 qualitatively distinct 有模型类限定，措辞谨慎；但标题的 solvable 容易被忽略，读者可能把层级当成普适分类。","citations":"影响矩阵、时间纠缠、几何群论与可积/混沌动力学的引用切题；对多时间关联实验测量的引用较少。","questions":"① 含无序的模型是否仍落在三种标度之一？② 经典影响矩阵的判据能否在多项式时间内检验？③ 量子记忆度量在含噪声实验中能否被可靠估计？","basis":"基于 Physical Review X 正式版全文与 arXiv:2510.21927v1 抽取文本的对照阅读，核对了三种标度与经典/量子分离的论证。"}},{"id":"arxiv-2611.14986","no":12,"topics":["测控与噪声","编译与验证"],"source":"arXiv","venue":"arXiv:2611.14986 [quant-ph]","published":"2026-11-11","title":"From optimization to construction: Expanding quantum measurement design via variance-guided grouping","title_zh":"从优化到构造：用方差引导的分组扩展量子测量设计","authors":["Taotao Zhao","Qianjun Yao","Mengdi Sun","He Li"],"abstract":"Measurement grouping for Hamiltonian averaging is usually posed as partitioning a fixed set of terms into commuting groups. The authors instead construct candidate groups that include every term measurable in an existing basis, jointly optimise estimator coefficients and shot allocation, and score candidates against the cost of withdrawing shots. Using exact covariances this yields 18.19% to 23.38% variance reduction over state-of-the-art grouping whenever new bases are introduced.","importance":3,"importance_reason":"把测量分组从“对固定项集做划分”改成“允许新增基并构造分组”，再联合优化系数与 shots，这一视角变化在化学精度附近直接换来更少 shots；对变异量子算法/哈密顿量平均的实验设计有实际价值，且给出了可复现的协方差精确计算流程。","summary":"提出方差引导的测量分组构造（VGMC）：不再只对固定项集做划分，而是构造包含“在已有基下可测的全部项”的候选分组，联合优化估计系数与 shots 分配，并以撤出 shots 的代价给候选打分；用精确协方差在引入新基时相对 SOTA 降低 18.19%–23.38% 方差，有限 shots 模拟显示接近化学精度时所需 shots 更少。","problem":"哈密顿量平均的测量分组通常被写成“把给定项集划分为若干对易组”，组一旦固定，估计系数与 shots 分配只能在该划分内优化；这既排除了“为某些项新增一个基”的选项，也无法评估新增基是否值得其测量代价。当协方差非对角显著时，这种受限优化会明显偏离真正的最小方差。","method":"以方差为目标而非以划分为约束：先构造候选分组，每组包含某一基下可测的全部哈密顿量项；再对候选组联合优化估计系数（允许组间线性组合）与 shots 分配，并以“撤出该组所需的 shots 代价”作为打分惩罚，贪心地用 qubit-wise commuting 条件生成新组，随后做全局再优化。方差与协方差用精确（解析）方式计算，另做近似协方差的鲁棒性检验，并用有限 shots 模拟比较达到化学精度所需总 shots。","result":"在引入新基的场景下，精确协方差版本相对此前最优分组方法把方差降低 18.19%–23.38%；使用近似协方差时增益仍然存在（幅度下降）；有限 shots 模拟显示在化学精度附近所需 shots 少于对比方法，说明方差下降能转化为实际测量成本下降。","contribution":"把测量设计从“划分优化”扩展为“构造 + 联合优化 + 代价评估”，给出可执行流程与明确的方差收益；这是对测量分组问题提法本身的改进，且不依赖特定哈密顿量结构，可直接接入现有 VQE/ Hamiltonian averaging 流程。","limitation":"增益的前提是“引入新基”，若限制在原有基集合内则收益有限；贪心构造 + 局部再优化不保证全局最优；协方差需已知或近似估计，近似误差会侵蚀增益（论文只做了有限程度的检验）；未讨论新基带来的额外校准与硬件实施成本。","key_numbers":["方差降低 18.19%–23.38%（精确协方差）","近似协方差下增益仍存在","贪心 QWC 分组 + 全局再优化","有限 shots 下更少 shots 达化学精度","相对 SOTA 分组方法"],"url":"https://arxiv.org/abs/2611.14986","review":{"verdict":"小修","confidence":"中","correctness":"把测量分组从“划分给定项集”改为“构造候选组并联合优化系数与 shots”，目标函数仍是方差，逻辑清楚；18.19%–23.38% 的方差下降在精确协方差下可复现，近似协方差下增益减弱也被如实报告。贪心构造不保证全局最优，作者未声称最优。","weaknesses":"· 增益的前提是“引入新基”，若限制在原有基集合内收益有限，适用范围需明确；\n· 贪心 QWC 构造 + 局部再优化不保证全局最优，缺少与精确求解器在小规模上的对照；\n· 协方差需已知或近似估计，近似误差对增益的侵蚀只做了有限检验；\n· 新基带来的额外校准、测量设置切换与硬件实施成本未计入总成本；\n· 有限 shots 模拟的哈密顿量规模较小，未展示在化学精度附近的规模化趋势。","overclaim":"摘要给出 18.19%–23.38% 并注明 when new bases are introduced，限定清楚；标题 expanding measurement design 与实际贡献（提法扩展 + 构造流程）相符。","citations":"测量分组、qubit-wise commuting、协方差与 shots 分配的引用完整；对最新分组方法的对比覆盖到位。","questions":"① 引入新基的校准开销折算成 shots 后净收益还剩多少？② 与小规模精确求解相比贪心构造差多少？③ 近似协方差误差增大到何值时增益消失？","basis":"基于 arXiv:2611.14986v1 全文抽取文本阅读，核对了构造流程、方差数值与有限 shots 模拟结论。"}},{"id":"arxiv-2611.13084","no":13,"topics":["芯片与耦合器"],"source":"arXiv","venue":"arXiv:2611.13084 [quant-ph]","published":"2026-11-09","title":"Field-induced phase-matching in Josephson traveling wave parametric amplifiers","title_zh":"约瑟夫森行波参量放大器中的场致相位匹配","authors":["Daniil E. Bazulin","Simon Gandorfer","Niklas Bruckmoser","Kedar E. Honasoge","Leon Koch","Maria-Teresa Handschuh","Matthias Hirschbichler","Kirill Shulga","Achim Marx","Michael Haider","Stefan Filipp","Kirill G. Fedorov"],"abstract":"Josephson traveling wave parametric amplifiers usually need resonant structures or dispersion engineering to phase-match signal and pump. The authors instead exploit a magnetic-field inhomogeneity across a homogeneous SNAIL-based nonlinear medium, which reverses the sign of the three-wave-mixing nonlinearity along the line and thereby stabilises parametric amplification, achieving broadband gain without any phase-matching structures.","importance":3,"importance_reason":"相位匹配一直是 JTWPA 设计的核心难点，通常靠色散工程或谐振结构，代价是带宽与功率压缩能力。这里用沿线的磁场梯度直接反转三波混频非线性符号来满足相位匹配，路线简单、可与纯 3WM 结合把泵浦放到两倍中心频率，对提高读出带宽与压缩功率有直接工程价值。","summary":"在均匀 SNAIL 非线性介质上施加沿线的磁场不均匀性，使三波混频非线性符号沿传播方向反转，从而在无需谐振相位匹配结构的情况下维持信号与泵浦的相速度平衡并稳定参量放大；在 4–8 GHz 范围内测得宽带增益，给出 4WM（泵浦 6 GHz）与纯 3WM（泵浦 12 GHz）两种工作模式，后者可把泵浦移出信号频段。","problem":"JTWPA 要在长线路上同时满足增益、带宽与压缩功率，前提是信号与泵浦的有效相速度匹配；而约瑟夫森结链的色散天然失配，Kerr 效应还会随功率改变相位。传统解法是在线路中插入谐振结构或做色散工程（周期加载、共振相位匹配），这限制了瞬时带宽、增加了设计复杂度，并在带内留下泵浦泄漏与增益纹波。","method":"采用 SNAIL（超导非线性不对称环路）链构成均匀非线性介质，其三次与四次非线性系数 \\(c_3\\)、\\(c_4\\) 随外磁通 \\(\\Phi/\\Phi_0\\) 变化（\\(\u0007lpha \\simeq 0.12\\)）。关键手段是让外加磁场沿线路不均匀，使 \\(c_3\\) 的符号在传播方向上发生反转，于是 3WM 过程在整段线路上保持相位匹配而无需任何谐振结构；配合 4WM 与纯 3WM 两种偏置点（4WM 甜点 \\((0.5+m)\\Phi_0\\)，3WM 甜点 \\((\\pm 0.354+m)\\Phi_0\\)）测量增益谱与泵浦功率依赖。","result":"在 4–8 GHz 平均增益的色图上确认了两类工作点：4WM 时泵浦 6.0 GHz、3WM 时泵浦 12.0 GHz，实验观测到的甜点位置与理论 \\((0.5+m)\\Phi_0\\) 与 \\((\\pm 0.354+m)\\Phi_0\\) 一致；场致相位匹配使放大在宽频段内稳定，纯 3WM 模式把泵浦放在两倍中心频率，从而消除信号带内的泵浦音调特征。","contribution":"提出并实验验证了一条不依赖谐振结构的相位匹配途径：用磁场梯度反转非线性符号，把“色散工程”替换为“场工程”，为 JTWPA 同时获得大瞬时带宽、高压缩功率与干净频谱提供了新的设计自由度。","limitation":"增益、带宽与压缩功率的具体数值主要呈现在色图与图中，正文以定性描述为主，缺少与其他 JTWPA 在同等条件下的逐项对照；磁场不均匀性需要额外的偏置线圈与精确的场分布控制，工程实现与可重复性成本未评估；未给出噪声温度的直接测量。","key_numbers":["平均增益统计区间 4–8 GHz","4WM 泵浦 6.0 GHz，甜点 (0.5+m)Φ0","纯 3WM 泵浦 12.0 GHz，甜点 (±0.354+m)Φ0","SNAIL 不对称性 α≈0.12","信号带内无泵浦音调（纯 3WM）"],"url":"https://arxiv.org/abs/2611.13084","review":{"verdict":"小修","confidence":"中","correctness":"SNAIL 链中 \\(c_3\\) 随磁通变号、沿线磁场不均匀使非线性符号反转以维持相位匹配，物理图像自洽；4WM 与 3WM 甜点位置与理论 \\((0.5+m)\\Phi_0\\)、\\((\\pm 0.354+m)\\Phi_0\\) 吻合是有力证据。但增益、带宽、压缩功率的定量值主要落在图中，正文缺少数值陈述。","weaknesses":"· 关键性能（增益 dB、瞬时带宽、压缩功率、噪声温度）未在正文给出数值，难以与其他 JTWPA 直接比较；\n· 磁场不均匀性需要额外偏置与精确场分布控制，工程复杂度与可重复性未评估；\n· 未给出噪声温度的直接测量，quantum-limited 的说法依赖间接推断；\n· 增益纹波与带内平坦度只以色图呈现，缺少量化指标；\n· 与谐振相位匹配、色散工程方案的对照实验缺失。","overclaim":"摘要称 high gain、large instantaneous bandwidth、high compression power、quantum-limited noise，这些形容词在正文没有对应的量化支撑，属于超出数据的表述，需要谨慎。","citations":"JTWPA、SNAIL、三波/四波混频、相位匹配与压缩功率的引用完整；对近期高动态范围放大器的对比文献可再补充。","questions":"① 平均增益与增益纹波的具体数值是多少？② 压缩功率相比谐振方案提升多少 dB？③ 磁场梯度对器件间一致性的影响有多大？","basis":"基于 arXiv:2611.13084v1 全文抽取文本阅读；性能数字主要呈现在图中，正文未逐项给出，因此本文不对增益/带宽的具体 dB 值作断言。"}},{"id":"arxiv-2611.16952","no":14,"topics":["测控与噪声"],"source":"arXiv","venue":"arXiv:2611.16952 [quant-ph]","published":"2026-11-12","title":"Unified master equation for driven multilevel quantum systems: derivation, dynamics, and spectral signatures","title_zh":"驱动多能级量子系统的统一主方程：推导、动力学与谱学特征","authors":["Sagarika Basak","D. Blume"],"abstract":"Conventional master equations assume that the drive only shifts energies slightly, which fails when drive-induced splittings become comparable to dissipative rates. Using Lewis-Riesenfeld dynamical invariants within Born-Markov theory, the authors derive a unified master equation valid for arbitrary driving, apply it to continuous-wave, periodically modulated and nonperiodic (ramped, chirped) protocols, and show that fluorescence spectra of a driven three-level Lambda system carry signatures missed by conventional treatments.","importance":3,"importance_reason":"在 \\(\\Omega_R \\sim \\Gamma\\) 的中等驱动区间，常规主方程会同时犯两个错：按裸原子频率采样浴谱、以及用 secular 近似丢掉非 secular 耗散耦合；这篇给出一个不依赖 Floquet 周期性的统一主方程，并用荧光谱把两类误差分开，对强驱动下的测控建模与谱学诊断很实用。","summary":"用 Lewis–Riesenfeld 动力学不变量在 Born–Markov 框架内推导统一主方程，适用于任意驱动（含非周期），并在不变量的本征基下写出；将其用于恒 Rabi 耦合、周期调制与非周期（斜坡、啁啾）三类协议，展示周期驱动三能级 Λ 系统的荧光谱出现常规主方程漏掉的谱特征，并把常规方法的失效归因于浴频采样不准与忽略非 secular 耗散耦合。","problem":"常规（secular / 局部）主方程假设驱动只带来小的能级移动，因此按裸原子跃迁频率 \\(\\omega_{ba}\\) 采样浴谱 \\(J(\\omega)\\)，并用 secular 近似删去快速振荡项以获得 GKLS 形式。但当驱动引起的分裂与耗散速率同量级（\\(\\Omega_R \\sim \\Gamma\\)）时，这两个近似同时失效：浴在驱动修饰后的频率上才有响应，非 secular 耦合也会显著改变布居与相干。此时既无可靠的解析框架，也没有实验上可辨识的判据。","method":"以 Lewis–Riesenfeld 不变量 \\(I(t)\\) 的本征态为基，把系统–浴耦合在该基下重新展开，保留非 secular 项，并在 Born–Markov 近似下推导统一主方程（IME）：它不要求驱动周期性，也不需要 Floquet 展开，把驱动的影响完全吸收进不变量的瞬时本征频率与耦合矩阵元。随后对三类驱动协议数值求解，并计算跃迁分辨的荧光谱作为可观测量，逐项对比“只改浴频采样”与“只保留非 secular 项”的贡献。","result":"周期驱动的三能级 Λ 系统荧光谱中出现常规 secular/LF 与 RF 描述都缺失的边带结构，可用于区分“浴频采样错误”与“丢弃耗散耦合”两类误差来源；对斜坡与啁啾等非周期协议，统一主方程给出与周期情形一致的处理路径，并划出常规近似仍可用的参数区域（弱驱动、慢调制）。","contribution":"给出一个覆盖任意驱动的统一主方程与可执行的推导流程，并把“何时必须用统一处理”变成可由荧光谱实验判定的问题；这填补了常规主方程与 Floquet 方法之间的空白，对强驱动下的量子控制、传感与谱学建模有直接用途。","limitation":"仍在 Born–Markov（弱耦合、无记忆）框架内，强耦合或非马尔可夫浴需另行处理；荧光谱的可辨识性依赖具体参数（驱动强度、失谐、温度），论文只给出示例而非系统扫描；三能级 Λ 模型与实际超导比特/原子的能级结构仍有差距，未与实验数据对比。","key_numbers":["适用范围：任意驱动，含非周期协议","失效判据 Ω_R ∼ Γ","三类协议：CW、周期调制、斜坡/啁啾","Λ 三能级系统的跃迁分辨荧光谱","Born–Markov 框架内"],"url":"https://arxiv.org/abs/2611.16952","review":{"verdict":"小修","confidence":"中","correctness":"用 Lewis–Riesenfeld 不变量在 Born–Markov 框架内展开系统–浴耦合、保留非 secular 项，推导路径标准；不需要 Floquet 周期性是相较周期驱动方法的实质优势。把常规方法失效归因于浴频采样与丢弃非 secular 耦合两类误差，并用荧光谱区分，逻辑清晰。但仍在 Born–Markov 内，强耦合情形不适用。","weaknesses":"· 限于 Born–Markov（弱耦合、无记忆），强耦合与非马尔可夫浴需另行处理；\n· 荧光谱的可辨识性依赖具体参数（驱动强度、失谐、温度），只给了示例而非系统扫描；\n· 三能级 Λ 模型与实际超导比特/原子能级结构有差距，未与实验数据对比；\n· 未给出与 Floquet 主方程在周期驱动极限下的定量收敛比较；\n· 数值实现细节（截断、时间步长）与计算成本未讨论。","overclaim":"摘要与正文都把结论限定在 Born–Markov 与所研究的三类协议内，措辞准确；unified 指覆盖任意驱动而非覆盖所有耦合强度，读者需注意。","citations":"Lewis–Riesenfeld 不变量、Born–Markov 主方程、secular 近似、Floquet 方法与荧光谱的引用完整且切题。","questions":"① 与 Floquet 主方程在快驱动极限下的差异有多大？② 荧光谱特征在含噪声测量中是否可分辨？③ 推广到四能级或超导传输子模型需要什么修改？","basis":"基于 arXiv:2611.16952v1 全文抽取文本阅读，核对了不变量推导、三类协议与荧光谱结论。"}}]}</script>
+<script>
+(function () {
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("report-data").textContent);
+  const META = DATA.meta || {};
+  const ARTICLES = Array.isArray(DATA.articles) ? DATA.articles : [];
+  const STORE_KEY = "ftqc-digest-v2";
+  const STATUS_LABEL = { inbox: "待读", reading: "在读", done: "已提炼" };
+  const IMP_LABEL = { 5: "必读", 4: "高", 3: "中", 2: "参考", 1: "低" };
+  const IMP_STYLE = {
+    5: ["#c62828", "#fdeaea"],
+    4: ["#1f4fd1", "#e9efff"],
+    3: ["#087a5b", "#e3f6ee"],
+    2: ["#9a5b00", "#fff3d6"],
+    1: ["#6b7280", "#f0f1f1"]
+  };
+  const PALETTE = [
+    ["#1f4fd1", "#e9efff"],
+    ["#c2410c", "#fff0e6"],
+    ["#087a5b", "#e3f6ee"],
+    ["#6d45c7", "#f0eaff"],
+    ["#9a5b00", "#fff3d6"],
+    ["#b3266e", "#fde8f2"],
+    ["#0e7490", "#e2f5f8"]
+  ];
+  const SOURCE_STYLE = {
+    "arXiv": ["#c2410c", "#fff0e6"],
+    "PRX": ["#1f4fd1", "#e9efff"],
+    "PRX Quantum": ["#6d45c7", "#f0eaff"]
+  };
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = (v) => String(v == null ? "" : v)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  let store = {};
+  try { store = JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {}; } catch (e) { store = {}; }
+  const wf = (id) => store[id] || (store[id] = { status: "inbox", note: "" });
+  const save = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) { toast("浏览器阻止本地存储，修改仅在当前页有效"); } };
+  let toastTimer;
+  function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 1800); }
+  const dateOnly = (v) => String(v || "").slice(0, 10);
+
+  // topic palette, stable by first appearance
+  const allTopics = [];
+  ARTICLES.forEach(a => (a.topics || []).forEach(t => { if (!allTopics.includes(t)) allTopics.push(t); }));
+  const topicColor = {};
+  allTopics.forEach((t, i) => { topicColor[t] = PALETTE[i % PALETTE.length]; });
+  const sourceCounts = {};
+  ARTICLES.forEach(a => { sourceCounts[a.source] = (sourceCounts[a.source] || 0) + 1; });
+  const mustRead = ARTICLES.filter(a => a.importance >= 5).length;
+
+  $("#pageTitle").textContent = META.title || "文献速递";
+  $("#pageSubtitle").textContent = META.subtitle || "容错量子计算与超导量子计算机仿真";
+  $("#issueDate").textContent = META.issue_date || "—";
+  const reviewed = ARTICLES.filter(a => a.review).length;
+  $("#issueCounts").innerHTML = `${ARTICLES.length} 篇 · 必读 <b>${mustRead}</b> 篇${reviewed ? ` · AI 审稿 ${reviewed}` : ""}`;
+  $("#asOf").textContent = "数据截至 " + (META.as_of || "—");
+  $("#generatedAt").textContent = META.generated_at || "—";
+  $("#scopeLink").href = META.scope_href || "../SCOPE.md";
+
+  const GROUP_STYLE = {
+    "arXiv": "#c2410c",
+    "PR 系列": "#1f4fd1",
+    "Nature 系列": "#087a5b",
+    "Quantum": "#6d45c7",
+    "Science Advances": "#b3266e",
+    "SciPost Physics": "#0e7490",
+    "AVS Quantum Science": "#7a4bb5",
+    "Quantum Science and Technology": "#9a5b00",
+    "Cryptology ePrint Archive": "#8a5200"
+  };
+  const journalRows = Array.isArray(META.journals) ? META.journals : [];
+  const totals = META.coverage_totals || {
+    raw: journalRows.reduce((n, r) => n + Number(r.raw || 0), 0),
+    deduped: journalRows.reduce((n, r) => n + Number(r.raw || 0), 0),
+    screened: journalRows.reduce((n, r) => n + Number(r.screened || 0), 0),
+    included: journalRows.reduce((n, r) => n + Number(r.included || 0), 0)
+  };
+  $("#coverage").innerHTML = `<details class="coverage">
+    <summary><span>检索覆盖</span><span class="nums">抓取 ${totals.raw} · 去重 ${totals.deduped} · 关键词初筛 ${totals.screened} · 收录 ${totals.included}</span></summary>
+    <div class="coverage-body">
+      <table class="coverage-table">
+        <thead><tr><th>来源 / 期刊</th><th>状态</th><th class="num">抓取</th><th class="num">关键词初筛</th><th class="num">收录</th></tr></thead>
+        <tbody>
+          ${journalRows.map(r => {
+            const color = GROUP_STYLE[r.label] || GROUP_STYLE[r.group] || "#303030";
+            const st = r.status || "ok";
+            const stLabel = st === "ok" ? "正常" : st === "partial" ? "部分" : "失败";
+            const stCell = `<td><span class="st st-${st}">${stLabel}</span></td>`;
+            if (r.kind === "group") {
+              return `<tr class="group"><td>${esc(r.label)}</td>${stCell}<td class="num">${r.raw}</td><td class="num">${r.screened}</td><td class="num">${r.included}</td></tr>`;
+            }
+            return `<tr class="${r.kind === "journal" ? "sub" : "single"}"><td><span class="coverage-source"><span class="source-dot" style="--sc:${color}"></span>${esc(r.label)}</span></td>${stCell}<td class="num">${r.raw}</td><td class="num">${r.screened}</td><td class="num"><b>${r.included}</b></td></tr>`;
+          }).join("")}
+          <tr class="total"><td>合计（去重后）</td><td>—</td><td class="num">${totals.deduped}</td><td class="num">${totals.screened}</td><td class="num">${totals.included}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>`;
+
+  // keyword bar
+  const state = { topic: "all" };
+  function countTopic(t) { return ARTICLES.filter(a => (a.topics || []).includes(t)).length; }
+  function renderKeywordBar() {
+    const items = [`<button class="kbtn kbtn-all" data-topic="all" aria-pressed="${state.topic === "all"}">全部<span class="c">${ARTICLES.length}</span></button>`];
+    allTopics.forEach(t => {
+      const [c, bg] = topicColor[t];
+      items.push(`<button class="kbtn" data-topic="${esc(t)}" aria-pressed="${state.topic === t}" style="--tc:${c};--tbg:${bg}">${esc(t)}<span class="c">${countTopic(t)}</span></button>`);
+    });
+    $("#keywordBar").innerHTML = items.join("");
+  }
+  renderKeywordBar();
+
+  function impColor(v) { return IMP_STYLE[v] || IMP_STYLE[1]; }
+  function sourcePill(source) {
+    const [c, bg] = SOURCE_STYLE[source] || ["#4b514c", "#f0f1f1"];
+    return `<span class="source-pill" style="--sc:${c};--sbg:${bg}">${esc(source)}</span>`;
+  }
+  function topicChips(a) {
+    return (a.topics || []).map(t => {
+      const [c, bg] = topicColor[t] || ["#4b514c", "#f0f1f1"];
+      return `<span class="topic" style="--tc:${c};--tbg:${bg}">${esc(t)}</span>`;
+    }).join("");
+  }
+
+
+  function reviewPoints(text) {
+    let t = String(text || "").trim();
+    if (!t) return ["（未提供）"];
+    let parts = t.split(/(?=（\d+）)|(?=\(\d+\)\s)/).map(s => s.trim()).filter(Boolean);
+    if (parts.length === 1) {
+      parts = t.split(/\n+/).map(s => s.trim()).filter(Boolean);
+    }
+    if (parts.length === 1 && /[；;]/.test(t) && t.length > 120) {
+      parts = t.split(/[；;]/).map(s => s.trim()).filter(Boolean);
+    }
+    if (parts.length === 1) {
+      const sentences = t.match(/[^。！？]+[。！？]?/g) || [t];
+      if (sentences.length > 1) parts = sentences.map(s => s.trim()).filter(Boolean);
+    }
+    const expanded = [];
+    for (const part of parts) {
+      if (part.length > 420 && /[；;]/.test(part)) {
+        expanded.push(...part.split(/[；;]/).map(s => s.trim()).filter(Boolean));
+      } else {
+        expanded.push(part);
+      }
+    }
+    return expanded.map(s => s.replace(/^[（(]?\d+[）)]?\s*/, "").trim()).filter(Boolean);
+  }
+  function reviewList(text) {
+    return `<ul>${reviewPoints(text).map(p => `<li>${esc(p)}</li>`).join("")}</ul>`;
+  }
+  function reviewHTML(a) {
+    const r = a.review;
+    if (!r) return "";
+    return `<details class="review">
+      <summary>AI 审稿</summary>
+      <div class="review-body">
+        <div class="review-block"><h3>核心主张是否成立</h3>${reviewList(r.correctness)}</div>
+        <div class="review-block"><h3>主要缺陷</h3>${reviewList(r.weaknesses)}</div>
+        <div class="review-block"><h3>是否夸大</h3>${reviewList(r.overclaim)}</div>
+        <div class="review-block"><h3>需要核对的引用 / 实验</h3>${reviewList(r.citations)}</div>
+        <div class="review-block"><h3>要作者回答的问题</h3>${reviewList(r.questions)}</div>
+        <p class="review-meta">${esc(r.basis)} · AI 生成的批判性审稿，不是同行评审；结论以原文为准。</p>
+      </div>
+    </details>`;
+  }
+
+  function entryHTML(a) {
+    const w = wf(a.id);
+    const [ic, ib] = impColor(a.importance);
+    const opts = Object.entries(STATUS_LABEL).map(([k, v]) => `<option value="${k}"${w.status === k ? " selected" : ""}>${v}</option>`).join("");
+    return `<article class="entry" id="p-${String(a.no).padStart(2, "0")}" data-id="${esc(a.id)}" style="--imp:${ic};--imp-bg:${ib}">
+      <aside class="rail">
+        <div class="no">${String(a.no).padStart(2, "0")}</div>
+        <span class="imp-badge" title="${esc(a.importance_reason || "")}" aria-label="重要性 ${a.importance} / 5，${IMP_LABEL[a.importance]}"><span>${a.importance}</span><span class="den">/5</span></span>
+        <span class="imp-label">${esc(IMP_LABEL[a.importance] || "")}</span>
+      </aside>
+      <div class="entry-body">
+        <div class="entry-meta">
+          ${sourcePill(a.source)}<span class="sep">·</span><time datetime="${esc(dateOnly(a.published))}">${esc(dateOnly(a.published))}</time><span class="sep">·</span><span>${esc(a.venue || "")}</span>
+        </div>
+        <h2><a href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)}</a></h2>
+        <p class="title-zh">${esc(a.title_zh)}</p>
+        <p class="authors">${esc((a.authors || []).join(" · "))}</p>
+        <div class="topics">${topicChips(a)}</div>
+        <p class="imp-reason"><b>重要性 ${a.importance}/5 · ${esc(IMP_LABEL[a.importance] || "")}</b> · ${esc(a.importance_reason || "")}</p>
+        <p class="summary"><b>结论</b>${esc(a.summary)}</p>
+        <div class="analysis">
+          <div><h3>问题</h3><p>${esc(a.problem)}</p></div>
+          <div><h3>方法</h3><p>${esc(a.method)}</p></div>
+          <div><h3>结果</h3><p>${esc(a.result)}</p></div>
+          <div><h3>关键贡献</h3><p>${esc(a.contribution)}</p></div>
+          <div class="wide"><h3>局限 / 待核验</h3><p>${esc(a.limitation)}</p></div>
+        </div>
+        <div class="keynums"><span class="label">关键数字</span>${(a.key_numbers || []).map(k => `<span class="kn">${esc(k)}</span>`).join("")}</div>
+        <div class="entry-foot">
+          <div class="entry-actions">
+            <select class="status-select" data-status="${esc(a.id)}" aria-label="阅读状态">${opts}</select>
+            <button class="textbtn" type="button" data-note-toggle="${esc(a.id)}">${w.note ? "编辑笔记" : "笔记"}</button>
+            <a class="link" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">原文 ↗</a>
+            ${a.pdf_url ? `<a class="link" href="${esc(a.pdf_url)}" target="_blank" rel="noopener noreferrer">PDF</a>` : ""}
+            ${a.doi ? `<a class="link" href="https://doi.org/${esc(a.doi)}" target="_blank" rel="noopener noreferrer">DOI</a>` : ""}
+          </div>
+        </div>
+        <details class="abstract"><summary>摘要原文</summary><p>${esc(a.abstract || "摘要待补。")}</p></details>
+        ${reviewHTML(a)}
+        <div class="note-wrap" data-note-wrap="${esc(a.id)}"${w.note ? "" : " hidden"}>
+          <textarea class="note-area" data-note="${esc(a.id)}" placeholder="记录：值得记下的方法、需要核对的数字、与你当前工作的连接…">${esc(w.note)}</textarea>
+          <div class="note-meta"><span data-save-status="${esc(a.id)}">${w.note ? "已从本机恢复" : "自动保存在本机"}</span><button class="textbtn" type="button" data-export-one="${esc(a.id)}">导出此条</button></div>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderTOC() {
+    const list = ARTICLES.slice().sort((a, b) => a.no - b.no);
+    $("#tocList").innerHTML = list.map(a => `<li><a href="#p-${String(a.no).padStart(2, "0")}" data-toc-link><span class="toc-no">${String(a.no).padStart(2, "0")}</span><span>${esc(a.title_zh || a.title)}</span></a></li>`).join("");
+  }
+  function closeTOC() {
+    $("#tocPanel").hidden = true;
+    $("#tocToggle").setAttribute("aria-expanded", "false");
+  }
+
+  function typesetMath() {
+    if (!window.MathJax || !MathJax.typesetPromise) return;
+    const run = () => MathJax.typesetPromise([$("#entries")]).catch(err => console.warn("MathJax:", err));
+    if (MathJax.startup && MathJax.startup.promise) MathJax.startup.promise.then(run);
+    else run();
+  }
+
+  function render() {
+    const list = ARTICLES.filter(a => state.topic === "all" || (a.topics || []).includes(state.topic)).sort((a, b) => a.no - b.no);
+    $("#entries").innerHTML = list.map(entryHTML).join("");
+    $("#emptyState").classList.toggle("show", list.length === 0);
+    $("#listSummary").innerHTML = `显示 <b>${list.length}</b> / ${ARTICLES.length} 篇`;
+    $$(".kbtn").forEach(b => b.setAttribute("aria-pressed", String(state.topic === b.dataset.topic)));
+    typesetMath();
+  }
+
+  $("#keywordBar").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-topic]");
+    if (!btn) return;
+    state.topic = btn.dataset.topic;
+    render();
+  });
+
+  $("#entries").addEventListener("click", (e) => {
+    const toggle = e.target.closest("[data-note-toggle]");
+    if (toggle) {
+      const wrap = document.querySelector(`[data-note-wrap="${CSS.escape(toggle.dataset.noteToggle)}"]`);
+      if (wrap) { wrap.hidden = !wrap.hidden; if (!wrap.hidden) wrap.querySelector("textarea")?.focus(); }
+      return;
+    }
+    const one = e.target.closest("[data-export-one]");
+    if (one) {
+      const a = ARTICLES.find(x => x.id === one.dataset.exportOne);
+      download(`note-${a.no}-${a.id}.json`, { article: { id: a.id, title: a.title, url: a.url }, workflow: wf(a.id) });
+      toast("已导出此条");
+    }
+  });
+
+  $("#entries").addEventListener("change", (e) => {
+    const sel = e.target.closest("[data-status]");
+    if (!sel) return;
+    const w = wf(sel.dataset.status); w.status = sel.value; save();
+    toast("状态已保存：" + STATUS_LABEL[w.status]);
+  });
+  let noteTimer;
+  $("#entries").addEventListener("input", (e) => {
+    const ta = e.target.closest("[data-note]");
+    if (!ta) return;
+    const w = wf(ta.dataset.note); w.note = ta.value;
+    const label = document.querySelector(`[data-save-status="${CSS.escape(ta.dataset.note)}"]`);
+    if (label) label.textContent = "正在保存…";
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(() => {
+      save();
+      if (label) label.textContent = "已保存 · " + new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+    }, 300);
+  });
+
+  function download(filename, payload) {
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+  }
+  $("#exportBtn").addEventListener("click", () => {
+    download(`reading-notes-${META.issue_date || "digest"}.json`, {
+      exported_at: new Date().toISOString(), issue: META.issue_date,
+      articles: ARTICLES.map(a => ({ id: a.id, no: a.no, title: a.title, topics: a.topics, url: a.url, ...wf(a.id) }))
+    });
+    toast("已导出全部笔记与公式修改");
+  });
+  $("#printBtn").addEventListener("click", () => window.print());
+
+  document.addEventListener("toggle", (e) => {
+    if (e.target.matches && e.target.matches("details.abstract, details.review")) typesetMath();
+  }, true);
+
+  const TOC_POS_KEY = "qc-toc-pos-v1";
+  const tocDesktop = window.matchMedia("(hover: hover) and (pointer: fine)");
+  let tocDrag = null;
+  let tocMoved = false;
+  let suppressTocClick = false;
+  function isDesktopToc() { return tocDesktop.matches; }
+  function setTocPosition(left, top) {
+    if (isDesktopToc()) return;
+    const box = $("#toc");
+    const maxLeft = Math.max(0, window.innerWidth - box.offsetWidth);
+    const maxTop = Math.max(56, window.innerHeight - box.offsetHeight - 8);
+    const x = Math.max(0, Math.min(maxLeft, Math.round(left)));
+    const y = Math.max(56, Math.min(maxTop, Math.round(top)));
+    box.style.left = x + "px";
+    box.style.top = y + "px";
+    box.style.bottom = "auto";
+    box.classList.toggle("right", x > window.innerWidth / 2);
+    return { left: x, top: y };
+  }
+  function saveTocPosition() {
+    if (!isDesktopToc()) {
+      const box = $("#toc");
+      const r = box.getBoundingClientRect();
+      try { localStorage.setItem(TOC_POS_KEY, JSON.stringify({ left: r.left, top: r.top })); } catch (e) {}
+    }
+  }
+  function snapToc() {
+    const box = $("#toc");
+    const r = box.getBoundingClientRect();
+    const left = (r.left + r.width / 2 < window.innerWidth / 2)
+      ? 0
+      : Math.max(0, window.innerWidth - r.width);
+    const pos = setTocPosition(left, r.top);
+    if (pos) { try { localStorage.setItem(TOC_POS_KEY, JSON.stringify(pos)); } catch (e) {} }
+  }
+  function restoreTocPosition() {
+    if (isDesktopToc()) return;
+    try {
+      const raw = localStorage.getItem(TOC_POS_KEY);
+      if (raw) {
+        const p = JSON.parse(raw);
+        if (typeof p.left === "number" && typeof p.top === "number") setTocPosition(p.left, p.top);
+      }
+    } catch (e) {}
+  }
+  function collapseDesktopToc() {
+    const box = $("#toc");
+    box.classList.add("collapsed");
+    document.body.classList.remove("toc-open");
+    $("#tocPanel").hidden = true;
+    $("#tocToggle").setAttribute("aria-expanded", "false");
+  }
+  function openDesktopToc() {
+    const box = $("#toc");
+    box.classList.remove("collapsed");
+    document.body.classList.add("toc-open");
+    $("#tocPanel").hidden = false;
+    $("#tocToggle").setAttribute("aria-expanded", "true");
+  }
+  function applyTocMode() {
+    const box = $("#toc");
+    if (isDesktopToc()) {
+      box.style.left = "";
+      box.style.top = "";
+      box.style.bottom = "";
+      $("#tocClose").textContent = "收起";
+      openDesktopToc();
+    } else {
+      document.body.classList.remove("toc-open");
+      box.classList.remove("collapsed");
+      $("#tocClose").textContent = "×";
+      closeTOC();
+      restoreTocPosition();
+    }
+  }
+  tocDesktop.addEventListener("change", applyTocMode);
+  $("#tocToggle").addEventListener("pointerdown", (e) => {
+    if (isDesktopToc()) return;
+    const box = $("#toc");
+    const r = box.getBoundingClientRect();
+    tocDrag = { x: e.clientX, y: e.clientY, left: r.left, top: r.top };
+    tocMoved = false;
+    try { $("#tocToggle").setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+  });
+  $("#tocToggle").addEventListener("pointermove", (e) => {
+    if (!tocDrag) return;
+    const dx = e.clientX - tocDrag.x;
+    const dy = e.clientY - tocDrag.y;
+    if (Math.abs(dx) + Math.abs(dy) > 5) tocMoved = true;
+    setTocPosition(tocDrag.left + dx, tocDrag.top + dy);
+  });
+  $("#tocToggle").addEventListener("pointerup", () => {
+    if (!tocDrag) return;
+    if (tocMoved) {
+      suppressTocClick = true;
+      snapToc();
+      setTimeout(() => { suppressTocClick = false; }, 150);
+    }
+    tocDrag = null;
+  });
+  $("#tocToggle").addEventListener("click", () => {
+    if (suppressTocClick) return;
+    if (isDesktopToc()) {
+      if ($("#toc").classList.contains("collapsed")) openDesktopToc();
+      else collapseDesktopToc();
+      return;
+    }
+    if ($("#tocPanel").hidden) {
+      $("#tocPanel").hidden = false;
+      $("#tocToggle").setAttribute("aria-expanded", "true");
+    } else {
+      closeTOC();
+    }
+  });
+  $("#tocClose").addEventListener("click", () => {
+    if (isDesktopToc()) collapseDesktopToc(); else closeTOC();
+  });
+  $("#tocPanel").addEventListener("click", (e) => {
+    if (e.target.closest("[data-toc-link]") && !isDesktopToc()) closeTOC();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (isDesktopToc()) collapseDesktopToc(); else closeTOC();
+    }
+  });
+  window.addEventListener("resize", () => {
+    if (isDesktopToc()) return;
+    const box = $("#toc");
+    const r = box.getBoundingClientRect();
+    setTocPosition(r.left, r.top);
+  });
+  applyTocMode();
+
+  renderTOC();
+  render();
+})();
+</script>
+</body>
+</html>
