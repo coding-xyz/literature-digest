@@ -61,6 +61,9 @@ def doi_key(value: str) -> str:
     return value
 
 
+LOCAL_TZ = ZoneInfo("Asia/Shanghai")
+
+
 def parse_iso_date(value: str) -> dt.date | None:
     if not value:
         return None
@@ -68,7 +71,10 @@ def parse_iso_date(value: str) -> dt.date | None:
     try:
         if raw.endswith("Z"):
             raw = raw[:-1] + "+00:00"
-        return dt.datetime.fromisoformat(raw).date()
+        parsed = dt.datetime.fromisoformat(raw)
+        if parsed.tzinfo is not None:
+            parsed = parsed.astimezone(LOCAL_TZ)
+        return parsed.date()
     except ValueError:
         return None
 
