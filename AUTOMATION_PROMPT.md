@@ -59,6 +59,7 @@
      "basis": "实际读了全文哪些部分；没读到的图表/附录要说明"
    }
    审稿必须批判、具体，不接受摘要作为事实；没有全文就写清“只读到摘要”，不要伪造。
+   如果本轮没有新增，reviews 目录可以为空，不要为旧文补审稿。
 8. 运行固定程序合并审稿并生成报告：
    python scripts\merge_reviews.py --date DATE
    python scripts\build_report.py --date DATE

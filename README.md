@@ -84,6 +84,18 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_pipeline.ps1 -Da
 修改该块后，运行 `collect.py` 会自动同步到 `config/scope.json` 并生效。  
 `SCOPE.md` 的 prose 是说明；代码以 `SCOPE_CONFIG` 为准。
 
+## 抓取窗口
+
+每天抓取范围是**上一份报告的抓取时间 → 本次抓取时间**，不是固定 7 天。`candidates.json` 只保留这个区间内、且之前没见过的条目；如果没有新增，报告写 **0 篇**，不回填旧批次。
+
+报告顶部会显示：
+
+```text
+数据范围：YYYY-MM-DD HH:MM → YYYY-MM-DD HH:MM（上次抓取 → 本次抓取）
+```
+
+首次运行没有上一份报告时，才使用 `SCOPE_CONFIG.lookback_days`。
+
 ## 长 JSON 写入保护
 
 不要一次写超长的 `report.json`。AI 按篇写 `data/<date>/articles/01.json`、`02.json`……，再运行：

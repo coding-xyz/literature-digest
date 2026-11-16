@@ -5,7 +5,10 @@ Standard library only. The collector is deliberately conservative:
 - every source keeps a raw response snapshot;
 - every normalized record keeps a stable id and its source date;
 - a source failure is reported as an error, never silently converted to "no update";
-- the 7-day lookback absorbs weekends and Crossref lag.
+- the default window is previous manifest generated_at -> now; lookback_days is
+  only a first-run fallback (or an explicit --days override);
+- candidates.json contains only records not seen by a previous run, so a quiet
+  day produces 0 new records instead of repeating the old batch.
 """
 
 from __future__ import annotations
