@@ -18,7 +18,7 @@
 
 ## 筛选原则
 
-不按文件名、arXiv ID 或其他来源前缀筛选。arXiv、ePrint、PRX、PRX Quantum、Nature、Quantum、Science Advances、QST、SciPost 等所有来源同等对待，只看文章内容与主题是否匹配。
+不按文件名、arXiv ID 或其他来源前缀筛选。arXiv、ePrint、PRX、PRX Quantum、Nature、Quantum、Science Advances、QST、SciPost、STOC、FOCS、QIP、SODA、ICML、NeurIPS、WADS 等所有来源同等对待，只看文章内容与主题是否匹配。
 
 非 arXiv 论文用 DOI / 出版社 / accepted manuscript / 作者版获取全文；确实拿不到全文时才写摘要级，并在 `review.basis` 说明。
 

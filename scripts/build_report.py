@@ -132,6 +132,18 @@ def compute_coverage(config: dict, candidates: list[dict], articles: list[dict],
     nat_group["screened"] = sum(r["screened"] for r in rows[nat_rows_start + 1:])
     nat_group["included"] = sum(r["included"] for r in rows[nat_rows_start + 1:])
 
+    conf_cfg = sources.get("conferences", {})
+    if conf_cfg.get("venues"):
+        conf_rows_start = len(rows)
+        rows.append({"group": "会议", "label": "会议", "kind": "group", "raw": 0, "screened": 0, "included": 0, "status": "ok"})
+        for key, cfg in conf_cfg["venues"].items():
+            add("会议", cfg.get("label", key.upper()), "conference", key, cfg.get("label", key.upper()))
+        conf_group = rows[conf_rows_start]
+        conf_group["raw"] = sum(r["raw"] for r in rows[conf_rows_start + 1:])
+        conf_group["screened"] = sum(r["screened"] for r in rows[conf_rows_start + 1:])
+        conf_group["included"] = sum(r["included"] for r in rows[conf_rows_start + 1:])
+        conf_group["status"] = "partial" if any(r["status"] == "error" for r in rows[conf_rows_start + 1:]) else "ok"
+
     add("Quantum", "Quantum", "single", "quantum")
     for key, cfg in sources.get("extra_journals", {}).items():
         add(cfg["label"], cfg["label"], "single", key, cfg["label"])

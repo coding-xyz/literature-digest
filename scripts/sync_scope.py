@@ -30,7 +30,8 @@ def apply_scope(config: dict | None = None) -> dict:
     config = json.loads(json.dumps(config)) if config is not None else json.loads(CONFIG.read_text(encoding="utf-8"))
     block = read_block()
     required = ("arxiv_categories", "include_keywords", "exclude_keywords", "nature_feeds",
-                "pr_journals", "extra_journals", "quantum_feed", "eprint_feed", "lookback_days")
+                "pr_journals", "extra_journals", "conferences", "quantum_feed",
+                "eprint_feed", "lookback_days")
     for key in required:
         if key not in block:
             raise ValueError(f"SCOPE_CONFIG missing {key}")
@@ -40,6 +41,11 @@ def apply_scope(config: dict | None = None) -> dict:
     config["sources"]["nature"]["feeds"] = dict(block["nature_feeds"])
     config["sources"]["pr"]["journals"] = dict(block["pr_journals"])
     config["sources"]["extra_journals"] = dict(block["extra_journals"])
+    config["sources"]["conferences"] = {
+        "enabled": True,
+        "label": "理论/算法会议",
+        "venues": dict(block["conferences"]),
+    }
     config["sources"]["quantum"]["feed"] = str(block["quantum_feed"])
     config["sources"]["eprint"]["feed"] = str(block["eprint_feed"])
     config["sources"]["eprint"]["enabled"] = bool(block.get("eprint_enabled", True))

@@ -138,6 +138,47 @@
         "label": "Quantum Science and Technology",
         "issn": "2058-9565"
       }
+    },
+    "conferences": {
+      "enabled": true,
+      "label": "理论/算法会议",
+      "venues": {
+        "qip": {
+          "label": "QIP",
+          "kind": "arxiv-query",
+          "query": "all:\"QIP {year}\""
+        },
+        "stoc": {
+          "label": "STOC",
+          "kind": "openalex",
+          "source_id": "S7407087723"
+        },
+        "focs": {
+          "label": "FOCS",
+          "kind": "openalex",
+          "source_id": "S4210175768"
+        },
+        "soda": {
+          "label": "SODA",
+          "kind": "openalex",
+          "source_id": "S4363608728"
+        },
+        "icml": {
+          "label": "ICML",
+          "kind": "openalex",
+          "source_id": "S4306419644"
+        },
+        "neurips": {
+          "label": "NeurIPS (NIPS)",
+          "kind": "openalex",
+          "source_id": "S4363606243"
+        },
+        "wads": {
+          "label": "WADS",
+          "kind": "openalex",
+          "source_id": "S4306421219"
+        }
+      }
     }
   },
   "selection": {

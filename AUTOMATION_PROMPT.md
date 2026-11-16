@@ -17,7 +17,7 @@
 1. 取当天日期（Asia/Shanghai），记为 DATE，格式 YYYY-MM-DD。
 2. 运行固定收集程序：
    python scripts\collect.py --date DATE
-   这一步负责 arXiv、ePrint、PR 系列、Nature 系列、Quantum、Science Advances、SciPost Physics、AVS Quantum Science、QST 的检索、去重、raw 快照和 manifest。不要绕过它手工拼候选集。
+   这一步负责 arXiv、ePrint、PR 系列、Nature 系列、Quantum、Science Advances、SciPost Physics、AVS Quantum Science、QST，以及 STOC/FOCS/QIP/SODA/ICML/NeurIPS/WADS 会议的检索、去重、raw 快照和 manifest。不要绕过它手工拼候选集。
    然后生成当天动态预算：
    python scripts\selection_budget.py --date DATE
    读取 data\DATE\selection_budget.json 里的 target_articles / target_must_read；这是建议值，不是死配额。
@@ -28,7 +28,7 @@
    - 如果某个来源 error：保留 error，不写成“无更新”。
    - candidates.json 只包含“上次报告抓取时间 → 本次抓取时间”内新增的条目；没有新增就写 0，不要把上一批 arXiv 论文重新算成今天新增。
    - 数据时间范围由 manifest.window 提供，报告会显示“上次抓取 → 本次抓取”；不要手写固定 7 天窗口。
-4. 按 D:\文献调研\SCOPE.md 的方向筛选。不得按文件名、arXiv ID 或其他来源前缀筛选；arXiv、ePrint、PRX、PRX Quantum、Nature、Quantum、Science Advances、QST、SciPost 等所有来源同等对待，只看文章内容与主题是否匹配：
+4. 按 D:\文献调研\SCOPE.md 的方向筛选。不得按文件名、arXiv ID 或其他来源前缀筛选；arXiv、ePrint、PRX、PRX Quantum、Nature、Quantum、Science Advances、QST、SciPost、STOC、FOCS、QIP、SODA、ICML、NeurIPS、WADS 等所有来源同等对待，只看文章内容与主题是否匹配：
    - 容错量子计算设计：码与界、解码与阈值、容错资源/逻辑操作/编译、噪声模型/容错证明、容错实验。
    - 超导量子计算机模拟仿真：芯片/电路量子化、测控/开放系统/测量理论、纠错线路大规模仿真、经典模拟边界。
    优先理论组关心的：解码/阈值、qLDPC/码界、magic state、噪声模型、Pauli propagation/truncation、大规模线路仿真；芯片和实验类作为验证，不要占满主列表。

@@ -182,10 +182,12 @@ def item_id(prefix: str, stable: str) -> str:
 # arXiv
 # ---------------------------------------------------------------------------
 
-def collect_arxiv(cfg: dict, start: dt.date, end: dt.date) -> list[dict]:
-    categories = cfg["categories"]
-    query = "(" + " OR ".join(f"cat:{c}" for c in categories) + ")"
-    query += f" AND submittedDate:[{start:%Y%m%d}0000 TO {end:%Y%m%d}2359]"
+def collect_arxiv(cfg: dict, start: dt.date, end: dt.date, query: str | None = None,
+                  source: str = "arxiv", label: str = "arXiv") -> list[dict]:
+    if query is None:
+        categories = cfg["categories"]
+        query = "(" + " OR ".join(f"cat:{c}" for c in categories) + ")"
+        query += f" AND submittedDate:[{start:%Y%m%d}0000 TO {end:%Y%m%d}2359]"
     page_size = int(cfg.get("page_size", 200))
     max_results = int(cfg.get("max_results", 1200))
     records: list[dict] = []
@@ -234,9 +236,9 @@ def collect_arxiv(cfg: dict, start: dt.date, end: dt.date) -> list[dict]:
             primary = primary_el.get("term", "") if primary_el is not None else ""
             records.append({
                 "id": f"arxiv-{arxiv_id}",
-                "source": "arxiv",
-                "source_label": "arXiv",
-                "venue": "arXiv",
+                "source": source,
+                "source_label": label,
+                "venue": label,
                 "primary_category": primary or (categories_found[0] if categories_found else ""),
                 "title": title,
                 "authors": [a for a in authors if a],
@@ -569,6 +571,79 @@ def enrich(record: dict, topic: dict) -> dict:
     return record
 
 
+def _openalex_abstract(inverted: dict | None) -> str:
+    if not isinstance(inverted, dict):
+        return ""
+    words: dict[int, str] = {}
+    for word, positions in inverted.items():
+        for pos in positions or []:
+            try:
+                words[int(pos)] = str(word)
+            except (TypeError, ValueError):
+                continue
+    return " ".join(words[i] for i in sorted(words))
+
+
+def collect_openalex_conference(cfg: dict, start: dt.date, end: dt.date) -> list[dict]:
+    source_id = str(cfg.get("source_id", "")).strip()
+    if not source_id:
+        return []
+    label = cfg.get("label", "conference")
+    params = {
+        "filter": f"primary_location.source.id:{source_id},from_publication_date:{start.isoformat()},to_publication_date:{end.isoformat()}",
+        "per-page": 200,
+        "sort": "publication_date:desc",
+        "select": "id,doi,title,publication_date,primary_location,authorships,abstract_inverted_index,type,best_oa_location,open_access",
+    }
+    url = "https://api.openalex.org/works?" + urllib.parse.urlencode(params)
+    payload = get_json(url)
+    records: list[dict] = []
+    for item in payload.get("results", []):
+        pub_date = parse_iso_date(str(item.get("publication_date", "")))
+        if pub_date is None or pub_date < start or pub_date > end:
+            continue
+        title = clean_text(str(item.get("title", "")))
+        if not title:
+            continue
+        authors = [
+            clean_text(str((a.get("author") or {}).get("display_name", "")))
+            for a in item.get("authorships", []) or []
+        ]
+        authors = [a for a in authors if a] or ["(authors unavailable)"]
+        loc = item.get("primary_location") or {}
+        doi = str(item.get("doi") or "").replace("https://doi.org/", "").strip()
+        url = str(loc.get("landing_page_url") or (f"https://doi.org/{doi}" if doi else "")).strip()
+        if not url.startswith("https://"):
+            continue
+        pdf_url = ""
+        best = item.get("best_oa_location") or {}
+        if best.get("pdf_url"):
+            pdf_url = str(best["pdf_url"])
+        elif (item.get("open_access") or {}).get("oa_url"):
+            pdf_url = str(item["open_access"]["oa_url"])
+        oa_id = str(item.get("id", "")).rsplit("/", 1)[-1]
+        if not oa_id:
+            continue
+        records.append({
+            "id": f"openalex-{oa_id}",
+            "source": str(cfg.get("key", label.lower())),
+            "source_label": label,
+            "venue": label,
+            "title": title,
+            "authors": authors,
+            "abstract": _openalex_abstract(item.get("abstract_inverted_index")),
+            "published": pub_date.isoformat(),
+            "updated": pub_date.isoformat(),
+            "doi": doi,
+            "url": url,
+            "pdf_url": pdf_url,
+            "type": "conference-paper",
+            "categories": [label],
+            "source_date": pub_date.isoformat(),
+        })
+    return records
+
+
 def dedupe(records: list[dict]) -> list[dict]:
     out: list[dict] = []
     by_doi: dict[str, dict] = {}
@@ -641,7 +716,7 @@ def update_state(state: dict, records: list[dict], now: str) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--date", help="issue date in Asia/Shanghai (YYYY-MM-DD); default: today")
-    parser.add_argument("--days", type=int, help="lookback days; default from config")
+    parser.add_argument("--days", type=int, help="override window with N-day lookback; default: previous manifest time")
     args = parser.parse_args()
 
     config = load_config()
@@ -728,11 +803,36 @@ def main() -> int:
             )
     if source_cfg["quantum"].get("enabled", True):
         run_source("quantum", source_cfg["quantum"]["label"], source_cfg["quantum"]["feed"], lambda: collect_quantum(source_cfg["quantum"], start, end))
+    conf_cfg = source_cfg.get("conferences", {})
+    if conf_cfg.get("enabled", True):
+        for key, venue_cfg in conf_cfg.get("venues", {}).items():
+            label = venue_cfg.get("label", key.upper())
+            kind = venue_cfg.get("kind", "openalex")
+            if kind == "arxiv-query":
+                year = end.year
+                query = str(venue_cfg.get("query", 'all:"{label} {year}"')).format(label=label, year=year)
+                run_source(key, label, "https://export.arxiv.org/api/query",
+                           lambda key=key, label=label, query=query: collect_arxiv(
+                               venue_cfg, start, end, query=query, source=key, label=label))
+            elif kind == "openalex":
+                run_source(key, label, "https://api.openalex.org/works",
+                           lambda key=key, cfg=venue_cfg: collect_openalex_conference(
+                               {**cfg, "key": key}, start, end))
 
+    qip_ids = {str(r.get("id", "")) for r in all_records if r.get("source") == "qip"}
     all_records = dedupe(all_records)
+    # arXiv is collected first; if QIP's arXiv query also matched a paper, keep
+    # the QIP attribution rather than silently dropping it as a duplicate.
+    if qip_ids:
+        for r in all_records:
+            if str(r.get("id", "")) in qip_ids and r.get("source") == "arxiv":
+                r["source"] = "qip"
+                r["source_label"] = "QIP"
+                r["venue"] = "QIP"
     # Stable display order: newest first, then source priority.
-    source_order = {"pr": 0, "nature": 1, "quantum": 2, "eprint": 3, "arxiv": 4,
-                    "scienceadv": 5, "scipost": 6, "avs": 7, "qst": 8}
+    source_order = {"pr": 0, "nature": 1, "quantum": 2, "eprint": 3, "qip": 4,
+                    "stoc": 5, "focs": 5, "soda": 5, "icml": 5, "neurips": 5, "wads": 5,
+                    "arxiv": 6, "scienceadv": 7, "scipost": 8, "avs": 9, "qst": 10}
     all_records.sort(key=lambda r: (r.get("source_date", ""), -source_order.get(r.get("source", ""), 9)), reverse=True)
     new_records = [r for r in all_records if str(r.get("id", "")) not in previous_seen]
     new_records.sort(key=lambda r: (r.get("source_date", ""), -source_order.get(r.get("source", ""), 9)), reverse=True)

@@ -100,6 +100,43 @@
       "issn": "2058-9565"
     }
   },
+  "conferences": {
+    "qip": {
+      "label": "QIP",
+      "kind": "arxiv-query",
+      "query": "all:\"QIP {year}\""
+    },
+    "stoc": {
+      "label": "STOC",
+      "kind": "openalex",
+      "source_id": "S7407087723"
+    },
+    "focs": {
+      "label": "FOCS",
+      "kind": "openalex",
+      "source_id": "S4210175768"
+    },
+    "soda": {
+      "label": "SODA",
+      "kind": "openalex",
+      "source_id": "S4363608728"
+    },
+    "icml": {
+      "label": "ICML",
+      "kind": "openalex",
+      "source_id": "S4306419644"
+    },
+    "neurips": {
+      "label": "NeurIPS (NIPS)",
+      "kind": "openalex",
+      "source_id": "S4363606243"
+    },
+    "wads": {
+      "label": "WADS",
+      "kind": "openalex",
+      "source_id": "S4306421219"
+    }
+  },
   "quantum_feed": "https://quantum-journal.org/feed/",
   "eprint_feed": "https://eprint.iacr.org/rss/rss.xml",
   "eprint_enabled": true,
@@ -178,6 +215,22 @@
 - 无法核实 DOI、日期、作者或原文的条目。
 
 ---
+
+## 会议
+
+除期刊和预印本外，纳入以下理论与算法会议：
+
+| 会议 | 抓取方式 | 入口 |
+|---|---|---|
+| QIP | arXiv 元数据检索 `all:"QIP <year>"`（QIP 无正式 proceedings） | https://export.arxiv.org/api/query |
+| STOC | OpenAlex source | https://openalex.org/S7407087723 |
+| FOCS | OpenAlex source | https://openalex.org/S4210175768 |
+| SODA | OpenAlex source | https://openalex.org/S4363608728 |
+| ICML | OpenAlex source | https://openalex.org/S4306419644 |
+| NeurIPS / NIPS | OpenAlex source | https://openalex.org/S4363606243 |
+| WADS | OpenAlex source | https://openalex.org/S4306421219 |
+
+会议论文和期刊/预印本同等进入主题筛选；不按来源前缀或会议名直接收录。
 
 ## 检索网址
 
