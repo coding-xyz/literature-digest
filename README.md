@@ -79,7 +79,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_pipeline.ps1 -Da
 - PR 各刊 ISSN
 - 其他 OA/混合期刊
 - Quantum / ePrint feed
-- 回看天数
+- 首次运行回看天数（有上次报告后以“上次抓取时间 → 本次抓取时间”为窗口）
 
 修改该块后，运行 `collect.py` 会自动同步到 `config/scope.json` 并生效。  
 `SCOPE.md` 的 prose 是说明；代码以 `SCOPE_CONFIG` 为准。

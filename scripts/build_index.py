@@ -14,6 +14,8 @@ import json
 import re
 from pathlib import Path
 
+from atomic_io import atomic_write_text
+
 ROOT = Path(__file__).resolve().parents[1]
 REPORTS_DIR = ROOT / "reports"
 DATA_DIR = ROOT / "data"
@@ -93,7 +95,7 @@ def build_index(out: Path = OUT, reports_dir: Path = REPORTS_DIR, data_dir: Path
     blob = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     html = pattern.sub(lambda m: m.group(1) + blob + m.group(3), template, count=1)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(html, encoding="utf-8")
+    atomic_write_text(out, html)
     return out
 
 

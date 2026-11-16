@@ -16,6 +16,8 @@ from datetime import date
 from pathlib import Path
 from urllib.parse import urlparse
 
+from atomic_io import atomic_write_json, atomic_write_text
+
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "templates" / "report-template.html"
 DATA_DIR = ROOT / "data"
@@ -160,8 +162,12 @@ def validate(data: dict, issue_date: str) -> None:
     if meta.get("is_template") is True:
         fail("refusing to build a report from template demo data (meta.is_template=true)")
     articles = data.get("articles")
-    if not isinstance(articles, list) or not articles:
-        fail("articles must be a non-empty list")
+    if not isinstance(articles, list):
+        fail("articles must be a list")
+    if not articles:
+        if meta.get("no_new") is not True:
+            fail("articles is empty but meta.no_new is not true")
+        return
 
     ids: set[str] = set()
     numbers: set[int] = set()
@@ -225,8 +231,13 @@ def main() -> int:
     if not TEMPLATE.exists():
         fail(f"template not found: {TEMPLATE}")
 
-    data = json.loads(data_path.read_text(encoding="utf-8"))
-    validate(data, issue_date)
+    max_json = 8 * 1024 * 1024
+    if data_path.stat().st_size > max_json:
+        fail(f"report.json is unexpectedly large ({data_path.stat().st_size} bytes); refusing to build")
+    try:
+        data = json.loads(data_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f"report.json is not valid JSON (truncated write?): {exc}")
 
     run_dir = data_path.parent
     candidates_path = run_dir / "candidates.json"
@@ -235,6 +246,20 @@ def main() -> int:
         fail(f"candidates.json / manifest.json not found next to {data_path}")
     candidates = json.loads(candidates_path.read_text(encoding="utf-8"))
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    window = manifest.get("window", {}) if isinstance(manifest, dict) else {}
+    def fmt_time(value: str) -> str:
+        value = str(value or "").replace("T", " ")
+        return value[:16] if len(value) >= 16 else value
+    start = fmt_time(window.get("start", ""))
+    end = fmt_time(window.get("end", ""))
+    data.setdefault("meta", {})
+    data["meta"]["collection_window"] = f"数据范围：{start or '—'} → {end or '—'}（上次抓取 → 本次抓取）"
+    data["meta"]["window"] = data["meta"]["collection_window"]
+    data["meta"]["new_candidates"] = manifest.get("new_candidates", len(data.get("articles", [])))
+    if not data.get("articles"):
+        data["meta"]["no_new"] = True
+    validate(data, issue_date)
+
     config = json.loads((ROOT / "config" / "scope.json").read_text(encoding="utf-8"))
     try:
         from sync_scope import apply_scope
@@ -244,7 +269,7 @@ def main() -> int:
     journals, totals = compute_coverage(config, candidates, data["articles"], manifest)
     data["meta"]["journals"] = journals
     data["meta"]["coverage_totals"] = totals
-    (run_dir / "coverage.json").write_text(json.dumps({"journals": journals, "totals": totals}, ensure_ascii=False, indent=2), encoding="utf-8")
+    atomic_write_json(run_dir / "coverage.json", {"journals": journals, "totals": totals})
 
     template = TEMPLATE.read_text(encoding="utf-8").replace("__REPORT_DATE__", issue_date)
     pattern = re.compile(
@@ -259,7 +284,9 @@ def main() -> int:
 
     out_path = Path(args.out) if args.out else REPORT_DIR / f"{issue_date}.html"
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(html, encoding="utf-8")
+    atomic_write_text(out_path, html)
+    if not out_path.read_text(encoding="utf-8").rstrip().endswith("</html>"):
+        fail(f"written report is incomplete: {out_path}")
 
     topic_counts: dict[str, int] = {}
     for article in data["articles"]:

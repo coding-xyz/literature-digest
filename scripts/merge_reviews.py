@@ -18,6 +18,8 @@ import re
 import sys
 from pathlib import Path
 
+from atomic_io import atomic_write_json
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 REQUIRED = ("verdict", "confidence", "correctness", "weaknesses", "overclaim", "citations", "questions", "basis")
@@ -94,7 +96,7 @@ def main() -> int:
     if missing:
         fail(f"missing reviews for: {', '.join(missing)}")
 
-    report_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    atomic_write_json(report_path, data)
     print(f"Attached {len(data['articles'])} reviews to {report_path}")
     return 0
 

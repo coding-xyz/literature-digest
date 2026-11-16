@@ -79,6 +79,38 @@ def parse_iso_date(value: str) -> dt.date | None:
         return None
 
 
+def parse_iso_datetime(value: str) -> dt.datetime | None:
+    if not value:
+        return None
+    raw = value.strip()
+    try:
+        if raw.endswith("Z"):
+            raw = raw[:-1] + "+00:00"
+        parsed = dt.datetime.fromisoformat(raw)
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=LOCAL_TZ)
+        return parsed.astimezone(LOCAL_TZ)
+    except ValueError:
+        return None
+
+
+def previous_manifest(now: dt.datetime, current_run: Path) -> dict | None:
+    best = None
+    best_time = None
+    for path in DATA_DIR.glob("*/manifest.json"):
+        try:
+            manifest = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        generated = parse_iso_datetime(str(manifest.get("generated_at", "")))
+        if generated is None or generated >= now:
+            continue
+        if best_time is None or generated > best_time:
+            best_time = generated
+            best = manifest
+    return best
+
+
 def parse_rfc822(value: str) -> dt.datetime | None:
     if not value:
         return None
@@ -613,16 +645,31 @@ def main() -> int:
     tz = ZoneInfo(config["time"]["timezone"])
     now = dt.datetime.now(tz)
     target = dt.date.fromisoformat(args.date) if args.date else now.date()
-    days = args.days if args.days is not None else int(config["time"]["lookback_days"])
-    start = target - dt.timedelta(days=max(0, days - 1))
-    end = target
     run_dir = DATA_DIR / target.isoformat()
+    if args.days is not None:
+        window_start = now - dt.timedelta(days=max(1, args.days))
+        window_source = "cli --days"
+    else:
+        previous = previous_manifest(now, run_dir)
+        window_start = parse_iso_datetime(str(previous.get("generated_at", ""))) if previous else None
+        window_source = f"previous run {previous.get('target_date', '?')}" if previous else "first run"
+        if window_start is None:
+            lookback = int(config["time"]["lookback_days"])
+            window_start = now - dt.timedelta(days=max(1, lookback))
+    start = window_start.date()
+    end = now.date()
+    window_hours = max(0.0, (now - window_start).total_seconds() / 3600.0)
     raw_dir = run_dir / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     all_records: list[dict] = []
     coverage: list[dict] = []
     state = load_state()
+    previous_seen = {
+        str(item)
+        for entry in state.get("sources", {}).values()
+        for item in entry.get("seen_ids", [])
+    }
     source_cfg = config["sources"]
 
     def run_source(key: str, label: str, url: str, fn):
@@ -684,25 +731,41 @@ def main() -> int:
     source_order = {"pr": 0, "nature": 1, "quantum": 2, "eprint": 3, "arxiv": 4,
                     "scienceadv": 5, "scipost": 6, "avs": 7, "qst": 8}
     all_records.sort(key=lambda r: (r.get("source_date", ""), -source_order.get(r.get("source", ""), 9)), reverse=True)
+    new_records = [r for r in all_records if str(r.get("id", "")) not in previous_seen]
+    new_records.sort(key=lambda r: (r.get("source_date", ""), -source_order.get(r.get("source", ""), 9)), reverse=True)
+    new_by_source: dict[str, int] = {}
+    for r in new_records:
+        new_by_source[r["source"]] = new_by_source.get(r["source"], 0) + 1
+    for row in coverage:
+        row["new"] = new_by_source.get(row["key"], 0)
 
-    write_json(run_dir / "candidates.json", all_records)
+    write_json(run_dir / "candidates.json", new_records)
     state = update_state(state, all_records, now.isoformat(timespec="seconds"))
     state["last_target_date"] = target.isoformat()
     write_json(DATA_DIR / "state.json", state)
 
     manifest = {
         "target_date": target.isoformat(),
-        "window": {"start": start.isoformat(), "end": end.isoformat(), "days": days},
+        "window": {
+            "start": window_start.isoformat(timespec="seconds"),
+            "end": now.isoformat(timespec="seconds"),
+            "start_date": start.isoformat(),
+            "end_date": end.isoformat(),
+            "hours": round(window_hours, 2),
+            "source": window_source,
+        },
         "timezone": config["time"]["timezone"],
         "generated_at": now.isoformat(timespec="seconds"),
         "topic": config["topic"]["name"],
         "total_candidates": len(all_records),
-        "today_candidates": len({r["id"] for r in all_records if r.get("source_date") == target.isoformat()}),
+        "new_candidates": len(new_records),
+        "today_candidates": len(new_records),
         "sources": coverage,
     }
     write_json(run_dir / "manifest.json", manifest)
-    print(f"\nSaved {len(all_records)} unique candidates to {run_dir}")
-    print(f"Today ({target}): {manifest['today_candidates']}")
+    print(f"\nSaved {len(new_records)} new candidates to {run_dir} (fetched {len(all_records)})")
+    print(f"Window: {window_start.isoformat(timespec='seconds')} -> {now.isoformat(timespec='seconds')}")
+    print(f"New: {len(new_records)}")
     return 0
 
 

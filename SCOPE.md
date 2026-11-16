@@ -222,4 +222,4 @@
 
 ---
 
-> 抓取按 7 天滚动窗口；当日没有新批次时明确标“无当日更新”，保留最近批次。自动抓取入口优先使用 arXiv API、Crossref 和 RSS。
+> 抓取窗口默认是“上次报告抓取时间 → 本次抓取时间”；没有新增就写 0，不再回填旧批次。首次运行使用 SCOPE_CONFIG 里的 lookback_days。自动抓取入口优先使用 arXiv API、Crossref 和 RSS。

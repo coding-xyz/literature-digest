@@ -66,7 +66,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_pipeline.ps1 -Da
 
 `SCOPE.md` 的 `SCOPE_CONFIG` JSON 块是运行配置来源。修改后，`collect.py` 会自动同步到 `config/scope.json`。
 
-控制项包括：arXiv 分类、关键词、Nature feeds、PR journals、其他期刊、Quantum/ePrint feed、回看天数。
+控制项包括：arXiv 分类、关键词、Nature feeds、PR journals、其他期刊、Quantum/ePrint feed、首次运行回看天数。
 
 ## 报告一致性
 
@@ -115,7 +115,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_pipeline.ps1 -Da
 ## 失败处理
 
 - 来源失败：`manifest.json` 标记 `error`，报告保留该来源，不静默当成 0。
-- 当天没有新批次：保留最近批次并标注，不写成“今日新增”。
+- 当天没有新批次：`new_candidates=0`，报告写 0；不回填旧文。
+- 数据窗口：上次报告抓取时间 → 本次抓取时间；首次运行才使用 `lookback_days`。
 - 全文无法获取：`review` 写清只读到摘要，或停止收录；不能编造。
 - 报告生成失败：不发布旧版 HTML。
 - push 失败：任务失败；检查 `GH_TOKEN`、远程分支和冲突。

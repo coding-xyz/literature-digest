@@ -26,7 +26,8 @@
    data\DATE\candidates.json
    检查每个来源的 status/fetched/today/latest。
    - 如果某个来源 error：保留 error，不写成“无更新”。
-   - 如果当天 arXiv 没有新批次：使用最近批次，并在报告 meta.window 和说明中标明，不写成“今日新增”。
+   - candidates.json 只包含“上次报告抓取时间 → 本次抓取时间”内新增的条目；没有新增就写 0，不要把上一批 arXiv 论文重新算成今天新增。
+   - 数据时间范围由 manifest.window 提供，报告会显示“上次抓取 → 本次抓取”；不要手写固定 7 天窗口。
 4. 按 D:\文献调研\SCOPE.md 的方向筛选。不得按文件名、arXiv ID 或其他来源前缀筛选；arXiv、ePrint、PRX、PRX Quantum、Nature、Quantum、Science Advances、QST、SciPost 等所有来源同等对待，只看文章内容与主题是否匹配：
    - 容错量子计算设计：码与界、解码与阈值、容错资源/逻辑操作/编译、噪声模型/容错证明、容错实验。
    - 超导量子计算机模拟仿真：芯片/电路量子化、测控/开放系统/测量理论、纠错线路大规模仿真、经典模拟边界。
@@ -44,6 +45,7 @@
    - 公式必须显式写在 summary/problem/method/result/contribution 里，用 \( ... \) 或 $$ ... $$；不要依赖自动识别，不要另设“关键公式”框。裸露的 ^、_、LaTeX 命令或 Unicode 上下标会被 build_report.py 直接拒绝。
    - 重要性 5=必读、4=高、3=中、2=参考；理由写具体，不写空话。
    - 篇数与必读数由 data\DATE\selection_budget.json 动态给出；该值由历史必读文章主题与当天候选池质量计算，不要写死固定配额。来源尽量覆盖多个期刊。
+   - 如果 candidates.json 为空或 manifest.new_candidates == 0：不要为了凑数重复旧文；写 meta.no_new = true、articles = []，并让报告明确写“本轮新增 0 篇”。
 7. 对每篇写 AI 审稿，保存到 data\DATE\reviews\<article-id>.json（文件名用文章稳定 id 的 slug 即可，不要求 arXiv 前缀）：
    {
      "id": "...", "title": "...",

@@ -437,7 +437,7 @@ window.MathJax = {
   $("#issueDate").textContent = META.issue_date || "—";
   const reviewed = ARTICLES.filter(a => a.review).length;
   $("#issueCounts").innerHTML = `${ARTICLES.length} 篇 · 必读 <b>${mustRead}</b> 篇${reviewed ? ` · AI 审稿 ${reviewed}` : ""}`;
-  $("#asOf").textContent = "数据截至 " + (META.as_of || "—");
+  $("#asOf").textContent = META.collection_window || ("数据截至 " + (META.as_of || "—"));
   $("#generatedAt").textContent = META.generated_at || "—";
   $("#scopeLink").href = META.scope_href || "../SCOPE.md";
 
@@ -616,6 +616,9 @@ window.MathJax = {
   function render() {
     const list = ARTICLES.filter(a => state.topic === "all" || (a.topics || []).includes(state.topic)).sort((a, b) => a.no - b.no);
     $("#entries").innerHTML = list.map(entryHTML).join("");
+    $("#emptyState").innerHTML = ARTICLES.length
+      ? `<b>这个关键词下暂无条目</b>点“全部”回到完整列表。`
+      : `<b>本轮无新增论文</b>数据时间范围内没有新增条目。`;
     $("#emptyState").classList.toggle("show", list.length === 0);
     $("#listSummary").innerHTML = `显示 <b>${list.length}</b> / ${ARTICLES.length} 篇`;
     $$(".kbtn").forEach(b => b.setAttribute("aria-pressed", String(state.topic === b.dataset.topic)));

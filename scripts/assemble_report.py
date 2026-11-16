@@ -69,6 +69,10 @@ def main() -> int:
         articles.append(article)
 
     if not articles:
+        if meta.get("no_new") is True:
+            atomic_write_json(run / "report.json", {"meta": meta, "articles": []})
+            print(f"Assembled 0 articles into {run / 'report.json'} (no_new)")
+            return 0
         fail(f"no article JSON files in {articles_dir}")
 
     articles.sort(key=lambda a: int(a["no"]))
