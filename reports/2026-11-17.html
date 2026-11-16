@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon-light.svg?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
+<link rel="apple-touch-icon" href="../assets/favicon-180.png">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="report-date" content="2026-11-17">
+<title>文献速递 · 容错量子计算与超导量子计算机仿真</title>
+<style>
+  :root {
+    --page: #fbfaf6;
+    --sheet: #ffffff;
+    --ink: #181818;
+    --muted: #303030;
+    --faint: #3f3f3f;
+    --rule: #d9d5ca;
+    --rule-strong: #b5b0a4;
+    --blue: #1f4fd1;
+    --blue-bg: #e9efff;
+    --orange: #c2410c;
+    --orange-bg: #fff0e6;
+    --green: #087a5b;
+    --green-bg: #e3f6ee;
+    --purple: #6d45c7;
+    --purple-bg: #f0eaff;
+    --amber: #8a5200;
+    --amber-bg: #fff3d6;
+    --pink: #b3266e;
+    --pink-bg: #fde8f2;
+    --teal: #0e7490;
+    --teal-bg: #e2f5f8;
+    --red: #c62828;
+    --red-bg: #fdeaea;
+    --sans: "Noto Sans SC", "Source Han Sans SC", "Segoe UI", "Microsoft YaHei", sans-serif;
+    --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", Georgia, serif;
+    --mono: "Cascadia Code", "Consolas", monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font-family: var(--sans); font-size: 16px; line-height: 1.8;
+    font-weight: 400; -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  ::selection { background: #d9e4ff; }
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+  .wrap { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+
+  /* header */
+  .masthead { background: var(--sheet); border-bottom: 1px solid var(--rule); }
+  .masthead .wrap { padding: 18px 0 20px; }
+  .topline { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .topline .date { font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: .01em; }
+  .tools { display: flex; gap: 8px; }
+  .tool { border: 1px solid var(--rule); background: #fff; color: var(--blue); border-radius: 4px; padding: 5px 10px; font-size: 13px; }
+  .tool:hover { border-color: var(--blue); background: var(--blue-bg); }
+  .title-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 26px; margin-top: 13px; }
+  h1 { margin: 0; font-family: var(--serif); font-size: clamp(36px, 4.6vw, 44px); line-height: 1.12; font-weight: 700; letter-spacing: .08em; color: #111; }
+  .subtitle { margin: 8px 0 0; font-size: clamp(19px, 2.4vw, 23px); line-height: 1.45; color: var(--ink); font-weight: 650; }
+  .subtitle::after { content: ""; display: block; width: 58px; height: 4px; margin-top: 11px; background: linear-gradient(90deg, var(--orange), var(--amber)); }
+  .issue { text-align: right; flex: none; }
+  .issue-date { font-family: var(--mono); font-size: 14px; color: var(--ink); }
+  .issue-counts { margin-top: 4px; font-size: 13px; color: var(--muted); }
+  .issue-counts b { color: var(--red); font-weight: 700; }
+
+  /* source coverage */
+  .coverage { margin-top: 18px; border: 1px solid var(--rule); border-radius: 5px; overflow: hidden; }
+  .coverage > summary { cursor: pointer; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; padding: 8px 11px; background: var(--blue-bg); color: var(--blue); font-size: 13px; font-weight: 700; list-style: none; }
+  .coverage > summary::-webkit-details-marker { display: none; }
+  .coverage > summary:hover { background: #dfe8ff; }
+  .coverage[open] > summary { border-bottom: 1px solid #cfd9f7; }
+  .coverage .nums { color: var(--ink); font-weight: 500; }
+  .coverage-body { max-height: 430px; overflow: auto; }
+  .coverage-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .coverage-table th { text-align: left; padding: 6px 11px; background: #faf9f4; color: var(--label, #333); font-size: 11.5px; font-weight: 650; letter-spacing: .08em; border-bottom: 1px solid var(--rule); }
+  .coverage-table td { padding: 7px 11px; border-bottom: 1px solid #ece8de; color: var(--ink); }
+  .coverage-table tr:last-child td { border-bottom: 0; }
+  .coverage-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .coverage-table .total td { background: #faf9f4; font-weight: 650; border-top: 1px solid var(--rule); }
+  .st { display: inline-block; border-radius: 3px; padding: 1px 6px; font-size: 11px; font-weight: 650; white-space: nowrap; }
+  .st-ok { background: #e3f6ee; color: #087a5b; }
+  .st-partial { background: #fff3d6; color: #8a5200; }
+  .st-error { background: #fdeaea; color: #b3261e; }
+  .coverage-source { display: inline-flex; align-items: center; gap: 7px; }
+  .coverage-table .group td { background: #eef2ff; color: #1f3d8f; font-weight: 700; border-top: 1px solid #d7e0ff; }
+  .coverage-table .sub td:first-child { padding-left: 26px; }
+  .coverage-table .single td:first-child { padding-left: 11px; }
+  .source-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sc, var(--blue)); flex: none; }
+
+  /* keyword bar */
+  .keywordbar { position: sticky; top: 0; z-index: 20; background: rgba(251,250,246,.98); border-bottom: 1px solid var(--rule); backdrop-filter: blur(10px); }
+  .keywordbar .wrap { display: flex; align-items: center; gap: 7px; overflow-x: auto; padding: 10px 0; }
+  .kbtn { flex: none; border: 1px solid var(--tc, var(--rule)); background: var(--tbg, #fff); color: var(--tc, var(--muted)); border-radius: 999px; padding: 4px 11px; font-size: 13px; white-space: nowrap; transition: .14s ease; }
+  .kbtn:hover { filter: brightness(.96); }
+  .kbtn[aria-pressed="true"] { background: var(--tc, var(--ink)); color: #fff; border-color: var(--tc, var(--ink)); }
+  .kbtn .c { opacity: .7; margin-left: 4px; font-variant-numeric: tabular-nums; font-size: 12px; }
+  .kbtn-all { --tc: #252525; --tbg: #fff; }
+
+  /* entries */
+  .workspace { padding: 18px 0 40px; }
+  .list-head { display: flex; justify-content: space-between; gap: 18px; padding: 2px 0 12px; color: var(--muted); font-size: 12.5px; }
+  .list-head b { color: var(--ink); }
+  .entries { border-top: 2px solid var(--ink); }
+  .entry { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 22px; padding: 28px 0 26px; border-bottom: 1px solid var(--rule); scroll-margin-top: 72px; }
+  .rail { text-align: left; }
+  .no { font-family: var(--serif); font-size: 27px; line-height: 1; color: var(--imp, var(--blue)); font-weight: 700; letter-spacing: -.03em; }
+  .imp-badge { display: inline-flex; align-items: baseline; gap: 2px; margin-top: 9px; padding: 2px 7px; border-radius: 3px; background: var(--imp-bg, var(--blue-bg)); color: var(--imp, var(--blue)); font-family: var(--mono); font-size: 12px; font-weight: 700; }
+  .imp-badge .den { opacity: .7; font-weight: 500; }
+  .imp-label { display: block; margin-top: 5px; color: var(--imp, var(--muted)); font-size: 11.5px; font-weight: 650; letter-spacing: .05em; }
+  .entry-body { min-width: 0; }
+  .entry-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 9px; color: var(--muted); font-size: 12.5px; }
+  .source-pill { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 3px; background: var(--sbg, var(--blue-bg)); color: var(--sc, var(--blue)); font-weight: 650; font-size: 11.5px; }
+  .entry-meta .sep { color: var(--rule-strong); }
+  .entry-meta time { font-family: var(--mono); font-size: 12.5px; }
+  .entry h2 { margin: 8px 0 0; font-family: var(--sans); font-size: clamp(23px, 2.5vw, 26px); line-height: 1.35; font-weight: 700; letter-spacing: -.015em; }
+  .entry h2 a { color: var(--ink); text-decoration: none; }
+  .entry h2 a:hover { color: var(--blue); text-decoration: underline; text-decoration-color: var(--blue); }
+  .title-zh { margin: 6px 0 0; color: var(--muted); font-size: 16px; line-height: 1.65; }
+  .authors { margin: 8px 0 0; color: var(--muted); font-size: 13.5px; line-height: 1.65; }
+  .topics { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+  .imp-reason { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.65; }
+  .imp-reason b { color: var(--imp, var(--blue)); font-weight: 650; }
+  .topic { display: inline-block; padding: 2px 7px; border-radius: 999px; background: var(--tbg); color: var(--tc); font-size: 11.5px; line-height: 1.55; }
+  .summary { margin: 14px 0 0; padding: 11px 13px; background: var(--imp-bg, var(--blue-bg)); border-left: 4px solid var(--imp, var(--blue)); font-size: 15px; line-height: 1.75; color: var(--ink); }
+  .summary b { color: var(--imp, var(--blue)); font-size: 11.5px; letter-spacing: .08em; margin-right: 7px; }
+  .analysis { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; margin-top: 14px; border-top: 1px solid var(--rule); }
+  .analysis > div { padding: 11px 0 10px; border-bottom: 1px solid var(--rule); }
+  .analysis > div.wide { grid-column: 1 / -1; background: var(--purple-bg); margin-top: 8px; padding: 9px 11px; border-left: 3px solid var(--purple); border-bottom: 0; }
+  .analysis h3 { margin: 0 0 4px; color: var(--muted); font-size: 11.5px; letter-spacing: .1em; font-weight: 700; text-transform: uppercase; }
+  .analysis > div.wide h3 { color: var(--purple); }
+  .analysis p { margin: 0; color: var(--ink); font-size: 14.5px; line-height: 1.75; }
+
+  /* AI review */
+  details.review { margin-top: 10px; border: 1px solid #e4c26d; border-radius: 5px; background: #fffaf0; overflow: hidden; }
+  details.review summary { cursor: pointer; padding: 8px 11px; color: #6b4300; font-size: 13.5px; font-weight: 700; list-style: none; background: #fff4d8; }
+  details.review summary::-webkit-details-marker { display: none; }
+  .review-body { padding: 8px 13px 12px; border-top: 1px solid #f0dfb4; }
+  .review-block { padding: 9px 0; border-bottom: 1px solid #f0dfb4; }
+  .review-block:last-of-type { border-bottom: 0; }
+  .review-block h3 { margin: 0 0 4px; color: #6b4300; font-size: 12.5px; letter-spacing: .08em; font-weight: 700; }
+  .review-block ul { margin: 0; padding-left: 19px; }
+  .review-block li { margin: 3px 0; color: var(--ink); font-size: 14px; line-height: 1.75; }
+  .review-meta { margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+  @media print { details.review { break-inside: avoid; } details.review[open] .review-body { display: block; } }
+
+
+  /* floating table of contents */
+  .toc { position: fixed; z-index: 60; font-family: var(--sans); }
+  .toc-toggle { display: none; border: 1px solid var(--blue); background: #fff; color: var(--blue); padding: 7px 13px; font-size: 13px; font-weight: 650; box-shadow: 0 8px 24px -12px rgba(23,33,30,.45); cursor: grab; user-select: none; }
+  .toc-toggle:active { cursor: grabbing; }
+  .toc-toggle:hover { background: var(--blue-bg); }
+  .toc-panel { background: #fff; }
+  .toc-panel[hidden] { display: none; }
+  .toc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 11px; border-bottom: 1px solid var(--rule); color: var(--blue); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; position: sticky; top: 0; background: #fff; z-index: 1; }
+  .toc-close { border: 0; background: transparent; color: var(--muted); font-size: 15px; line-height: 1; padding: 2px 3px; }
+  .toc-list { list-style: none; margin: 0; padding: 7px 9px 11px; counter-reset: toc; }
+  .toc-list li { counter-increment: toc; margin: 0; border-bottom: 1px solid #ece8de; }
+  .toc-list li:last-child { border-bottom: 0; }
+  .toc-list a { display: grid; grid-template-columns: 30px 1fr; gap: 8px; padding: 7px 3px; color: var(--ink); text-decoration: none; font-size: 12.5px; line-height: 1.45; }
+  .toc-list a:hover { color: var(--blue); background: var(--blue-bg); }
+  .toc-no { font-family: var(--mono); font-size: 11px; color: var(--orange); }
+
+  /* desktop: persistent left sidebar, starts open, can collapse */
+  @media (hover: hover) and (pointer: fine) {
+    body { transition: padding-left .18s ease; }
+    body.toc-open { padding-left: 264px; }
+    .toc { left: 0; top: 0; bottom: 0; width: 264px; height: 100vh; overflow: auto; background: #fff; border-right: 1px solid var(--rule); padding: 18px 13px 24px; transition: width .18s ease, padding .18s ease; }
+    .toc.collapsed { width: 0; padding: 0; border-right: 0; overflow: visible; }
+    .toc-panel { position: static; width: auto; max-height: none; border: 0; box-shadow: none; }
+    .toc.collapsed .toc-panel { display: none; }
+    .toc-head { padding: 0 2px 12px; position: static; border-bottom: 1px solid var(--rule); margin-bottom: 2px; }
+    .toc-close { font-size: 12px; border: 1px solid var(--rule); border-radius: 4px; padding: 3px 8px; }
+    .toc.collapsed .toc-toggle { display: block; position: fixed; left: 0; top: 78px; border-radius: 0 8px 8px 0; border-left: 0; padding: 8px 9px; }
+  }
+
+  /* mobile: narrow vertical floating tab */
+  @media (hover: none), (pointer: coarse) {
+    .toc { left: 0; top: auto; bottom: 18px; }
+    .toc-toggle { display: block; writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: .10em; line-height: 1; padding: 9px 6px; min-height: 64px; width: 30px; font-size: 12px; border-radius: 0 7px 7px 0; box-shadow: 0 8px 24px -12px rgba(23,33,30,.5); touch-action: none; }
+    .toc.right .toc-toggle { border-radius: 7px 0 0 7px; }
+    .toc-panel { position: fixed; right: 10px; left: 10px; bottom: 58px; top: auto; width: auto; max-height: 58vh; overflow: auto; border: 1px solid var(--rule); border-radius: 7px; box-shadow: 0 24px 70px -30px rgba(23,33,30,.55); }
+  }
+  @media print { body.toc-open { padding-left: 0 !important; } .toc { display: none !important; } }
+
+  /* key nums + footer */
+
+  .keynums { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; margin-top: 12px; }
+  .keynums .label { color: var(--muted); font-size: 11.5px; letter-spacing: .08em; margin-right: 3px; }
+  .kn { display: inline-block; border: 1px solid var(--rule); border-radius: 3px; padding: 2px 7px; font-family: var(--mono); font-size: 12px; color: var(--ink); background: #fff; }
+  .entry-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-top: 13px; }
+  .entry-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-left: auto; }
+  .status-select { border: 1px solid var(--rule); background: #fff; color: var(--muted); padding: 3px 6px; font-size: 12px; border-radius: 3px; }
+  .textbtn { border: 0; background: transparent; color: var(--blue); font-size: 12.5px; padding: 2px 0; }
+  .textbtn:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .link { color: var(--blue); font-size: 12.5px; text-decoration: none; }
+  .link:hover { text-decoration: underline; text-underline-offset: 3px; }
+  details.abstract { margin-top: 11px; }
+  details.abstract summary { cursor: pointer; color: var(--muted); font-size: 12.5px; list-style: none; }
+  details.abstract summary::-webkit-details-marker { display: none; }
+  details.abstract summary::before { content: "＋ "; color: var(--blue); }
+  details.abstract[open] summary::before { content: "－ "; }
+  .abstract p { margin: 8px 0 0; padding: 10px 11px; border: 1px solid var(--rule); border-radius: 3px; background: #fff; color: var(--muted); font-size: 13.5px; line-height: 1.75; }
+  .note-wrap { margin-top: 10px; padding: 10px; border: 1px solid var(--rule); border-radius: 3px; background: #fff; }
+  .note-wrap[hidden] { display: none; }
+  .note-area { width: 100%; min-height: 64px; resize: vertical; border: 1px solid var(--rule); border-radius: 3px; padding: 8px; font-size: 13.5px; line-height: 1.7; }
+  .note-meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; color: var(--muted); font-size: 11.5px; }
+  .empty { display: none; padding: 50px 10px; text-align: center; color: var(--muted); border-bottom: 1px solid var(--rule); }
+  .empty.show { display: block; }
+  .empty b { display: block; font-family: var(--serif); font-size: 20px; color: var(--ink); margin-bottom: 4px; }
+  .footer { padding: 22px 0 38px; color: var(--muted); font-size: 12.5px; }
+  .footer .row { display: flex; justify-content: space-between; gap: 10px 24px; flex-wrap: wrap; }
+  .footer a { color: var(--blue); }
+  .toast { position: fixed; left: 50%; bottom: 18px; transform: translate(-50%, 12px); background: var(--ink); color: #fff; padding: 7px 13px; border-radius: 3px; font-size: 12.5px; opacity: 0; pointer-events: none; transition: .18s ease; z-index: 50; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+
+  @media (max-width: 760px) {
+    .wrap { width: min(100% - 24px, 1120px); }
+    .title-row { display: block; }
+    .issue { text-align: left; margin-top: 14px; }
+    .entry { grid-template-columns: 46px minmax(0, 1fr); gap: 11px; padding: 22px 0; }
+    .no { font-size: 23px; }
+    .analysis { grid-template-columns: 1fr; }
+    .analysis > div.wide { grid-column: auto; }
+    .entry h2 { font-size: 21px; }
+    .entry-actions { margin-left: 0; }
+    .coverage-table th, .coverage-table td { padding: 6px 8px; font-size: 12px; }
+  }
+  @media print {
+    :root { --page: #fff; --sheet: #fff; --ink: #000; --muted: #222; --faint: #333; --rule: #bbb; }
+    body { font-size: 10.5pt; background: #fff; }
+    .keywordbar, .toolbar, .tools, .entry-actions, .note-wrap, .toast, .list-head { display: none !important; }
+    .masthead .wrap { padding: 0 0 12px; }
+    .workspace { padding-top: 8px; }
+    .entry { break-inside: avoid; page-break-inside: avoid; padding: 14px 0; grid-template-columns: 42px 1fr; gap: 10px; }
+    .summary
+    details.abstract { display: none; }
+    .footer { padding-top: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body id="top">
+<header class="masthead">
+  <div class="wrap">
+    <div class="topline">
+      <div class="date" id="asOf">—</div>
+      <div class="tools">
+        <button class="tool" id="exportBtn" type="button">导出笔记</button>
+        <button class="tool" id="printBtn" type="button">打印</button>
+      </div>
+    </div>
+    <div class="title-row">
+      <div>
+        <h1 id="pageTitle">文献速递</h1>
+        <p class="subtitle" id="pageSubtitle">容错量子计算与超导量子计算机仿真</p>
+      </div>
+      <div class="issue">
+        <div class="issue-date" id="issueDate">2026-11-09</div>
+        <div class="issue-counts" id="issueCounts">—</div>
+      </div>
+    </div>
+    <div id="coverage"></div>
+  </div>
+</header>
+
+<nav class="keywordbar" aria-label="按关键词筛选">
+  <div class="wrap" id="keywordBar"></div>
+</nav>
+
+<main class="workspace">
+  <div class="wrap">
+    <div class="list-head">
+      <span id="listSummary">—</span>
+      <span>重要性为阅读优先级，不是论文质量评级</span>
+    </div>
+    <div class="entries" id="entries"></div>
+    <div class="empty" id="emptyState"><b>这个关键词下暂无条目</b>点“全部”回到完整列表。</div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap row">
+    <span>公式直接写在“结论 / 问题 / 方法 / 结果 / 主要贡献”等字段里，用 LaTeX 书写，由 MathJax 渲染。</span>
+    <span>生成于 <span id="generatedAt"></span> · <a id="scopeLink" href="../SCOPE.md" target="_blank" rel="noopener">检索范围</a> · <a href="#top">回到顶部 ↑</a></span>
+  </div>
+</footer>
+
+<div class="toc" id="toc">
+  <button class="toc-toggle" id="tocToggle" type="button" aria-expanded="false" aria-controls="tocPanel">目录</button>
+  <nav class="toc-panel" id="tocPanel" hidden aria-label="文章目录">
+    <div class="toc-head"><span>文章目录</span><button class="toc-close" id="tocClose" type="button" aria-label="关闭目录">×</button></div>
+    <ol class="toc-list" id="tocList"></ol>
+  </nav>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+    processEscapes: true
+  },
+  svg: { fontCache: "global", scale: 0.98 },
+  options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] }
+};
+</script>
+<script src="../assets/mathjax/tex-svg.js"></script>
+<script id="report-data" type="application/json">{"meta":{"title":"文献速递 2026-11-17","subtitle":"微波二维连续变量簇态与超快离子门 · 精选 7 篇","issue_date":"2026-11-17","as_of":"2026-11-17 07:00 (Asia/Shanghai)","window":"数据范围：2026-11-16 07:01 → 2026-11-17 07:02（上次抓取 → 本次抓取）","note":"本期窗口 2026-11-16 07:01 至 2026-11-17 07:02（Asia/Shanghai）内全部来源抓取成功、无报错，共抓取 100 条、去重后 98 篇候选，按主题词初筛命中 3 篇，人工复核后收录 7 篇（含 3 篇必读）。初筛仅按标题与摘要做机械关键词匹配，本批 Physical Review 条目的摘要多取自 Crossref、缺失较多，故初筛命中数低于人工复核后的收录数。arXiv 与 Cryptology ePrint Archive 在窗口内返回 0 条（arXiv 下一次公告晚于窗口结束），Science Advances、AVS Quantum Science、Quantum 以及各会议在窗口内无新条目，故本期收录全部来自 Physical Review 系列。各来源 today 计数均为 0、最新条目日期为 2026-11-16，本期为窗口内累积精选而非“今日新增”。","scope_href":"../SCOPE.md","generated_at":"2026-11-17T07:38:00+08:00","collection_window":"数据范围：2026-11-16 07:01 → 2026-11-17 07:02（上次抓取 → 本次抓取）","new_candidates":98,"journals":[{"group":"预印本","label":"预印本","kind":"group","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"预印本","label":"arXiv","kind":"journal","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"预印本","label":"Cryptology ePrint Archive","kind":"journal","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"PR 系列","label":"PR 系列","kind":"group","raw":84,"screened":3,"included":7,"status":"ok"},{"group":"PR 系列","label":"PRX Quantum","kind":"journal","raw":3,"screened":0,"included":1,"status":"ok"},{"group":"PR 系列","label":"Physical Review X","kind":"journal","raw":4,"screened":0,"included":0,"status":"ok"},{"group":"PR 系列","label":"Physical Review Research","kind":"journal","raw":17,"screened":2,"included":1,"status":"ok"},{"group":"PR 系列","label":"Physical Review Letters","kind":"journal","raw":21,"screened":0,"included":1,"status":"ok"},{"group":"PR 系列","label":"Physical Review A","kind":"journal","raw":31,"screened":0,"included":2,"status":"ok"},{"group":"PR 系列","label":"Physical Review Applied","kind":"journal","raw":8,"screened":1,"included":2,"status":"ok"},{"group":"PR 系列","label":"Reviews of Modern Physics","kind":"journal","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature 系列","kind":"group","raw":10,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature","kind":"journal","raw":1,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature Physics","kind":"journal","raw":1,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature Communications","kind":"journal","raw":5,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"npj Quantum Information","kind":"journal","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Communications Physics","kind":"journal","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature Electronics","kind":"journal","raw":1,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature Materials","kind":"journal","raw":2,"screened":0,"included":0,"status":"ok"},{"group":"Nature 系列","label":"Nature Nanotechnology","kind":"journal","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"会议","label":"会议","kind":"group","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"会议","label":"QIP","kind":"conference","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"会议","label":"STOC","kind":"conference","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"会议","label":"FOCS","kind":"conference","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"会议","label":"SODA","kind":"conference","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"会议","label":"ICML","kind":"conference","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"会议","label":"NeurIPS (NIPS)","kind":"conference","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"会议","label":"WADS","kind":"conference","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"Quantum","label":"Quantum","kind":"single","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"Science Advances","label":"Science Advances","kind":"single","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"SciPost Physics","label":"SciPost Physics","kind":"single","raw":3,"screened":0,"included":0,"status":"ok"},{"group":"AVS Quantum Science","label":"AVS Quantum Science","kind":"single","raw":0,"screened":0,"included":0,"status":"ok"},{"group":"Quantum Science and Technology","label":"Quantum Science and Technology","kind":"single","raw":1,"screened":0,"included":0,"status":"ok"}],"coverage_totals":{"raw":100,"deduped":98,"screened":3,"included":7,"errors":[]}},"articles":[{"id":"pr-10.1103/4t5f-g35b","no":1,"topics":["芯片与耦合器","容错实验"],"source":"PRX Quantum","venue":"PRX Quantum","published":"2026-11-16","title":"Continuous-variable two-dimensional cluster states in the microwave domain","title_zh":"微波频段的连续变量二维簇态","authors":["Fabio Lingua","Michele Cortinovis","J. C. Rivera Hernández","David B. Haviland"],"abstract":"连续变量簇态是测量型量子计算的核心资源。作者把约瑟夫森参量放大器（JPA）的多音参量泵浦作用于真空输入，在 191 个等间距微波模式之间选择性地建立边连接，用三个泵浦音与四个泵浦音分别生成蜂窝与方形晶格的二维规范图；零化子方差最高被压低 1.2 dB，隐藏纠缠在压缩约 1 dB 以内低于噪声底。","importance":5,"importance_reason":"首次在微波频段把一维频率梳映射成二维规范图（方形与蜂窝），并同时给出零化子检验与隐藏纠缠定量分析，是微波连续变量测量型计算路线上的关键一步，方法与判据都可直接复用。","summary":"作者用多音泵浦的 JPA 在 191 个等间距微波模式间构造连续变量簇态：四音泵浦给出方形晶格、三音泵浦给出蜂窝晶格，零化子压缩最高 \\(-1.22\\) dB，隐藏纠缠在约 \\(-1\\) dB 压缩以内低于噪声底。","problem":"微波频段的连续变量簇态此前多停留在一维链或方形梯（square ladder），要做成真正的二维图，需要把一维频率轴“折叠”成二维连接；而多音泵浦的高阶互调会带来不需要的边与纠缠泄漏（隐藏纠缠），使得“哪些模式映射是参量泵浦可实现的”本身成为一个难题。","method":"以静态谐振 \\(\\omega_0 \\simeq 4.2\\) GHz 的 JPA 为参量器件，泵浦由直流偏置加多个接近 \\(2\\omega_0\\) 的离散射频分量组成，参量混频在频域相当于泵浦谱与模式谱的卷积，因而模式连接天然带有平移对称性。作者把正、负模式在测量基中交错排布成棋盘状，再调泵浦频率、幅度与相位，使水平与垂直方向的连接分别落在 \\(N_x\\) 与 1 的间隔上；输出经环行器与低温低噪声放大器后由多频锁相放大器同时解调 \\(N\\) 个正交频率的两路正交分量，重构协方差矩阵，再做 Wigner–Moyal 型分解得到邻接矩阵 \\(A\\) 与对角矩阵 \\(U\\)，最后用零化子检验和隐藏纠缠比（HER）评估簇态质量。","result":"方形晶格（\\(N=191\\)，\\(N_x=15\\)）在 \\(g/g_{3\\mathrm{dB}}=0.19\\) 处得到平均零化子压缩 \\(-1.22\\) dB，蜂窝晶格得到 \\(-1.08\\) dB；HER 在零化子压缩约 \\(-1\\) dB 以内始终低于噪声底，在最优压缩点仅有很小且受控的隐藏纠缠，蜂窝构型因能更有效地抵消二阶 idler 而略优。","contribution":"给出了把一维频率模式映射为二维规范图的可实现规则，并在微波频段实验上同时演示方形与蜂窝两种拓扑的簇态及其零化子验证，把隐藏纠缠从概念讨论变成了可测量的质量指标。","limitation":"压缩量只有 1 dB 量级，远低于测量型计算所需的阈值；蜂窝构造实际得到的是两个互不连通的子晶格（\\(N_x=10\\)、\\(N=50\\)），与“完整二维蜂窝”的说法有落差；隐藏纠缠只对少数代表性 \\(U\\) 矩阵作了展示，缺少逐边统计；放大链与环行器损耗对零化子估计的偏差也未系统标定。","key_numbers":["191 个频率模式（Nx = 15）","零化子压缩 −1.22 dB（方形）/ −1.08 dB（蜂窝）","最优泵浦强度 g/g3dB = 0.19","隐藏纠缠在约 −1 dB 压缩以内低于噪声底"],"url":"https://doi.org/10.1103/4t5f-g35b","review":{"verdict":"小修","confidence":"高","correctness":"零化子检验与协方差矩阵分解（A、U）的流程自洽，−1.22 / −1.08 dB 与 g/g3dB = 0.19 的最优点在图 4、图 6 中相互印证；HER 的定义与 U 矩阵元素之间的对应关系交代清楚，负值判据也给了物理解释。","weaknesses":"· 压缩量仅约 1 dB，作者以“验证拓扑”定位，但对测量型计算可用性缺少量化讨论\n· 蜂窝晶格实际是两个不连通子图，标题与图示的“二维蜂窝”需要加限定\n· HER 只展示少数代表性 U 矩阵，未给出全部边的统计分布\n· 环行器与放大链损耗对零化子估计的系统偏差只在补充材料中零散提及","overclaim":"标题与结论称实现“二维簇态”，但蜂窝情形为两个连通分量、压缩仅 1 dB 量级，宜限定为原理性演示而非可用的规模化簇态。","citations":"与作者前作的方形梯（−1.4 dB）以及光学频段二维簇态工作对比充分；对微波平台上其他资源态路线（GKP 态、离散变量簇态）缺少讨论。","questions":"①增大泵浦带宽与解调通道数后，Nx 能否扩大而压缩不退化？②能否逐条边给出零化子的误差棒？③泵浦继续增强时隐藏纠缠会突然增长还是保持受控？","basis":"全文（arXiv:2604.07107 PDF）"}},{"id":"pr-10.1103/fw4j-bf3k","no":2,"topics":["测控与噪声","芯片与耦合器"],"source":"PRL","venue":"Physical Review Letters","published":"2026-11-16","title":"Emission and Absorption of Microwave Photons in Orthogonal Temporal Modes across a 30-Meter Two-Node Network","title_zh":"30 米双节点网络上正交时间模式微波光子的发射与吸收","authors":["Alonso Hernández-Antón","Josua D. Schär","Aleksandr Grigorev","Guillermo F. Peñas","Ricardo Puebla","Juan José García-Ripoll","Jean-Claude Besse","Andreas Wallraff","Anatoly Kulikov"],"abstract":"作者在 30 米低温矩形波导两端各放一个超导比特节点，用成形脉冲产生并吸收三个相互正交的时间模式微波光子。同一模式发射—吸收的传输效率超过 75%，模式选择比约 40（16 dB），失配模式几乎被完全反射，说明时间模式复用可以作为多节点微波量子链路的扩容手段。","importance":5,"importance_reason":"把“时间模式复用”从光学搬到 30 米级低温微波链路并给出正交性的定量判据（选择比 16 dB），是微波量子网络从点对点走向多模式并行的关键实验，误差模型也可直接用于后续节点设计。","summary":"在 30 米低温波导两端各设一个超导比特节点，把飞行微波光子整形成三个相互正交的时间模式；同模式传输效率超过 75%，模式选择比约 40（16 dB），失配模式近乎完全反射。","problem":"微波量子网络若能在同一波导上复用多个光子模式，就能显著提高通道容量；但此前多模式传输中高阶模式的效率会急剧下降，模式间串扰缺少实验约束，且没有在长距离链路上直接检验时间模式正交性的工作。","method":"两端各用一个可调谐 transmon，借助 \\(|g\\rangle\\)–\\(|f\\rangle\\) 跃迁把单光子写成指定包络。发射端用成形脉冲产生 Hermite–Gauss 型时间模式 \\(f_n\\)（\\(n=0,1,2\\)，带宽 \\(\\Gamma/2\\pi=24\\) MHz），光子经长约 30 米的矩形低温波导（群速 \\(\\approx 0.72c\\)）传播；接收端在与发射延迟 \\(\\tau\\) 对齐的时刻施加针对模式 \\(n_B\\) 的吸收脉冲，因两节点器件参数并不完全对称，还需微调两段脉冲。实验扫描 \\(\\tau\\) 与 \\((n_A,n_B)\\) 的全部组合，以接收比特 \\(|f\\rangle\\) 态布居 \\(P_f\\) 作为传输效率的度量，并用“吸收脉冲与入射模式的延迟重叠”模型做双参数全局拟合，提取最优延迟与光子损耗概率。","result":"同模式（\\(n_A=n_B\\)）在 \\(\\tau_0=145.9\\pm0.2\\) ns 处传输效率高于 75%；交叉模式在最优延迟附近 \\(P_f\\approx 0\\)，即光子被反射回通道，由此得到平均对角与非对角矩阵元之比 \\(\\Sigma\\approx 40\\approx 16\\) dB 的模式选择比。\\(0\\leftrightarrow2\\) 的极小值明显宽于 \\(0\\leftrightarrow1\\) 与 \\(1\\leftrightarrow2\\)，说明 \\(f_0\\) 与 \\(f_2\\) 的正交性对延迟标定误差更稳健。","contribution":"首次在 30 米级低温微波链路上演示三正交时间模式的发射、传输与选择性吸收，并给出以选择比为核心的模式正交性判据与可复用的误差模型。","limitation":"只演示了三个模式和单光子层面，效率仍在 75%–80% 量级，主要受波导损耗与比特非辐射衰减限制；两节点参数不一致需要逐次校准；尚未演示模式间的纠缠分发或量子态传输。","key_numbers":["同模式传输效率 >75%（τ0 = 145.9 ± 0.2 ns）","模式选择比 Σ ≈ 40 ≈ 16 dB","波导长度 30 m，群速 ≈ 0.72c","三个正交时间模式 f0/f1/f2，Γ/2π = 24 MHz"],"url":"https://doi.org/10.1103/fw4j-bf3k","review":{"verdict":"小修","confidence":"高","correctness":"传输效率、选择比与延迟拟合三者互相一致：τ0 = 145.9 ns 与 30 m/0.72c 的量级吻合，交叉模式布居归零也符合“失配即反射”的物理图像；误差模型只用两个全局参数就能同时拟合九组数据，可信度较高。","weaknesses":"· 只有三个模式，向更多模式扩展时正交性是否仍能保持未给出论证\n· 传输效率 75% 的损耗分解（波导、接头、比特）依赖模型假设，缺少独立标定\n· 未讨论多光子同时传输时的非线性与比特加热\n· 两节点需分别校准这一点对可扩展性的影响被淡化","overclaim":"“网络”一词偏强：实际是两节点、单光子、经典延迟对齐的点对点链路，尚无路由或多节点复用。","citations":"与光学时间模式复用、微波单光子传输以及波导损耗表征的工作衔接良好；对同期的多模式腔存储方案比较略简。","questions":"①模式数增加到 5–10 时选择比如何衰减？②损耗分解能否用独立实验闭合？③能否演示两个时间模式间的纠缠交换？","basis":"全文（arXiv:2604.12947 PDF）"}},{"id":"pr-10.1103/ygy7-q86j","no":3,"topics":["芯片与耦合器","测控与噪声"],"source":"PRApplied","venue":"Physical Review Applied","published":"2026-11-16","title":"Mitigating dynamic crosstalk with optimal control","title_zh":"用最优控制抑制动态串扰","authors":["Matthias G. Krauss","Luise C. Butzke","Christiane P. Koch"],"abstract":"动态串扰指门控场本身驱动出的非预期相互作用，在频率寻址的超导架构中最难预测。作者以 perfect entangler 谱作为最优控制的目标函数，在含旁观比特的可调耦合器 transmon 模型上为 iSWAP 与 CZ 门设计脉冲，把量级为 1 的门误差压到 10^-3 以下，且多数情形只需对原脉冲作很小改动。","importance":5,"importance_reason":"把“看不见的动态串扰”转化为 perfect entangler 谱上的峰，并用最优控制直接抹平，给出了可解释、可工程化的串扰抑制原则；对可调耦合器架构的脉冲设计有直接指导意义。","summary":"以 perfect entangler 谱为目标函数做最优控制，在含旁观比特的可调耦合器模型上消除动态串扰：iSWAP 与 CZ 的门误差从量级 1 降到 \\(10^{-3}\\) 以下，多数情形只需微调脉冲偏移或驱动频率。","problem":"在频率寻址的超导架构中，门控脉冲会顺带驱动邻近的旁观比特：既有源于静态频率碰撞的共振，也有由比特—耦合器交换辅助的多光子驱动诱导共振。后者必须解全动力学才能识别，靠解析条件或静态校准都难以消除，而“最小化总误差”的黑箱优化又说不清串扰到底被怎样压掉。","method":"建立“两个计算比特 + 可调耦合器 + 一个旁观比特”的三 transmon 模型，假设纯幺正演化。核心是把 perfect entangler 谱 \\(J_{\\mathrm{PE}}(\\omega_3)\\) 当代价函数：以旁观比特频率 \\(\\omega_3\\) 为横轴扫描时，谱峰即串扰位置。先用 Krotov 梯度法优化控制场 \\(u(t)\\)（初值取 iSWAP/CZ 的解析脉冲），再做只含偏移 \\(\\Theta\\)、幅度 \\(\\delta\\)、驱动频率 \\(\\omega_\\phi\\)、相位 \\(\\varphi\\) 四个参数的梯度无关优化。模型参数取 \\(\\omega_1/2\\pi=5.8899\\) GHz、\\(\\alpha_1/2\\pi=324\\) MHz、\\(g_1/2\\pi=100\\) MHz，脉冲边沿 \\(\\sigma_t=8.3\\) ns（CZ 为 13 ns）。","result":"对两类代表性串扰——\\(\\omega_3=4.464\\) GHz 的三光子驱动诱导交换与 \\(\\omega_3=5.568\\) GHz 的静态共振 \\(\\omega_3=\\omega_1-\\alpha_1\\)——初始量级为 1 的门误差都被压到 \\(10^{-3}\\) 以下，且 \\(\\varepsilon_{\\mathrm{PE}}\\) 与平均门误差 \\(\\varepsilon_{\\mathrm{avg}}\\) 同步下降。前者只需给原脉冲叠加几个高次谐波，后者的脉冲形变较大；参数扫描显示平移 \\(\\Theta\\) 主要压平 4.5 GHz 附近的三峰，调 \\(\\omega_\\phi\\) 则针对 4.18/4.28/4.72 GHz 一带的峰。","contribution":"把串扰抑制从“黑箱降低总误差”改造成以 perfect entangler 谱为目标的、可解释的控制设计，并给出对旁观比特频率稳健的脉冲修改策略与参数敏感度图，形成可推广到多比特操作的消除原则。","limitation":"模型是纯幺正的，未含退相干、泄漏到非计算态以及控制线带宽限制；只考虑单个旁观比特，多旁观比特时谱峰重叠会削弱可分性；5.25–5.5 GHz 一带仍存在难以压平的顽固峰；全部结果为数值，尚无硬件验证。","key_numbers":["iSWAP 脉冲边沿 σt = 8.3 ns（CZ 为 13 ns）","旁观比特 ω3 = 4.464 GHz（三光子驱动诱导）/ 5.568 GHz（静态共振）","门误差从量级 1 降至 10^-3 以下","仅 4 个参数（Θ、δ、ωϕ、φ）即可压平部分串扰峰"],"url":"https://doi.org/10.1103/ygy7-q86j","review":{"verdict":"小修","confidence":"高","correctness":"PE 谱作为串扰指纹的物理解释与数值结果一致：两个选定的 ω3 分别对应多光子驱动共振与静态共振，优化后 εPE 与 εavg 同时降到 10^-3 以下，且参数扫描给出的抑制区间与谱峰位置吻合，内部自洽性好。","weaknesses":"· 纯幺正假设偏乐观，实际器件上泄漏与退相干可能把 10^-3 抬回 10^-2\n· 只放了一个旁观比特，多旁观比特时 PE 谱峰重叠，优化目标是否仍然可分未讨论\n· 5.25–5.5 GHz 区间“顽固峰”只描述现象，未给出该区间的定量上限\n· 脉冲的微波可实现性（带宽、DAC 采样率、SFG 失真）没有评估","overclaim":"“eliminate dynamic crosstalk”应限定为“在给定幺正模型与单旁观比特下把误差压到 10^-3 量级”，尚不足以声称普适消除。","citations":"与静态 ZZ 抑制、动态解耦、编译层串扰规避以及 PE 谱的原始工作衔接清楚；对同期基于强化学习或 GRAPE 的脉冲级串扰抑制缺少逐项对比。","questions":"①加入 T1/T2 与泄漏后误差会退化多少？②两个以上旁观比特时优化目标如何构造？③四条参数化脉冲能否直接在现成 transmon 硬件上校准？","basis":"全文（arXiv:2603.24205 PDF）"}},{"id":"pr-10.1103/z48d-38tn","no":4,"topics":["编译与验证"],"source":"PRApplied","venue":"Physical Review Applied","published":"2026-11-16","title":"Extrapolative quantum error mitigation in continuous-variable systems beyond the training horizon","title_zh":"连续变量系统中超出训练窗口的外推式量子误差缓解","authors":["Jingpeng Zhang","Shengyong Li","Jie Han","Qianchuan Zhao","Jing Zhang","Ze-Liang Xiang"],"abstract":"现有机器学习量子误差缓解通常只在训练覆盖的时间范围内有效。作者把演化时间作为显式条件注入 Swin Transformer（U-Net 骨干、自适应层归一化），只用训练窗口内的数据学习“含噪 Wigner 函数到无噪 Wigner 函数”的映射，在马尔可夫与非马尔可夫噪声下都能外推到更长时间并准确恢复连续变量态。","importance":4,"importance_reason":"CV 系统的误差缓解一直卡在“要在整个演化时间上采集训练数据”这一实验负担上；把时间当作连续条件变量来做外推，思路清晰且可直接套用到腔 QED 与光量子平台的态重构数据上。","summary":"用时间条件化的 Swin Transformer 学习含噪 Wigner 函数的去噪映射，只在训练窗口 \\([0,T_{\\mathrm{train}}]\\) 内取数据，却能把连续变量态的误差缓解外推到窗口之外，马尔可夫与非马尔可夫噪声下都优于既有方法。","problem":"CV 平台的噪声主要是光子损耗与退相位，演化越久相空间细结构被抹得越平、信噪比越低，要覆盖整个演化时间采集训练数据在实验上代价极高；而已有的机器学习 QEM 把时间当成离散标签，一旦超出训练范围就迅速退化，无法外推。","method":"把演化时间 \\(t\\) 作为连续条件经自适应层归一化（AdaLN）注入网络每一层；骨干是 Swin Transformer V2 的四阶段 U-Net，逐级下采样后从退化 Wigner 函数中提取非局域相空间关联。训练数据只取参考态在 \\([0,T_{\\mathrm{train}}]\\) 内的样本，再用基准噪声序列 \\(U_{\\mathrm{fid}}(\\tau)\\) 在噪声存在下生成额外的含噪样本；训练时用“双态”流程把可控哈密顿演化与环境噪声分离，网络学到的是纯噪声的去噪算符。三组双曲正切项（衰减率 0.5、1.0、3.0）提供多尺度饱和，保证特征随时间单调演化以稳定外推。","result":"在 Kerr 型与余弦型哈密顿量上、马尔可夫（光子损耗、退相位）与非马尔可夫噪声下，网络在超出训练窗口的长时区域仍能恢复 Wigner 函数的细节结构，而未加时间条件的基线在窗口外明显退化；外推精度随噪声强度增大而下降，但在所考察的参数范围内保持可用。","contribution":"提出“外推式 CV 误差缓解”这一设定，并给出以时间为连续条件、以 Wigner 函数为监督信号的实现，使训练数据只需覆盖有限时间窗口即可缓解更长时间的噪声。","limitation":"全部结果为数值模拟，未在真实 CV 硬件（微波腔、光量子态）上验证；训练需要理想无噪参考态做监督，实际可用性依赖高质量态层析；外推距离受噪声模型假设约束，噪声类型改变后需重新训练；Swin-UNet 的算力开销没有与基线对比。","key_numbers":["时间条件经 AdaLN 注入 Swin Transformer V2 的 U-Net 骨干","三组 tanh 衰减率 [0.5, 1.0, 3.0] 提供多尺度饱和","覆盖马尔可夫（损耗、退相位）与非马尔可夫噪声","只用 T_train 窗口内的数据即可外推到长时"],"url":"https://doi.org/10.1103/z48d-38tn","review":{"verdict":"大修","confidence":"中","correctness":"方法链条完整：时间条件化、fiducial 噪声序列与双态训练三者配合，能解释“为什么窗口外仍可去噪”；但 Wigner 相似度作为唯一指标偏宽松，缺少对负值区（非经典性）保真度的单独度量，而 CV 场景下负值恰恰最容易被平滑掉。","weaknesses":"· 只报告 Wigner 相似度，未给保真度、二阶关联或负体积等物理量，外推“准确”的证据偏弱\n· 训练监督需要理想参考态，实际实验中只能拿到含噪数据，论文未讨论该情形\n· 未与物理模型型 QEM（如零噪声外推、纯化）在同等噪声下比较，只对比了同类神经网络\n· 外推倍率与失效阈值没有给成标度关系，读者无法判断能用多远","overclaim":"“beyond the training horizon”成立，但“accurate state recovery”在强噪声下的证据不足；标题暗示的通用性需要更多噪声类型支撑。","citations":"对 CV 误差缓解、神经网络态重构与时间序列外推的文献覆盖较全；对光学 CV 平台已有的机器学习去噪工作缺少定量对比。","questions":"①外推到 5–10 倍 T_train 时相似度如何衰减？②无理想参考态时能否自监督训练？③负体积等非经典性指标能保住多少？","basis":"全文（arXiv:2603.08548 PDF）"}},{"id":"pr-10.1103/67yq-8h8v","no":5,"topics":["大规模仿真","测控与噪声"],"source":"PRA","venue":"Physical Review A","published":"2026-11-16","title":"Digital quantum simulation of the Holstein-Primakoff transformation on noisy qubits","title_zh":"在含噪比特上数字模拟 Holstein–Primakoff 变换","authors":["Kelvin Yip","Alessandro Monteros","Sahel Ashhab","Lin Tian"],"abstract":"作者用 Holstein–Primakoff 变换把一个玻色模式编码到 N 个比特的集体自旋上，在云上超导处理器（IBM Torino）上数字模拟受驱谐振子与 Jaynes–Cummings 模型，系统分离了有限比特数造成的截断误差、有限 Trotter 步数造成的算法误差以及器件门误差与读出误差各自的贡献。","importance":4,"importance_reason":"玻色自由度的数字模拟一直被“截断到多少能级”困扰；这篇在真实云处理器上把 HP 截断误差与硬件误差分开量化，给出了当前硬件上可用的比特数与步数边界，实用价值明确。","summary":"把玻色模式经 Holstein–Primakoff 映射到 N 个比特，在 IBM Torino 上数字模拟受驱谐振子与 JC 模型：比特数增大使截断误差迅速下降，但硬件误差随 N 累积，Trotter 步数与双比特门误差共同决定最终精度。","problem":"玻色模式的希尔伯特空间是无限的，数字模拟必须先截断。HP 映射用 N 个比特编码一个模式：N 越大截断误差越小，但电路宽度、深度与双比特门数随之增长；在只有有限相干时间与非零门误差的云处理器上，“取多大 N、走多少 Trotter 步”缺少实验标定。","method":"HP 变换把 \\(a^\\dagger a\\) 写成集体自旋的升降算符组合，N 个比特的对称子空间即对应 0 到 N 个激发。受驱谐振子项只含单比特旋转，直接映射为 SX 与虚拟 RZ 门；JC 相互作用项用 Suzuki–Trotter 分解为单、双比特门序列，逐步加长步数观察收敛。实验在 IBM Torino（Heron 架构超导处理器）云上执行，每个时间点重复 4096 次采样得到占据概率 \\(P^{(n)}\\)，并与解析解、无噪 Qiskit Aer 模拟逐点对比。","result":"受驱谐振子取 \\(F=0.3\\) 时用 \\(N=3,5,7\\) 个比特，取 \\(F=0.75\\) 时用 \\(N=6,11,16\\)；当驱动较弱或比特数较多（如 \\(N=18\\)）时 HP 截断造成偏差已可忽略。硬件与理想比特集合的偏差随 N 单调累积，主导项是双比特门误差与读出误差；JC 模型用 \\(N=2\\) 个比特、1 至 7 个 Trotter 步，误差随步数增加而收敛，说明剩余误差主要来自门执行而非 Trotter 截断。","contribution":"在真实云处理器上完成了 HP 编码的端到端基准，把截断误差、Trotter 误差、门误差与读出误差分别量化，为玻色—费米混合体系与强关联玻色模型的数字模拟给出当前硬件的可行参数区间。","limitation":"为把平均激发数控制在 1 以下，驱动幅度被限制在 \\(F<\\Delta\\)，离高占据数玻色模式仍有很大距离；只用了对称子空间与固定映射，未讨论玻色模式的压缩或多模情形；读出误差仅作简单校正，双比特门误差未做缓解。","key_numbers":["受驱谐振子用 N = 3–18 个比特编码一个模式","IBM Torino 云上执行，每个时间点 4096 shots","JC 模型用 N = 2 个比特、1–7 个 Trotter 步","失谐 Δ = 1，驱动 F = 0.3 / 0.75，T0 = π/Ω"],"url":"https://doi.org/10.1103/67yq-8h8v","review":{"verdict":"小修","confidence":"中","correctness":"三类误差的分离方式（解析 vs 无噪比特集合 vs 硬件）设计得干净，N 与 Trotter 步数两条扫描线各自收敛，结论与图 3、图 4 的偏差曲线一致，没有明显内部矛盾。","weaknesses":"· 驱动幅度受 F<Δ 限制，平均激发数始终小于 1，实际上没检验 HP 映射最需要的“多激发”区间\n· 只用一个后端的单次校准，未报告跨日期/跨设备的稳定性\n· 读出误差校正方式描述过简，误差分解里读出项与门项的相对份额没有给出数值\n· JC 模型只做到 N=2，与“多模/多激发”目标距离较远","overclaim":"标题指向“noisy qubits”上的数字模拟，但结论只在低占据、浅电路区间成立，宜明确标注适用范围。","citations":"对模拟—数字混合方案、玻色模式编码与云平台基准的文献覆盖到位；对基于 qumode 压缩或 GKP 编码的替代路线未作比较。","questions":"①平均激发数提高到 2–3 时误差如何增长？②读出校正的残余偏差有多大？③换一个后端（如 Eagle）结论是否可复现？","basis":"全文（arXiv:2602.17806 PDF）"}},{"id":"pr-10.1103/sm6w-5ttl","no":6,"topics":["算法","编译与验证"],"source":"PRResearch","venue":"Physical Review Research","published":"2026-11-16","title":"Quantum eigenvalue transformations for arbitrary matrices","title_zh":"任意矩阵的量子特征值变换","authors":["Xabier Gutiérrez","Lorenzo Laneve","Mikel Sanz"],"abstract":"QSP 只能变换幺正矩阵的特征值，QSVT 只能变换 Hermitian 矩阵的奇异值，对一般非 Hermitian、尤其不可对角化的矩阵两者都不直接适用。作者引入 n-regular 块编码（其 k 次幂复现 A^k），配合广义量子信号处理，把任意多项式函数作用到块编码方阵上，对不可对角化矩阵给出完整 Jordan 意义下的矩阵函数。","importance":4,"importance_reason":"把“量子矩阵函数”从 Hermitian/幺正推广到任意方阵，并明确处理不可对角化的 Jordan 块，是量子算法基础件的一次实质扩展；复杂度表的对齐方式也便于直接移植到短时模拟与开放系统问题。","summary":"引入 n-regular 块编码——其 k 次幂恰好块编码 \\(A^k\\)——并与广义量子信号处理结合，对任意（含不可对角化）方阵实现全 Jordan 意义下的矩阵函数 \\(P(A)\\)，额外开销仅 \\(O(\\log n)\\) 个辅助比特与 \\(O(n\\log(n/\\epsilon))\\) 次双比特门。","problem":"现有量子信号处理框架有硬性限制：QSP 作用于幺正矩阵的特征值，QSVT 作用于 Hermitian 矩阵的奇异值。对一般非 Hermitian 矩阵，尤其不可对角化的矩阵，二者都不直接给出特征值变换；而从 Jordan 分解看，真正的矩阵函数在非平凡 Jordan 块上还会出现 \\(P\\) 的导数项，如何用量子电路实现这部分此前没有构造。","method":"先定义 n-regular 块编码：\\(U^k\\) 是 \\(A^k\\) 的块编码，对 \\(0\\le k\\le n\\) 都成立。作者证明任意块编码都可用“加一个量子 incrementer”的方式改造成 n-regular，代价是 \\(O(\\log n)\\) 个辅助比特、\\(O(n\\log n)\\) 次基本操作与 n 次对 A 的块编码调用；incrementer 本身只需 \\(O(b)=O(\\log n)\\) 个辅助比特。再把这样的编码接入 GQSP，用满足 \\(|P(z)|\\le1\\)（在定义域 D 上）的多项式 \\(P\\)，即可实现 \\(P(A)\\)。","result":"对矩阵指数 \\(e^{A}\\) 的短时模拟（\\(t=O(1)\\)），该方法的查询复杂度低于 Chebyshev/Faber 历史态方法，并与逐项列出的复杂度表吻合；对 PT 对称与开放系统中的例外点（单个 Jordan 块、\\(A+A^\\dagger\\) 非半正定、本征向量矩阵条件数发散）给出显式电路与复杂度；波方程例子说明长时区间需要 \\(O(t^2+\\log 1/\\epsilon)\\) 的代价。","contribution":"给出“任意矩阵函数变换 = 块编码 + GQSP”的可组合框架，把不可对角化矩阵的 Jordan 导数项纳入量子电路实现，并用统一的复杂度表与既有历史态方法对齐。","limitation":"需要已知 A 的块编码与多项式在 D 上的上界；n-regular 改造要 n 次块编码调用，电路深度随多项式阶数线性增长；不可对角化情形的数值稳定性依赖 \\(S\\) 的条件数，条件数大时误差界很松；全部为理论结果，无小规模数值演示或资源估算。","key_numbers":["O(log n) 个额外辅助比特 + O(n log(n/ε)) 次双比特门","改造需 n 次块编码调用，incrementer 占 O(log n) 个辅助比特","e^A 短时模拟查询复杂度优于 Chebyshev/Faber 历史态方法","例外点情形（单 Jordan 块）给出显式电路与复杂度"],"url":"https://doi.org/10.1103/sm6w-5ttl","review":{"verdict":"小修","confidence":"中","correctness":"n-regular 块编码的定义与 Lemma 4 的证明链条清楚：\\(U^k\\) 复现 \\(A^k\\) 保证 GQSP 的多项式作用正确，Jordan 块上的导数项由 Toeplitz 结构自然给出；复杂度表与正文推导一致。","weaknesses":"· incrementer 的构造只是引用式给出，缺少门级线路与常数因子，n 次块编码调用的实际深度可能被低估\n· 不可对角化时误差依赖 \\(\\kappa(S)\\)，但未给出 κ 大时的具体退化数值\n· 只比较了短时 \\(e^A\\)，对 Hamiltonian 模拟等更常见任务缺少端到端资源估算\n· 没有小规模（2–4 比特）数值验证，读者只能依赖证明","overclaim":"“for arbitrary matrices”成立但附加条件不少（需块编码、需多项式界、需 n 次调用），摘要中应更明确这些前提。","citations":"与 QSP/QSVT 原始文献、历史态方法（Chebyshev、Faber）以及非 Hermitian 模拟的工作对接准确；对基于线性组合的替代方案讨论较少。","questions":"①n 次块编码调用在小 n（如 n=10）下的实际 T 门数是多少？②κ(S) 达到 10^3 时误差界是否还可用于资源估算？③能否扩展到函数而非多项式的有理逼近？","basis":"全文（arXiv:2604.19688 PDF）"}},{"id":"pr-10.1103/l8q3-wpl8","no":7,"topics":["测控与噪声"],"source":"PRA","venue":"Physical Review A","published":"2026-11-16","title":"Programmable rapid adiabatic passage laser pulses for ultrafast gates on trapped ions","title_zh":"用于离子超快门的可编程快速绝热通道激光脉冲","authors":["En-Teng An","Hao-Qing Zhang","Yun-Feng Huang","Chuan-Feng Li","Jin-Ming Cui"],"abstract":"超快离子门依赖自旋相关踢（SDK），但现有方案要用锁模激光，脉冲间隔被重复频率锁死、单次 SDK 保真度也受限。作者提出用连续波激光调制出的快速绝热通道（RAP）脉冲产生 SDK，1 ns 单脉冲对亚 MHz 光强噪声不敏感，配合可编程时序可让门序列的相空间轨迹精确闭合。","importance":3,"importance_reason":"同时针对锁模激光的两个瓶颈（固定重复频率、强度噪声敏感）给出一个可编程的连续波替代方案，思路对离子阱超快门路线有参考价值，但目前仍是数值方案而非实验演示。","summary":"用连续波激光调制出的 RAP 脉冲替代锁模激光产生自旋相关踢：1 ns 单脉冲对亚 MHz 强度噪声不敏感，可编程时序打破重复频率约束，使 GZC/FRAG 门序列的声子轨迹精确闭合。","problem":"超快离子门靠自旋相关踢把比特态与动量关联起来，已有实现用锁模激光：脉冲间隔由重复频率（几十 MHz）固定，时序优化自由度被严重限制；同时传统共振拉曼型 SDK 对光强起伏敏感，单次 SDK 的保真度直接拖累整门保真度。","method":"在 \\({}^{171}\\)Yb\\({}^{+}\\) 超精细比特（\\(\\delta_{\\mathrm{HF}}=2\\pi\\times12.6428\\) GHz）上，用连续波激光经调制产生双光子失谐 \\(\\delta(t)\\) 随时间扫过的 RAP 脉冲，实现 \\(\\pm2\\hbar k\\) 的自旋相关动量转移；针对 RAP 强度失配导致的动态相位抵消不完全，追加一对反向扫频的 RAP 脉冲作补偿。把可编程脉冲串代入 GZC 与 FRAG 两种门序列，以闭合条件 \\(\\alpha_c=\\alpha_s=0\\)、\\(\\Phi=\\pi/4\\) 做时序优化，总门保真度按 \\(F_G\\approx(F_{\\mathrm{SDK}})^{N_p}F_o\\) 估计。","result":"单脉冲宽度 1 ns 时，RAP 型 SDK 在亚 MHz 强度噪声下几乎不退化，而共振拉曼型 SDK 明显下降，且通过设计扫频曲线还能抬高可容忍的噪声频率上限。可编程时序让轨迹完美闭合，避免了 50 MHz 锁模方案因离散定时留下的残余自旋—声子纠缠；在单 SDK 非保真度 \\(10^{-4}\\) 下，可编程方案用几十 MHz 的等效重复率即可达到锁模方案需要数百 MHz 才能给出的门保真度。","contribution":"提出用连续波调制 RAP 脉冲同时解决“强度噪声敏感”与“时序不可编程”两个瓶颈，给出可实验落地的脉冲方案、误差补偿序列以及门保真度随单 SDK 保真度的标度关系。","limitation":"全部为数值模拟（八能级超精细结构加声子模式），没有实验验证；单 SDK 非保真度被自发辐射限制在 \\(10^{-4}\\) 量级，靠增大单光子失谐到几十 THz 才能到 \\(10^{-5}\\)，但那会耦合 \\(^{2}P_{3/2}\\) 精细结构；调制器带宽与脉冲整形的实际限制未计入。","key_numbers":["单 RAP 脉冲 1 ns，动量转移 ±2ħk","单 SDK 非保真度 ≈ 10^-4（自发辐射主导）","锁模 50 MHz 固定间隔 vs 可编程等效几十 MHz","GZC n=5 时 TG = 0.38 Ttrap（FRAG 为 0.41 Ttrap）"],"url":"https://doi.org/10.1103/l8q3-wpl8","review":{"verdict":"弱拒","confidence":"中","correctness":"RAP 对强度噪声的鲁棒性有绝热图像支撑，相位补偿对（反向扫频）与动态相位抵消的对应关系自洽；门保真度分解 \\(F_G\\approx(F_{\\mathrm{SDK}})^{N_p}F_o\\) 是标准做法，数值结果与轨迹闭合的图示一致。","weaknesses":"· 纯数值工作，没有实验数据，也没有与真实器件参数的标定对比\n· 单 SDK 误差被自发辐射锁定在 10^-4，整门保真度上限因此只有 10^-2 量级，离“高保真”还有距离\n· 八能级模型之外的泄漏通道（如 \\(^{2}P_{3/2}\\) 耦合）只在结论里口头提及\n· 可编程脉冲的调制器带宽、消光比与相位稳定性没有建模","overclaim":"标题的“ultrafast gates”与摘要的“high-fidelity”之间存在落差：给出的仍是误差预算推演，而非可执行的实验方案。","citations":"对锁模激光 SDK 实验、RAP 在原子光学中的成熟应用以及 GZC/FRAG 门序列的引用准确；对近年用光纤调制器做离子门的工作比较不足。","questions":"①用 355 nm 把单光子失谐推到几十 THz 后，2P3/2 耦合会把误差压到多少？②调制器带宽限制下 1 ns 扫频脉冲能否保真生成？③可编程时序在真实声子加热率下还成立吗？","basis":"全文（arXiv:2511.04893 PDF）"}}]}</script>
+<script>
+(function () {
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("report-data").textContent);
+  const META = DATA.meta || {};
+  const ARTICLES = Array.isArray(DATA.articles) ? DATA.articles : [];
+  const STORE_KEY = "ftqc-digest-v2";
+  const STATUS_LABEL = { inbox: "待读", reading: "在读", done: "已提炼" };
+  const IMP_LABEL = { 5: "必读", 4: "高", 3: "中", 2: "参考", 1: "低" };
+  const IMP_STYLE = {
+    5: ["#c62828", "#fdeaea"],
+    4: ["#1f4fd1", "#e9efff"],
+    3: ["#087a5b", "#e3f6ee"],
+    2: ["#9a5b00", "#fff3d6"],
+    1: ["#6b7280", "#f0f1f1"]
+  };
+  const PALETTE = [
+    ["#1f4fd1", "#e9efff"],
+    ["#c2410c", "#fff0e6"],
+    ["#087a5b", "#e3f6ee"],
+    ["#6d45c7", "#f0eaff"],
+    ["#9a5b00", "#fff3d6"],
+    ["#b3266e", "#fde8f2"],
+    ["#0e7490", "#e2f5f8"]
+  ];
+  const SOURCE_STYLE = {
+    "arXiv": ["#c2410c", "#fff0e6"],
+    "PRX": ["#1f4fd1", "#e9efff"],
+    "PRX Quantum": ["#6d45c7", "#f0eaff"]
+  };
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = (v) => String(v == null ? "" : v)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  let store = {};
+  try { store = JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {}; } catch (e) { store = {}; }
+  const wf = (id) => store[id] || (store[id] = { status: "inbox", note: "" });
+  const save = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) { toast("浏览器阻止本地存储，修改仅在当前页有效"); } };
+  let toastTimer;
+  function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 1800); }
+  const dateOnly = (v) => String(v || "").slice(0, 10);
+
+  // topic palette, stable by first appearance
+  const allTopics = [];
+  ARTICLES.forEach(a => (a.topics || []).forEach(t => { if (!allTopics.includes(t)) allTopics.push(t); }));
+  const topicColor = {};
+  allTopics.forEach((t, i) => { topicColor[t] = PALETTE[i % PALETTE.length]; });
+  const sourceCounts = {};
+  ARTICLES.forEach(a => { sourceCounts[a.source] = (sourceCounts[a.source] || 0) + 1; });
+  const mustRead = ARTICLES.filter(a => a.importance >= 5).length;
+
+  $("#pageTitle").textContent = META.title || "文献速递";
+  $("#pageSubtitle").textContent = META.subtitle || "容错量子计算与超导量子计算机仿真";
+  $("#issueDate").textContent = META.issue_date || "—";
+  const reviewed = ARTICLES.filter(a => a.review).length;
+  $("#issueCounts").innerHTML = `${ARTICLES.length} 篇 · 必读 <b>${mustRead}</b> 篇${reviewed ? ` · AI 审稿 ${reviewed}` : ""}`;
+  $("#asOf").textContent = META.collection_window || ("数据截至 " + (META.as_of || "—"));
+  $("#generatedAt").textContent = META.generated_at || "—";
+  $("#scopeLink").href = META.scope_href || "../SCOPE.md";
+
+  const GROUP_STYLE = {
+    "arXiv": "#c2410c",
+    "PR 系列": "#1f4fd1",
+    "Nature 系列": "#087a5b",
+    "Quantum": "#6d45c7",
+    "Science Advances": "#b3266e",
+    "SciPost Physics": "#0e7490",
+    "AVS Quantum Science": "#7a4bb5",
+    "Quantum Science and Technology": "#9a5b00",
+    "Cryptology ePrint Archive": "#8a5200"
+  };
+  const journalRows = Array.isArray(META.journals) ? META.journals : [];
+  const totals = META.coverage_totals || {
+    raw: journalRows.reduce((n, r) => n + Number(r.raw || 0), 0),
+    deduped: journalRows.reduce((n, r) => n + Number(r.raw || 0), 0),
+    screened: journalRows.reduce((n, r) => n + Number(r.screened || 0), 0),
+    included: journalRows.reduce((n, r) => n + Number(r.included || 0), 0)
+  };
+  $("#coverage").innerHTML = `<details class="coverage">
+    <summary><span>检索覆盖</span><span class="nums">抓取 ${totals.raw} · 去重 ${totals.deduped} · 关键词初筛 ${totals.screened} · 收录 ${totals.included}</span></summary>
+    <div class="coverage-body">
+      <table class="coverage-table">
+        <thead><tr><th>来源 / 期刊</th><th>状态</th><th class="num">抓取</th><th class="num">关键词初筛</th><th class="num">收录</th></tr></thead>
+        <tbody>
+          ${journalRows.map(r => {
+            const color = GROUP_STYLE[r.label] || GROUP_STYLE[r.group] || "#303030";
+            const st = r.status || "ok";
+            const stLabel = st === "ok" ? "正常" : st === "partial" ? "部分" : "失败";
+            const stCell = `<td><span class="st st-${st}">${stLabel}</span></td>`;
+            if (r.kind === "group") {
+              return `<tr class="group"><td>${esc(r.label)}</td>${stCell}<td class="num">${r.raw}</td><td class="num">${r.screened}</td><td class="num">${r.included}</td></tr>`;
+            }
+            return `<tr class="${r.kind === "journal" ? "sub" : "single"}"><td><span class="coverage-source"><span class="source-dot" style="--sc:${color}"></span>${esc(r.label)}</span></td>${stCell}<td class="num">${r.raw}</td><td class="num">${r.screened}</td><td class="num"><b>${r.included}</b></td></tr>`;
+          }).join("")}
+          <tr class="total"><td>合计（去重后）</td><td>—</td><td class="num">${totals.deduped}</td><td class="num">${totals.screened}</td><td class="num">${totals.included}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>`;
+
+  // keyword bar
+  const state = { topic: "all" };
+  function countTopic(t) { return ARTICLES.filter(a => (a.topics || []).includes(t)).length; }
+  function renderKeywordBar() {
+    const items = [`<button class="kbtn kbtn-all" data-topic="all" aria-pressed="${state.topic === "all"}">全部<span class="c">${ARTICLES.length}</span></button>`];
+    allTopics.forEach(t => {
+      const [c, bg] = topicColor[t];
+      items.push(`<button class="kbtn" data-topic="${esc(t)}" aria-pressed="${state.topic === t}" style="--tc:${c};--tbg:${bg}">${esc(t)}<span class="c">${countTopic(t)}</span></button>`);
+    });
+    $("#keywordBar").innerHTML = items.join("");
+  }
+  renderKeywordBar();
+
+  function impColor(v) { return IMP_STYLE[v] || IMP_STYLE[1]; }
+  function sourcePill(source) {
+    const [c, bg] = SOURCE_STYLE[source] || ["#4b514c", "#f0f1f1"];
+    return `<span class="source-pill" style="--sc:${c};--sbg:${bg}">${esc(source)}</span>`;
+  }
+  function topicChips(a) {
+    return (a.topics || []).map(t => {
+      const [c, bg] = topicColor[t] || ["#4b514c", "#f0f1f1"];
+      return `<span class="topic" style="--tc:${c};--tbg:${bg}">${esc(t)}</span>`;
+    }).join("");
+  }
+
+
+  function reviewPoints(text) {
+    let t = String(text || "").trim();
+    if (!t) return ["（未提供）"];
+    let parts = t.split(/(?=（\d+）)|(?=\(\d+\)\s)/).map(s => s.trim()).filter(Boolean);
+    if (parts.length === 1) {
+      parts = t.split(/\n+/).map(s => s.trim()).filter(Boolean);
+    }
+    if (parts.length === 1 && /[；;]/.test(t) && t.length > 120) {
+      parts = t.split(/[；;]/).map(s => s.trim()).filter(Boolean);
+    }
+    if (parts.length === 1) {
+      const sentences = t.match(/[^。！？]+[。！？]?/g) || [t];
+      if (sentences.length > 1) parts = sentences.map(s => s.trim()).filter(Boolean);
+    }
+    const expanded = [];
+    for (const part of parts) {
+      if (part.length > 420 && /[；;]/.test(part)) {
+        expanded.push(...part.split(/[；;]/).map(s => s.trim()).filter(Boolean));
+      } else {
+        expanded.push(part);
+      }
+    }
+    return expanded.map(s => s.replace(/^[（(]?\d+[）)]?\s*/, "").trim()).filter(Boolean);
+  }
+  function reviewList(text) {
+    return `<ul>${reviewPoints(text).map(p => `<li>${esc(p)}</li>`).join("")}</ul>`;
+  }
+  function reviewHTML(a) {
+    const r = a.review;
+    if (!r) return "";
+    return `<details class="review">
+      <summary>AI 审稿</summary>
+      <div class="review-body">
+        <div class="review-block"><h3>核心主张是否成立</h3>${reviewList(r.correctness)}</div>
+        <div class="review-block"><h3>主要缺陷</h3>${reviewList(r.weaknesses)}</div>
+        <div class="review-block"><h3>是否夸大</h3>${reviewList(r.overclaim)}</div>
+        <div class="review-block"><h3>需要核对的引用 / 实验</h3>${reviewList(r.citations)}</div>
+        <div class="review-block"><h3>要作者回答的问题</h3>${reviewList(r.questions)}</div>
+        <p class="review-meta">${esc(r.basis)} · AI 生成的批判性审稿，不是同行评审；结论以原文为准。</p>
+      </div>
+    </details>`;
+  }
+
+  function entryHTML(a) {
+    const w = wf(a.id);
+    const [ic, ib] = impColor(a.importance);
+    const opts = Object.entries(STATUS_LABEL).map(([k, v]) => `<option value="${k}"${w.status === k ? " selected" : ""}>${v}</option>`).join("");
+    return `<article class="entry" id="p-${String(a.no).padStart(2, "0")}" data-id="${esc(a.id)}" style="--imp:${ic};--imp-bg:${ib}">
+      <aside class="rail">
+        <div class="no">${String(a.no).padStart(2, "0")}</div>
+        <span class="imp-badge" title="${esc(a.importance_reason || "")}" aria-label="重要性 ${a.importance} / 5，${IMP_LABEL[a.importance]}"><span>${a.importance}</span><span class="den">/5</span></span>
+        <span class="imp-label">${esc(IMP_LABEL[a.importance] || "")}</span>
+      </aside>
+      <div class="entry-body">
+        <div class="entry-meta">
+          ${sourcePill(a.source)}<span class="sep">·</span><time datetime="${esc(dateOnly(a.published))}">${esc(dateOnly(a.published))}</time><span class="sep">·</span><span>${esc(a.venue || "")}</span>
+        </div>
+        <h2><a href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)}</a></h2>
+        <p class="title-zh">${esc(a.title_zh)}</p>
+        <p class="authors">${esc((a.authors || []).join(" · "))}</p>
+        <div class="topics">${topicChips(a)}</div>
+        <p class="imp-reason"><b>重要性 ${a.importance}/5 · ${esc(IMP_LABEL[a.importance] || "")}</b> · ${esc(a.importance_reason || "")}</p>
+        <p class="summary"><b>结论</b>${esc(a.summary)}</p>
+        <div class="analysis">
+          <div><h3>问题</h3><p>${esc(a.problem)}</p></div>
+          <div><h3>方法</h3><p>${esc(a.method)}</p></div>
+          <div><h3>结果</h3><p>${esc(a.result)}</p></div>
+          <div><h3>关键贡献</h3><p>${esc(a.contribution)}</p></div>
+          <div class="wide"><h3>局限 / 待核验</h3><p>${esc(a.limitation)}</p></div>
+        </div>
+        <div class="keynums"><span class="label">关键数字</span>${(a.key_numbers || []).map(k => `<span class="kn">${esc(k)}</span>`).join("")}</div>
+        <div class="entry-foot">
+          <div class="entry-actions">
+            <select class="status-select" data-status="${esc(a.id)}" aria-label="阅读状态">${opts}</select>
+            <button class="textbtn" type="button" data-note-toggle="${esc(a.id)}">${w.note ? "编辑笔记" : "笔记"}</button>
+            <a class="link" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">原文 ↗</a>
+            ${a.pdf_url ? `<a class="link" href="${esc(a.pdf_url)}" target="_blank" rel="noopener noreferrer">PDF</a>` : ""}
+            ${a.doi ? `<a class="link" href="https://doi.org/${esc(a.doi)}" target="_blank" rel="noopener noreferrer">DOI</a>` : ""}
+          </div>
+        </div>
+        <details class="abstract"><summary>摘要原文</summary><p>${esc(a.abstract || "摘要待补。")}</p></details>
+        ${reviewHTML(a)}
+        <div class="note-wrap" data-note-wrap="${esc(a.id)}"${w.note ? "" : " hidden"}>
+          <textarea class="note-area" data-note="${esc(a.id)}" placeholder="记录：值得记下的方法、需要核对的数字、与你当前工作的连接…">${esc(w.note)}</textarea>
+          <div class="note-meta"><span data-save-status="${esc(a.id)}">${w.note ? "已从本机恢复" : "自动保存在本机"}</span><button class="textbtn" type="button" data-export-one="${esc(a.id)}">导出此条</button></div>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderTOC() {
+    const list = ARTICLES.slice().sort((a, b) => a.no - b.no);
+    $("#tocList").innerHTML = list.map(a => `<li><a href="#p-${String(a.no).padStart(2, "0")}" data-toc-link><span class="toc-no">${String(a.no).padStart(2, "0")}</span><span>${esc(a.title_zh || a.title)}</span></a></li>`).join("");
+  }
+  function closeTOC() {
+    $("#tocPanel").hidden = true;
+    $("#tocToggle").setAttribute("aria-expanded", "false");
+  }
+
+  function typesetMath() {
+    if (!window.MathJax || !MathJax.typesetPromise) return;
+    const run = () => MathJax.typesetPromise([$("#entries")]).catch(err => console.warn("MathJax:", err));
+    if (MathJax.startup && MathJax.startup.promise) MathJax.startup.promise.then(run);
+    else run();
+  }
+
+  function render() {
+    const list = ARTICLES.filter(a => state.topic === "all" || (a.topics || []).includes(state.topic)).sort((a, b) => a.no - b.no);
+    $("#entries").innerHTML = list.map(entryHTML).join("");
+    $("#emptyState").innerHTML = ARTICLES.length
+      ? `<b>这个关键词下暂无条目</b>点“全部”回到完整列表。`
+      : `<b>本轮无新增论文</b>数据时间范围内没有新增条目。`;
+    $("#emptyState").classList.toggle("show", list.length === 0);
+    $("#listSummary").innerHTML = `显示 <b>${list.length}</b> / ${ARTICLES.length} 篇`;
+    $$(".kbtn").forEach(b => b.setAttribute("aria-pressed", String(state.topic === b.dataset.topic)));
+    typesetMath();
+  }
+
+  $("#keywordBar").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-topic]");
+    if (!btn) return;
+    state.topic = btn.dataset.topic;
+    render();
+  });
+
+  $("#entries").addEventListener("click", (e) => {
+    const toggle = e.target.closest("[data-note-toggle]");
+    if (toggle) {
+      const wrap = document.querySelector(`[data-note-wrap="${CSS.escape(toggle.dataset.noteToggle)}"]`);
+      if (wrap) { wrap.hidden = !wrap.hidden; if (!wrap.hidden) wrap.querySelector("textarea")?.focus(); }
+      return;
+    }
+    const one = e.target.closest("[data-export-one]");
+    if (one) {
+      const a = ARTICLES.find(x => x.id === one.dataset.exportOne);
+      download(`note-${a.no}-${a.id}.json`, { article: { id: a.id, title: a.title, url: a.url }, workflow: wf(a.id) });
+      toast("已导出此条");
+    }
+  });
+
+  $("#entries").addEventListener("change", (e) => {
+    const sel = e.target.closest("[data-status]");
+    if (!sel) return;
+    const w = wf(sel.dataset.status); w.status = sel.value; save();
+    toast("状态已保存：" + STATUS_LABEL[w.status]);
+  });
+  let noteTimer;
+  $("#entries").addEventListener("input", (e) => {
+    const ta = e.target.closest("[data-note]");
+    if (!ta) return;
+    const w = wf(ta.dataset.note); w.note = ta.value;
+    const label = document.querySelector(`[data-save-status="${CSS.escape(ta.dataset.note)}"]`);
+    if (label) label.textContent = "正在保存…";
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(() => {
+      save();
+      if (label) label.textContent = "已保存 · " + new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+    }, 300);
+  });
+
+  function download(filename, payload) {
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+  }
+  $("#exportBtn").addEventListener("click", () => {
+    download(`reading-notes-${META.issue_date || "digest"}.json`, {
+      exported_at: new Date().toISOString(), issue: META.issue_date,
+      articles: ARTICLES.map(a => ({ id: a.id, no: a.no, title: a.title, topics: a.topics, url: a.url, ...wf(a.id) }))
+    });
+    toast("已导出全部笔记与公式修改");
+  });
+  $("#printBtn").addEventListener("click", () => window.print());
+
+  document.addEventListener("toggle", (e) => {
+    if (e.target.matches && e.target.matches("details.abstract, details.review")) typesetMath();
+  }, true);
+
+  const TOC_POS_KEY = "qc-toc-pos-v1";
+  const tocDesktop = window.matchMedia("(hover: hover) and (pointer: fine)");
+  let tocDrag = null;
+  let tocMoved = false;
+  let suppressTocClick = false;
+  function isDesktopToc() { return tocDesktop.matches; }
+  function setTocPosition(left, top) {
+    if (isDesktopToc()) return;
+    const box = $("#toc");
+    const maxLeft = Math.max(0, window.innerWidth - box.offsetWidth);
+    const maxTop = Math.max(56, window.innerHeight - box.offsetHeight - 8);
+    const x = Math.max(0, Math.min(maxLeft, Math.round(left)));
+    const y = Math.max(56, Math.min(maxTop, Math.round(top)));
+    box.style.left = x + "px";
+    box.style.top = y + "px";
+    box.style.bottom = "auto";
+    box.classList.toggle("right", x > window.innerWidth / 2);
+    return { left: x, top: y };
+  }
+  function saveTocPosition() {
+    if (!isDesktopToc()) {
+      const box = $("#toc");
+      const r = box.getBoundingClientRect();
+      try { localStorage.setItem(TOC_POS_KEY, JSON.stringify({ left: r.left, top: r.top })); } catch (e) {}
+    }
+  }
+  function snapToc() {
+    const box = $("#toc");
+    const r = box.getBoundingClientRect();
+    const left = (r.left + r.width / 2 < window.innerWidth / 2)
+      ? 0
+      : Math.max(0, window.innerWidth - r.width);
+    const pos = setTocPosition(left, r.top);
+    if (pos) { try { localStorage.setItem(TOC_POS_KEY, JSON.stringify(pos)); } catch (e) {} }
+  }
+  function restoreTocPosition() {
+    if (isDesktopToc()) return;
+    try {
+      const raw = localStorage.getItem(TOC_POS_KEY);
+      if (raw) {
+        const p = JSON.parse(raw);
+        if (typeof p.left === "number" && typeof p.top === "number") setTocPosition(p.left, p.top);
+      }
+    } catch (e) {}
+  }
+  function collapseDesktopToc() {
+    const box = $("#toc");
+    box.classList.add("collapsed");
+    document.body.classList.remove("toc-open");
+    $("#tocPanel").hidden = true;
+    $("#tocToggle").setAttribute("aria-expanded", "false");
+  }
+  function openDesktopToc() {
+    const box = $("#toc");
+    box.classList.remove("collapsed");
+    document.body.classList.add("toc-open");
+    $("#tocPanel").hidden = false;
+    $("#tocToggle").setAttribute("aria-expanded", "true");
+  }
+  function applyTocMode() {
+    const box = $("#toc");
+    if (isDesktopToc()) {
+      box.style.left = "";
+      box.style.top = "";
+      box.style.bottom = "";
+      $("#tocClose").textContent = "收起";
+      openDesktopToc();
+    } else {
+      document.body.classList.remove("toc-open");
+      box.classList.remove("collapsed");
+      $("#tocClose").textContent = "×";
+      closeTOC();
+      restoreTocPosition();
+    }
+  }
+  tocDesktop.addEventListener("change", applyTocMode);
+  $("#tocToggle").addEventListener("pointerdown", (e) => {
+    if (isDesktopToc()) return;
+    const box = $("#toc");
+    const r = box.getBoundingClientRect();
+    tocDrag = { x: e.clientX, y: e.clientY, left: r.left, top: r.top };
+    tocMoved = false;
+    try { $("#tocToggle").setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+  });
+  $("#tocToggle").addEventListener("pointermove", (e) => {
+    if (!tocDrag) return;
+    const dx = e.clientX - tocDrag.x;
+    const dy = e.clientY - tocDrag.y;
+    if (Math.abs(dx) + Math.abs(dy) > 5) tocMoved = true;
+    setTocPosition(tocDrag.left + dx, tocDrag.top + dy);
+  });
+  $("#tocToggle").addEventListener("pointerup", () => {
+    if (!tocDrag) return;
+    if (tocMoved) {
+      suppressTocClick = true;
+      snapToc();
+      setTimeout(() => { suppressTocClick = false; }, 150);
+    }
+    tocDrag = null;
+  });
+  $("#tocToggle").addEventListener("click", () => {
+    if (suppressTocClick) return;
+    if (isDesktopToc()) {
+      if ($("#toc").classList.contains("collapsed")) openDesktopToc();
+      else collapseDesktopToc();
+      return;
+    }
+    if ($("#tocPanel").hidden) {
+      $("#tocPanel").hidden = false;
+      $("#tocToggle").setAttribute("aria-expanded", "true");
+    } else {
+      closeTOC();
+    }
+  });
+  $("#tocClose").addEventListener("click", () => {
+    if (isDesktopToc()) collapseDesktopToc(); else closeTOC();
+  });
+  $("#tocPanel").addEventListener("click", (e) => {
+    if (e.target.closest("[data-toc-link]") && !isDesktopToc()) closeTOC();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (isDesktopToc()) collapseDesktopToc(); else closeTOC();
+    }
+  });
+  window.addEventListener("resize", () => {
+    if (isDesktopToc()) return;
+    const box = $("#toc");
+    const r = box.getBoundingClientRect();
+    setTocPosition(r.left, r.top);
+  });
+  applyTocMode();
+
+  renderTOC();
+  render();
+})();
+</script>
+</body>
+</html>
