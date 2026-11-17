@@ -22,6 +22,10 @@
 
 非 arXiv 论文用 DOI / 出版社 / accepted manuscript / 作者版获取全文；确实拿不到全文时才写摘要级，并在 `review.basis` 说明。
 
+## 摘要契约
+
+`abstract` 必须是来源的英文原文，逐字保留，不翻译、不改写；`abstract_zh` 是单独的忠实中文翻译。build_report.py 会拒绝把中文写进 `abstract`。
+
 ## 公式契约
 
 AI 生成文本时必须显式标记公式：行内 `\( ... \)`，行间 `$$ ... $$`。不要写裸露的 `^`、`_`、LaTeX 命令或 Unicode 上下标。

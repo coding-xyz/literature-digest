@@ -208,6 +208,9 @@
   details.abstract summary::-webkit-details-marker { display: none; }
   details.abstract summary::before { content: "＋ "; color: var(--blue); }
   details.abstract[open] summary::before { content: "－ "; }
+  .abstract-block + .abstract-block { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--rule); }
+  .abstract-lang { font-family: var(--mono); font-size: 10.5px; letter-spacing: .10em; text-transform: uppercase; color: var(--orange); margin-bottom: 3px; }
+  .abstract-block p { margin: 0; }
   .abstract p { margin: 8px 0 0; padding: 10px 11px; border: 1px solid var(--rule); border-radius: 3px; background: #fff; color: var(--muted); font-size: 13.5px; line-height: 1.75; }
   .note-wrap { margin-top: 10px; padding: 10px; border: 1px solid var(--rule); border-radius: 3px; background: #fff; }
   .note-wrap[hidden] { display: none; }
@@ -587,7 +590,10 @@ window.MathJax = {
             ${a.doi ? `<a class="link" href="https://doi.org/${esc(a.doi)}" target="_blank" rel="noopener noreferrer">DOI</a>` : ""}
           </div>
         </div>
-        <details class="abstract"><summary>摘要原文</summary><p>${esc(a.abstract || "摘要待补。")}</p></details>
+        <details class="abstract"><summary>摘要原文</summary>
+          <div class="abstract-block"><div class="abstract-lang">English</div><p>${esc(a.abstract || "摘要待补。")}</p></div>
+          ${a.abstract_zh ? `<div class="abstract-block"><div class="abstract-lang">中文翻译</div><p>${esc(a.abstract_zh)}</p></div>` : ""}
+        </details>
         ${reviewHTML(a)}
         <div class="note-wrap" data-note-wrap="${esc(a.id)}"${w.note ? "" : " hidden"}>
           <textarea class="note-area" data-note="${esc(a.id)}" placeholder="记录：值得记下的方法、需要核对的数字、与你当前工作的连接…">${esc(w.note)}</textarea>

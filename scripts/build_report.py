@@ -216,6 +216,8 @@ def validate(data: dict, issue_date: str) -> None:
                 fail(f"review.{field} is missing at {article['id']}")
         if len(article["summary"]) > 280:
             fail(f"summary is too long at {article['id']} ({len(article['summary'])} chars)")
+        if re.search(r"[\u4e00-\u9fff]", str(article.get("abstract", ""))):
+            fail(f"abstract must be the English original at {article['id']}; put the Chinese translation in abstract_zh")
         for field in ("abstract", "problem", "method", "result", "contribution", "limitation"):
             if len(article[field]) < 10:
                 fail(f"{field} is too short at {article['id']}")

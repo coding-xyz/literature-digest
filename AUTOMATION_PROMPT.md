@@ -40,7 +40,8 @@
    - meta.json 写报告级 meta；articles/NN.json 写单篇文章对象，必须带连续 no。
    - 写完后运行：python scripts\assemble_report.py --date DATE
    - 再参考 data 下最近一份 report.json 的字段与格式。
-   - 每篇必须有：id, no, topics, source, venue, published, title, title_zh, authors, abstract, importance(1-5), importance_reason, summary, problem, method, result, contribution, limitation, key_numbers, url, pdf_url/doi(可空), review。
+   - 每篇必须有：id, no, topics, source, venue, published, title, title_zh, authors, abstract, abstract_zh, importance(1-5), importance_reason, summary, problem, method, result, contribution, limitation, key_numbers, url, pdf_url/doi(可空), review。
+   - abstract 必须是来源的英文原文，逐字保留，不要翻译、不要用自己的话改写；abstract_zh 是单独的忠实中文翻译。没有英文摘要就写 "Abstract unavailable from source."，不要编造。
    - topic 用受控关键词：编译与验证、解码器、大规模仿真、纠错码、芯片与耦合器、容错实验、测控与噪声、Pauli 传播、经典模拟、算法。不要用“边界”当关键词；算法/应用写“算法”。
    - 公式必须显式写在 summary/problem/method/result/contribution 里，用 \( ... \) 或 $$ ... $$；不要依赖自动识别，不要另设“关键公式”框。裸露的 ^、_、LaTeX 命令或 Unicode 上下标会被 build_report.py 直接拒绝。
    - 重要性 5=必读、4=高、3=中、2=参考；理由写具体，不写空话。
