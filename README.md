@@ -96,7 +96,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_pipeline.ps1 -Da
 
 首次运行没有上一份报告时，才使用 `SCOPE_CONFIG.lookback_days`。
 
-arXiv API 的提交时间是 UTC，而报告按 Asia/Shanghai 取日期，因此 arXiv 查询会额外回看一天，并用 `state.seen_ids` 去掉已见过的记录；这样晚一天才索引的批次不会丢。
+arXiv API 的提交时间是 UTC，而报告按 Asia/Shanghai 取日期，因此 arXiv 查询会额外回看 3 天，并用 `state.seen_ids` 去掉已见过的记录；这样晚一天才索引的批次不会丢。
 
 ## 长 JSON 写入保护
 

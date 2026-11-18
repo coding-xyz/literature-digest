@@ -740,11 +740,11 @@ def main() -> int:
     start = window_start.date()
     end = now.date()
     window_hours = max(0.0, (now - window_start).total_seconds() / 3600.0)
-    # arXiv submittedDate is UTC. A batch submitted at 18:59 UTC can be the
-    # next local day; query with UTC dates, then filter records by local date.
-    arxiv_query_start = (window_start.astimezone(dt.timezone.utc).date() - dt.timedelta(days=1))
+    # arXiv submittedDate is UTC and the API may index a batch late. Query by
+    # UTC date with a 3-day overlap; state.seen_ids removes repeats.
+    arxiv_query_start = (window_start.astimezone(dt.timezone.utc).date() - dt.timedelta(days=3))
     arxiv_query_end = now.astimezone(dt.timezone.utc).date()
-    arxiv_filter_start = start - dt.timedelta(days=1)
+    arxiv_filter_start = start - dt.timedelta(days=3)
     raw_dir = run_dir / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
 
