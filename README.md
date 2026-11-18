@@ -98,6 +98,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_pipeline.ps1 -Da
 
 arXiv API 的提交时间是 UTC，而报告按 Asia/Shanghai 取日期，因此 arXiv 查询会额外回看 3 天，并用 `state.seen_ids` 去掉已见过的记录；这样晚一天才索引的批次不会丢。
 
+## API 限流
+
+Crossref 对 PR 系列的批量请求可能返回 429。`collect.py` 会对 429 做带 `Retry-After` 的退避重试，并在 PR 期刊仍然失败时回退到 OpenAlex 的同一期刊 source；不会因为一个期刊 429 就让整个 PR 源变成 0。
+
 ## 长 JSON 写入保护
 
 不要一次写超长的 `report.json`。AI 按篇写 `data/<date>/articles/01.json`、`02.json`……，再运行：

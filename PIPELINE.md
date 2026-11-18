@@ -119,6 +119,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_pipeline.ps1 -Da
 ## 失败处理
 
 - 来源失败：`manifest.json` 标记 `error`，报告保留该来源，不静默当成 0。
+- Crossref 429：带 `Retry-After` 退避重试；PR 期刊仍失败时用 OpenAlex 同刊 source 兜底。
 - 当天没有新批次：`new_candidates=0`，报告写 0；不回填旧文。
 - 数据窗口：上次报告抓取时间 → 本次抓取时间；首次运行才使用 `lookback_days`。
 - arXiv 查询按 UTC 提交时间，额外回看 3 天，靠 `state.seen_ids` 去重，避免晚索引批次丢失。

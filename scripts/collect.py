@@ -392,6 +392,14 @@ def collect_pr(cfg: dict, start: dt.date, end: dt.date) -> tuple[list[dict], lis
             payload = get_json(url)
             items = payload.get("message", {}).get("items", [])
         except Exception as exc:
+            fallback_id = (cfg.get("openalex_sources") or {}).get(journal)
+            if fallback_id:
+                try:
+                    records.extend(collect_openalex_pr_journal(journal, fallback_id, start, end))
+                    continue
+                except Exception as fallback_exc:
+                    errors.append(f"{journal}: {exc}; OpenAlex fallback: {fallback_exc}")
+                    continue
             errors.append(f"{journal}: {exc}")
             continue
 
@@ -642,6 +650,57 @@ def collect_openalex_conference(cfg: dict, start: dt.date, end: dt.date) -> list
             "pdf_url": pdf_url,
             "type": "conference-paper",
             "categories": [label],
+            "source_date": pub_date.isoformat(),
+        })
+    return records
+
+
+def collect_openalex_pr_journal(journal: str, source_id: str, start: dt.date, end: dt.date) -> list[dict]:
+    """Crossref fallback for a PR journal when the API rate-limits us."""
+    params = {
+        "filter": f"primary_location.source.id:{source_id},from_publication_date:{start.isoformat()},to_publication_date:{end.isoformat()}",
+        "per-page": 200,
+        "sort": "publication_date:desc",
+        "select": "id,doi,title,publication_date,primary_location,authorships,abstract_inverted_index,type,best_oa_location,open_access",
+    }
+    url = "https://api.openalex.org/works?" + urllib.parse.urlencode(params)
+    payload = get_json(url)
+    records: list[dict] = []
+    for item in payload.get("results", []):
+        pub_date = parse_iso_date(str(item.get("publication_date", "")))
+        if pub_date is None or pub_date < start or pub_date > end:
+            continue
+        title = clean_text(str(item.get("title", "")))
+        if not title:
+            continue
+        authors = [
+            clean_text(str((a.get("author") or {}).get("display_name", "")))
+            for a in item.get("authorships", []) or []
+        ]
+        authors = [a for a in authors if a] or ["(authors unavailable)"]
+        doi = str(item.get("doi") or "").replace("https://doi.org/", "").strip()
+        loc = item.get("primary_location") or {}
+        url = str(loc.get("landing_page_url") or (f"https://doi.org/{doi}" if doi else "")).strip()
+        if not url.startswith("https://"):
+            continue
+        oa_id = str(item.get("id", "")).rsplit("/", 1)[-1]
+        if not oa_id:
+            continue
+        records.append({
+            "id": f"openalex-{oa_id}",
+            "source": "pr",
+            "source_label": "PR 系列",
+            "venue": journal,
+            "title": title,
+            "authors": authors,
+            "abstract": _openalex_abstract(item.get("abstract_inverted_index")),
+            "published": pub_date.isoformat(),
+            "updated": pub_date.isoformat(),
+            "doi": doi,
+            "url": url,
+            "pdf_url": "",
+            "type": "journal-article",
+            "categories": [journal],
             "source_date": pub_date.isoformat(),
         })
     return records

@@ -110,7 +110,16 @@
         "Physical Review Applied": "2331-7019",
         "Reviews of Modern Physics": "0034-6861"
       },
-      "rows_per_journal": 100
+      "rows_per_journal": 100,
+      "openalex_sources": {
+        "PRX Quantum": "S4210195673",
+        "Physical Review X": "S137042341",
+        "Physical Review Research": "S4210240247",
+        "Physical Review Letters": "S24807848",
+        "Physical Review A": "S164566984",
+        "Physical Review Applied": "S2764453006",
+        "Reviews of Modern Physics": "S73260565"
+      }
     },
     "quantum": {
       "enabled": true,
