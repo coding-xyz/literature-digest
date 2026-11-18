@@ -183,11 +183,14 @@ def item_id(prefix: str, stable: str) -> str:
 # ---------------------------------------------------------------------------
 
 def collect_arxiv(cfg: dict, start: dt.date, end: dt.date, query: str | None = None,
-                  source: str = "arxiv", label: str = "arXiv") -> list[dict]:
+                  source: str = "arxiv", label: str = "arXiv",
+                  query_start: dt.date | None = None, query_end: dt.date | None = None) -> list[dict]:
     if query is None:
         categories = cfg["categories"]
         query = "(" + " OR ".join(f"cat:{c}" for c in categories) + ")"
-        query += f" AND submittedDate:[{start:%Y%m%d}0000 TO {end:%Y%m%d}2359]"
+        qs = query_start or start
+        qe = query_end or end
+        query += f" AND submittedDate:[{qs:%Y%m%d}0000 TO {qe:%Y%m%d}2359]"
     page_size = int(cfg.get("page_size", 200))
     max_results = int(cfg.get("max_results", 1200))
     records: list[dict] = []
@@ -737,6 +740,11 @@ def main() -> int:
     start = window_start.date()
     end = now.date()
     window_hours = max(0.0, (now - window_start).total_seconds() / 3600.0)
+    # arXiv submittedDate is UTC. A batch submitted at 18:59 UTC can be the
+    # next local day; query with UTC dates, then filter records by local date.
+    arxiv_query_start = (window_start.astimezone(dt.timezone.utc).date() - dt.timedelta(days=1))
+    arxiv_query_end = now.astimezone(dt.timezone.utc).date()
+    arxiv_filter_start = start - dt.timedelta(days=1)
     raw_dir = run_dir / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
 
@@ -784,7 +792,7 @@ def main() -> int:
             print(f"  ! {error_text}", file=sys.stderr, flush=True)
 
     if source_cfg["arxiv"].get("enabled", True):
-        run_source("arxiv", source_cfg["arxiv"]["label"], "https://export.arxiv.org/api/query", lambda: collect_arxiv(source_cfg["arxiv"], start, end))
+        run_source("arxiv", source_cfg["arxiv"]["label"], "https://export.arxiv.org/api/query", lambda: collect_arxiv(source_cfg["arxiv"], arxiv_filter_start, end, query_start=arxiv_query_start, query_end=arxiv_query_end))
     if source_cfg["eprint"].get("enabled", True):
         run_source("eprint", source_cfg["eprint"]["label"], source_cfg["eprint"]["feed"], lambda: collect_eprint(source_cfg["eprint"], start, end))
     if source_cfg["nature"].get("enabled", True):
@@ -813,7 +821,7 @@ def main() -> int:
                 query = str(venue_cfg.get("query", 'all:"{label} {year}"')).format(label=label, year=year)
                 run_source(key, label, "https://export.arxiv.org/api/query",
                            lambda key=key, label=label, query=query: collect_arxiv(
-                               venue_cfg, start, end, query=query, source=key, label=label))
+                               venue_cfg, arxiv_filter_start, end, query=query, source=key, label=label))
             elif kind == "openalex":
                 run_source(key, label, "https://api.openalex.org/works",
                            lambda key=key, cfg=venue_cfg: collect_openalex_conference(
